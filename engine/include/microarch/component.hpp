@@ -33,6 +33,25 @@ public:
     /// Optional clock-edge phase, called after combinational logic settles.
     virtual void tick(Cycle cycle) { (void)cycle; }
 
+    /// Two-phase clocking, for components whose behaviour must not depend on
+    /// the order their peers are visited in. `evaluate` computes next-state
+    /// reading ONLY current-state; `commit` publishes it. Everything in the
+    /// NoC is written this way, so a flit can never traverse two hops in one
+    /// cycle and metric emission cannot vary with iteration order.
+    ///
+    /// Both default to no-ops: an event-driven block that only implements
+    /// handler()/tick() is unaffected.
+    virtual void evaluate(Cycle cycle) { (void)cycle; }
+    virtual void commit(Cycle cycle) { (void)cycle; }
+
+    /// True when this component provably has nothing to do until something
+    /// arrives for it, letting the scheduler jump past its clock edges.
+    ///
+    /// Defaults to FALSE — never skip. A component that wrongly claims to be
+    /// quiescent silently loses work, so the safe answer is the default and
+    /// opting in is deliberate.
+    virtual bool quiescent() const noexcept { return false; }
+
 private:
     std::string name_;
 };

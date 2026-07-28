@@ -8,6 +8,7 @@
 
 #include "microarch/component.hpp"
 #include "microarch/event.hpp"
+#include "microarch/time.hpp"
 #include "microarch/trace.hpp"
 
 namespace microarch {
@@ -24,13 +25,17 @@ namespace microarch {
 ///    tokens; handlers' output events inherit the in-flight token.
 class Scheduler {
 public:
-    enum class Phase { Idle, Dispatch, Settle, Tick };
+    enum class Phase { Idle, Dispatch, Settle, Evaluate, Commit };
 
     explicit Scheduler(std::size_t maxDeltaCycles = 1024)
         : maxDeltaCycles_(maxDeltaCycles) {}
 
-    Cycle currentCycle() const noexcept { return currentCycle_; }
-    Cycle getCurrentCyle() const noexcept { return currentCycle_; } // legacy alias
+    /// Absolute simulated time. `currentCycle` is the legacy spelling: with
+    /// one domain of period 1 the two are numerically identical, which is what
+    /// keeps every pre-domain design behaving exactly as before.
+    Tick currentTick() const noexcept { return currentTick_; }
+    Cycle currentCycle() const noexcept { return currentTick_; }
+    Cycle getCurrentCyle() const noexcept { return currentTick_; } // legacy alias
     Phase phase() const noexcept { return phase_; }
     bool empty() const noexcept { return calendar_.empty(); }
     std::size_t pending() const noexcept;
@@ -54,7 +59,7 @@ public:
     }
     template <typename EventT, typename... Args>
     TokenId seedNow(Component& destination, Args&&... args) {
-        return seed<EventT>(destination, currentCycle_, std::forward<Args>(args)...);
+        return seed<EventT>(destination, currentTick_, std::forward<Args>(args)...);
     }
 
     /// Mint a fresh transaction token without scheduling anything. For
@@ -66,10 +71,31 @@ public:
     /// zero-latency send during the Tick phase still lands next cycle, so
     /// clock-edge outputs can never re-enter the cycle that produced them.
     Cycle deliveryCycle(Cycle latency) const noexcept;
+    /// Arrival for a send leaving now with `latency` cycles OF `domain`.
+    Tick deliveryTick(const ClockDomain& domain, Cycle latency) const noexcept;
 
-    /// Register a component for the settle()/tick() clock phases.
+    /// Declare a clock. The FIRST domain is the reference: `runFor`,
+    /// `runUntil` and the legacy `deliveryCycle` are all denominated in its
+    /// cycles. A Scheduler with no declared domain gets an implicit reference
+    /// of period 1, so ticks and cycles coincide and nothing changes.
+    const ClockDomain& addDomain(std::string name, Tick periodTicks, Tick phaseTicks = 0,
+                                 unsigned syncDepth = 2);
+    const ClockDomain& referenceDomain() const noexcept;
+    std::size_t domainCount() const noexcept { return domains_.size(); }
+
+    /// Register a component for the settle/evaluate/commit/tick phases, on the
+    /// reference domain or on a named one.
     void addClocked(Component& component);
+    void addClocked(Component& component, const ClockDomain& domain);
     void removeClocked(Component& component);
+
+    /// The next tick at which anything happens: the earliest calendar entry or
+    /// the earliest edge of a domain with work to do. `tick_max` when idle.
+    ///
+    /// This is what makes a fine timebase affordable — the loop jumps here
+    /// instead of stepping one tick at a time, so cost tracks EVENTS rather
+    /// than the resolution of the clock.
+    Tick nextTick() const noexcept;
 
     void setHopSink(HopSink sink) { hopSink_ = std::move(sink); }
     const HopSink& hopSink() const noexcept { return hopSink_; }
@@ -104,23 +130,38 @@ public:
         return std::move(activeEvent_);
     }
 
-    /// Advance exactly `count` cycles (each cycle: dispatch, settle, tick).
+    /// Advance `count` cycles OF THE REFERENCE DOMAIN.
     void runFor(Cycle count);
-    /// Advance until currentCycle() == endExclusive.
+    /// Advance until the reference domain reaches cycle `endExclusive`.
     void runUntil(Cycle endExclusive);
     void run(Cycle maxCycles) { runUntil(maxCycles); } // legacy alias
 
 private:
-    void runCycle();
+    /// One jump: advance to nextTick(), then dispatch / settle / evaluate /
+    /// commit whatever is due there.
+    void step();
+    void runToTick(Tick endTick);
+    bool hasWorkAt(Tick t) const noexcept;
 
-    Cycle currentCycle_ = 0;
+    struct DomainSlot {
+        ClockDomain clock;
+        std::vector<Component*> clocked;
+    };
+    /// Domains with an edge exactly at `t`, in declaration order.
+    void activeAt(Tick t, std::vector<Component*>& out) const;
+    ClockDomain& ensureReference();
+
+    Tick currentTick_ = 0;
     Phase phase_ = Phase::Idle;
     TokenId nextToken_ = 0;
     TokenId activeToken_ = no_token;
     std::unique_ptr<Event> activeEvent_;
     std::size_t maxDeltaCycles_;
-    std::map<Cycle, std::deque<std::unique_ptr<Event>>> calendar_;
-    std::vector<Component*> clocked_;
+    std::map<Tick, std::deque<std::unique_ptr<Event>>> calendar_;
+    /// A deque, NOT a vector: addDomain hands out `const ClockDomain&` and
+    /// callers hold them across further addDomain calls. A vector would
+    /// reallocate and dangle every reference issued so far.
+    std::deque<DomainSlot> domains_;
     HopSink hopSink_;
     DivergenceSink divergenceSink_;
     MetricSink metricSink_;

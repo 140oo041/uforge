@@ -1012,6 +1012,129 @@ void domainRejectsNonsense() {
     assert(threw);
 }
 
+/* ------------------------------------------------------- scheduler + domains */
+
+namespace {
+struct TickCounter : Component {
+    explicit TickCounter(std::string name) : Component(std::move(name)) {}
+    void handler(Event&) override {}
+    void tick(Cycle cycle) override { ticks.push_back(cycle); }
+    void evaluate(Cycle) override { order.push_back('e'); }
+    void commit(Cycle) override { order.push_back('c'); }
+    bool quiescent() const noexcept override { return idle; }
+    std::vector<Cycle> ticks;
+    std::vector<char> order;
+    bool idle = false;
+};
+} // namespace
+
+void runForTicksEveryCycleStartingAtZero() {
+    // Guards an off-by-one that no other test caught: the loop jumps to the
+    // NEXT edge, so without explicitly handling the tick it is standing on it
+    // would skip tick 0 — every domain's first edge.
+    Scheduler scheduler;
+    TickCounter counter("C");
+    scheduler.addClocked(counter);
+
+    scheduler.runFor(4);
+    assert((counter.ticks == std::vector<Cycle>{0, 1, 2, 3}));
+    assert(scheduler.currentTick() == 4);
+
+    // A second call resumes where the first stopped, with no repeat and no gap.
+    scheduler.runFor(3);
+    assert((counter.ticks == std::vector<Cycle>{0, 1, 2, 3, 4, 5, 6}));
+    assert(scheduler.currentTick() == 7);
+}
+
+void domainsTickAtTheirOwnRates() {
+    Scheduler scheduler;
+    const ClockDomain& fast = scheduler.addDomain("fast", 1000);
+    const ClockDomain& slow = scheduler.addDomain("slow", 3000);
+    TickCounter f("F");
+    TickCounter sl("S");
+    scheduler.addClocked(f, fast);
+    scheduler.addClocked(sl, slow);
+
+    // The reference domain is the first declared, so runFor counts fast cycles.
+    scheduler.runFor(6);
+    assert((f.ticks == std::vector<Cycle>{0, 1000, 2000, 3000, 4000, 5000}));
+    assert((sl.ticks == std::vector<Cycle>{0, 3000}));
+}
+
+void quiescentComponentLetsTheClockJump() {
+    Scheduler scheduler;
+    const ClockDomain& fast = scheduler.addDomain("fast", 10);
+    const ClockDomain& slow = scheduler.addDomain("slow", 1000);
+    TickCounter f("F");
+    TickCounter sl("S");
+    scheduler.addClocked(f, fast);
+    scheduler.addClocked(sl, slow);
+
+    // With the fast domain idle, the scheduler skips its intervening edges and
+    // lands straight on the slow domain's — this is what makes a fine timebase
+    // affordable at all. nextTick() is strictly in the future by design, so
+    // from tick 0 the next stop is the slow domain's edge at 1000, not fast's
+    // ninety-nine edges in between.
+    f.idle = true;
+    assert(scheduler.nextTick() == 1000);
+
+    scheduler.runFor(200);               // 200 fast cycles = 2000 ticks
+    // Quiescence governs where the clock STOPS, not what runs once it has: a
+    // stopped-here component is ticked anyway, which is harmless and safer than
+    // trusting the claim. So fast ticks only where the two clocks coincide.
+    assert((f.ticks == std::vector<Cycle>{0, 1000}));
+    assert((sl.ticks == std::vector<Cycle>{0, 1000}));
+
+    // Un-idling it brings its edges back.
+    f.idle = false;
+    const std::size_t before = f.ticks.size();
+    scheduler.runFor(3);
+    assert(f.ticks.size() == before + 3);
+}
+
+void evaluatePrecedesCommitForEveryComponent() {
+    // Order-independence rests on this: every component reads current-state in
+    // evaluate before ANY component publishes in commit.
+    Scheduler scheduler;
+    TickCounter a("A");
+    TickCounter b("B");
+    scheduler.addClocked(a);
+    scheduler.addClocked(b);
+
+    scheduler.runFor(1);
+    assert((a.order == std::vector<char>{'e', 'c'}));
+    assert((b.order == std::vector<char>{'e', 'c'}));
+}
+
+void addClockedIsIdempotentAcrossDomains() {
+    Scheduler scheduler;
+    const ClockDomain& one = scheduler.addDomain("one", 10);
+    const ClockDomain& two = scheduler.addDomain("two", 10);
+    TickCounter c("C");
+    scheduler.addClocked(c, one);
+    scheduler.addClocked(c, two);   // already clocked somewhere: ignored, not doubled
+
+    scheduler.runFor(2);
+    assert(c.ticks.size() == 2);
+
+    scheduler.removeClocked(c);
+    const std::size_t after = c.ticks.size();
+    scheduler.runFor(5);
+    assert(c.ticks.size() == after);
+}
+
+void duplicateDomainNameRejected() {
+    Scheduler scheduler;
+    scheduler.addDomain("noc", 10);
+    bool threw = false;
+    try {
+        scheduler.addDomain("noc", 20);
+    } catch (const std::invalid_argument&) {
+        threw = true;
+    }
+    assert(threw);
+}
+
 /* -------------------------------------------------------------------------
  * The registry. main() used to hand-list every case AND hand-count them in the
  * summary line, so adding a test meant remembering both — and forgetting the
@@ -1066,6 +1189,12 @@ const TestCase kTests[] = {
     {"domainPhaseShiftsEveryEdge", domainPhaseShiftsEveryEdge},
     {"crossingIntoASlowDomainSnapsToItsEdge", crossingIntoASlowDomainSnapsToItsEdge},
     {"domainRejectsNonsense", domainRejectsNonsense},
+    {"runForTicksEveryCycleStartingAtZero", runForTicksEveryCycleStartingAtZero},
+    {"domainsTickAtTheirOwnRates", domainsTickAtTheirOwnRates},
+    {"quiescentComponentLetsTheClockJump", quiescentComponentLetsTheClockJump},
+    {"evaluatePrecedesCommitForEveryComponent", evaluatePrecedesCommitForEveryComponent},
+    {"addClockedIsIdempotentAcrossDomains", addClockedIsIdempotentAcrossDomains},
+    {"duplicateDomainNameRejected", duplicateDomainNameRejected},
 };
 
 /* An assert aborts, so the name of the case that died is otherwise lost among
