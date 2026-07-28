@@ -4,6 +4,9 @@
 // propagation, hop tracing, two-phase clocking, registry wiring.
 
 #include <cassert>
+#include <csignal>
+#include <cstdio>
+#include <cstdlib>
 #include <iostream>
 #include <memory>
 #include <sstream>
@@ -915,42 +918,86 @@ void legacyAddEventSurface() {
     assert(sink.values == std::vector<int>{3});
 }
 
+/* -------------------------------------------------------------------------
+ * The registry. main() used to hand-list every case AND hand-count them in the
+ * summary line, so adding a test meant remembering both — and forgetting the
+ * first silently skipped it while still reporting a pass.
+ *
+ * Add a case here and nowhere else. The count is derived.
+ *
+ * Usage: engine_tests [substring]   — runs only the matching cases.
+ * ------------------------------------------------------------------------- */
+
+struct TestCase {
+    const char* name;
+    void (*fn)();
+};
+
+const TestCase kTests[] = {
+    {"clockStartsAtZeroAndAdvances", clockStartsAtZeroAndAdvances},
+    {"eventsDeliverFarInTheFuture", eventsDeliverFarInTheFuture},
+    {"linksTraceAndPropagateTokens", linksTraceAndPropagateTokens},
+    {"sendWithoutDestinationThrows", sendWithoutDestinationThrows},
+    {"clockUsesSettleThenEdge", clockUsesSettleThenEdge},
+    {"registryWiresByName", registryWiresByName},
+    {"jsonlWriterShapes", jsonlWriterShapes},
+    {"divertedLinkCapturesWithoutDelivery", divertedLinkCapturesWithoutDelivery},
+    {"divergenceKindInJsonl", divergenceKindInJsonl},
+    {"routerForwardsAlongMultiHopPath", routerForwardsAlongMultiHopPath},
+    {"routerSerializesContentionPerOutputPort", routerSerializesContentionPerOutputPort},
+    {"routerLatencyModelsArePerPacket", routerLatencyModelsArePerPacket},
+    {"routerThrowsOnUnroutablePacket", routerThrowsOnUnroutablePacket},
+    {"routerReportsPendingAtClockStop", routerReportsPendingAtClockStop},
+    {"routerFifoDefaultUnchanged", routerFifoDefaultUnchanged},
+    {"routerRoundRobinAlternatesOrigins", routerRoundRobinAlternatesOrigins},
+    {"routerFixedPriorityDrainsHighFirst", routerFixedPriorityDrainsHighFirst},
+    {"routerWeightedSharesBandwidth", routerWeightedSharesBandwidth},
+    {"routerPortBandwidthCap", routerPortBandwidthCap},
+    {"routerWidePacketOccupiesPortForSeveralCycles", routerWidePacketOccupiesPortForSeveralCycles},
+    {"routerNarrowPacketsShareOneCycle", routerNarrowPacketsShareOneCycle},
+    {"routerIdlePortDoesNotBankBandwidth", routerIdlePortDoesNotBankBandwidth},
+    {"routerWeightedIsBitFair", routerWeightedIsBitFair},
+    {"routerBoundedQueueStallsUpstream", routerBoundedQueueStallsUpstream},
+    {"routerBoundedQueueDropReportsDivergence", routerBoundedQueueDropReportsDivergence},
+    {"metricRecordJsonlShape", metricRecordJsonlShape},
+    {"routerEmitsQdepthOnChangeOnly", routerEmitsQdepthOnChangeOnly},
+    {"routerMatchRulesResolveByTypeAndAddress", routerMatchRulesResolveByTypeAndAddress},
+    {"routerMatchRulesFirstMatchWins", routerMatchRulesFirstMatchWins},
+    {"routerMatchRulesAnyTypeAndAnyAddress", routerMatchRulesAnyTypeAndAnyAddress},
+    {"routerUnmatchedPacketDropsAndReports", routerUnmatchedPacketDropsAndReports},
+    {"routerRuleStampedDestRidesHopsAndLatencyModels", routerRuleStampedDestRidesHopsAndLatencyModels},
+    {"legacyAddEventSurface", legacyAddEventSurface},
+};
+
+/* An assert aborts, so the name of the case that died is otherwise lost among
+ * a thousand lines of source. Park it where the SIGABRT handler can find it. */
+const char* g_current = nullptr;
+
+extern "C" void onAbort(int) {
+    if (g_current) std::fprintf(stderr, "\n  FAILED in: %s\n", g_current);
+    std::_Exit(1);
+}
+
 } // namespace
 
-int main() {
-    clockStartsAtZeroAndAdvances();
-    eventsDeliverFarInTheFuture();
-    linksTraceAndPropagateTokens();
-    sendWithoutDestinationThrows();
-    clockUsesSettleThenEdge();
-    registryWiresByName();
-    jsonlWriterShapes();
-    divertedLinkCapturesWithoutDelivery();
-    divergenceKindInJsonl();
-    routerForwardsAlongMultiHopPath();
-    routerSerializesContentionPerOutputPort();
-    routerLatencyModelsArePerPacket();
-    routerThrowsOnUnroutablePacket();
-    routerReportsPendingAtClockStop();
-    routerFifoDefaultUnchanged();
-    routerRoundRobinAlternatesOrigins();
-    routerFixedPriorityDrainsHighFirst();
-    routerWeightedSharesBandwidth();
-    routerPortBandwidthCap();
-    routerWidePacketOccupiesPortForSeveralCycles();
-    routerNarrowPacketsShareOneCycle();
-    routerIdlePortDoesNotBankBandwidth();
-    routerWeightedIsBitFair();
-    routerBoundedQueueStallsUpstream();
-    routerBoundedQueueDropReportsDivergence();
-    metricRecordJsonlShape();
-    routerEmitsQdepthOnChangeOnly();
-    routerMatchRulesResolveByTypeAndAddress();
-    routerMatchRulesFirstMatchWins();
-    routerMatchRulesAnyTypeAndAnyAddress();
-    routerUnmatchedPacketDropsAndReports();
-    routerRuleStampedDestRidesHopsAndLatencyModels();
-    legacyAddEventSurface();
-    std::cout << "engine tests: 33/33 passed\n";
+int main(int argc, char** argv) {
+    std::signal(SIGABRT, onAbort);
+    const std::string filter = argc > 1 ? argv[1] : "";
+    const std::size_t total = sizeof(kTests) / sizeof(kTests[0]);
+
+    std::size_t ran = 0;
+    for (const TestCase& test : kTests) {
+        if (!filter.empty() && std::string(test.name).find(filter) == std::string::npos) continue;
+        g_current = test.name;
+        test.fn();
+        ++ran;
+    }
+    g_current = nullptr;
+
+    if (!filter.empty() && ran == 0) {
+        std::cerr << "no test matched '" << filter << "'\n";
+        return 1;
+    }
+    std::cout << "engine tests: " << ran << "/" << (filter.empty() ? total : ran) << " passed\n";
     return 0;
 }
