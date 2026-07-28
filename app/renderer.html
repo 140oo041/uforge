@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!-- No remote anything: the renderer loads its own bundle and nothing else.
+     A design's C++ can end up in the DOM as identifiers and messages, so the
+     view is locked down even though every byte is local. -->
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'none'; style-src 'self' 'unsafe-inline'; script-src 'self'; img-src 'self' data:; font-src 'self';">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ISS</title>
+<link rel="stylesheet" href="renderer.css">
+</head>
+<body>
+<!-- Filter primitives the stylesheet references by id. An SVG filter is
+     document-scoped, so defining them once here lets provenance.css reach them
+     from any element without @iss/canvas having to know they exist.
+
+     pv-fray turns a stroke into unwoven thread: turbulence displaces the path
+     so a line that has no record behind it physically frays instead of merely
+     being drawn in a lighter colour. It is the one place in this app where a
+     visual effect carries meaning nothing else could. -->
+<svg width="0" height="0" aria-hidden="true" focusable="false"
+     style="position:absolute;pointer-events:none">
+  <defs>
+    <filter id="pv-fray" x="-20%" y="-300%" width="140%" height="700%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9 0.32" numOctaves="3"
+                    seed="7" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3.2"
+                         xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <filter id="pv-fray-soft" x="-20%" y="-300%" width="140%" height="700%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.7 0.25" numOctaves="2"
+                    seed="3" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="2"
+                         xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+</svg>
+<div id="root"></div>
+<script src="renderer.js"></script>
+</body>
+</html>

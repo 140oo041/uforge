@@ -1,0 +1,17 @@
+{
+  "name": "@iss/contracts",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "The read-model and the host⇄view protocol. Pure types and pure functions — no Node, no DOM, no host.",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  }
+}

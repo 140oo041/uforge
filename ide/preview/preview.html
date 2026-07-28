@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ISS Canvas — browser preview</title>
+<link rel="stylesheet" href="../media/webview.css">
+<style>
+  /* Stand-in VS Code theme variables for the plain browser. */
+  :root {
+    --vscode-font-family: system-ui, sans-serif;
+    --vscode-foreground: #cccccc;
+    --vscode-editor-background: #1e1e1e;
+    --vscode-sideBar-background: #252526;
+    --vscode-panel-border: #3c3c3c;
+    --vscode-focusBorder: #007fd4;
+    --vscode-button-background: #0e639c;
+    --vscode-button-foreground: #ffffff;
+    --vscode-input-background: #3c3c3c;
+    --vscode-input-foreground: #cccccc;
+    --vscode-input-border: #555555;
+    --vscode-editorWidget-background: #2a2a2e;
+  }
+</style>
+<script>
+  // Mock the VS Code webview API: answer 'ready' with the dumped graph+trace,
+  // log every outbound message (edits, layout saves) to the console.
+  function acquireVsCodeApi() {
+    return {
+      postMessage(msg) {
+        console.log('[view→host]', msg);
+        if (msg.type === 'ready') {
+          const { graph, trace } = window.__ISS_PREVIEW__;
+          setTimeout(() => {
+            window.dispatchEvent(new MessageEvent('message', { data: { type: 'graph', graph } }));
+            window.dispatchEvent(new MessageEvent('message', {
+              data: { type: 'authored',
+                      components: graph.components.map(c => c.id),
+                      events: graph.events.map(e => e.id) } }));
+            window.dispatchEvent(new MessageEvent('message', { data: { type: 'trace', trace } }));
+            window.dispatchEvent(new MessageEvent('message', { data: { type: 'spec', spec: {
+              name: 'RISC-V RV32I CPU', kind: 'cpu', xlen: 32, lanes: { harts: 1 },
+              state: [
+                { name: 'x', label: 'General registers', bits: 32, count: 32, space: 'reg' },
+                { name: 'pc', label: 'Program counter', bits: 32, space: 'pc' },
+              ],
+              operations: [
+                { mnemonic: 'addi', format: 'I', summary: 'rd = rs1 + imm', oracle: true },
+                { mnemonic: 'add', format: 'R', summary: 'rd = rs1 + rs2', oracle: true },
+                { mnemonic: 'sub', format: 'R', summary: 'rd = rs1 - rs2', oracle: true },
+                { mnemonic: 'lui', format: 'U', summary: 'rd = imm << 12', oracle: true },
+                { mnemonic: 'lw', format: 'I', summary: 'rd = mem[rs1 + imm]', oracle: true },
+                { mnemonic: 'sw', format: 'S', summary: 'mem[rs1 + imm] = rs2', oracle: true },
+                { mnemonic: 'beq', format: 'B', summary: 'if rs1 == rs2: pc += imm', oracle: true },
+                { mnemonic: 'mac', format: 'R', summary: 'rd += rs1 * rs2 (demo custom)', oracle: false },
+              ],
+            } } }));
+          }, 0);
+        }
+      },
+      getState() { return undefined; },
+      setState() {},
+    };
+  }
+</script>
+<script src="data.js"></script>
+</head>
+<body>
+<div id="root"></div>
+<script src="../media/webview.js"></script>
+<!-- impeccable-live-start -->
+<script src="http://localhost:8400/live.js?token=c7898521-d2bb-470e-8e93-ced26219820d"></script>
+<!-- impeccable-live-end -->
+</body>
+</html>

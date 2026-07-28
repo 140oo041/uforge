@@ -1,0 +1,399 @@
+/* TERMINAL — the phosphor CRT.
+ *
+ * A VT-series monitor: one colour, one family, and no graphics at all. Every
+ * border in this mode is drawn the way a terminal actually draws one — with box
+ * characters on a character grid — which is why it is monospace everywhere and
+ * why nothing has a radius. Depth does not exist; a "raised" panel is one drawn
+ * in a brighter phosphor.
+ *
+ * Two real CRT behaviours, not decoration: the scanline field, and bloom —
+ * phosphor spreads, so lit text carries a faint halo of its own colour. Bloom
+ * is what separates this from "green text on black".
+ *
+ * Colour is a hard constraint: a P1 tube has ONE phosphor. So custody cannot be
+ * carried by hue here — it is carried by brightness and by the dash grammar,
+ * with the danger states allowed a second amber phosphor because a real
+ * two-colour terminal existed and an unreadable failure state does not.
+ */
+
+:root[data-skin='terminal'] {
+  color-scheme: dark;
+
+  --t-void: #050806;
+  --t-p1: #4dfb8b;         /* the phosphor — 14.8:1 on the void */
+  --t-p1-mid: #2fbf68;     /* 7.6:1 */
+  --t-p1-dim: #1d8a4a;     /* 4.0:1 — structure, never body text */
+  --t-p1-faint: rgba(77, 251, 139, 0.16);
+  --t-amber: #ffb000;      /* the second gun: warnings and hand-authored */
+  --t-red: #ff5f56;        /* failure */
+  --t-bloom: 0 0 6px rgba(77, 251, 139, 0.55);
+
+  --ui-font: ui-monospace, 'Cascadia Mono', 'DejaVu Sans Mono', monospace;
+  --ui-mono: ui-monospace, 'Cascadia Mono', 'DejaVu Sans Mono', monospace;
+
+  --ui-bg: var(--t-void);
+  --ui-surface: #070c09;
+  --ui-border: var(--t-p1-dim);
+  --ui-border-strong: var(--t-p1-mid);
+  --ui-ink: var(--t-p1);
+  --ui-ink-2: var(--t-p1-mid);
+  --ui-ink-3: var(--t-p1-dim);
+  --ui-muted: var(--t-p1-dim);
+  --ui-accent: var(--t-p1);
+  --ui-accent-deep: var(--t-p1-mid);
+  --ui-accent-wash: var(--t-p1-faint);
+  --ui-fabric: var(--t-p1-mid);
+  --ui-bound: var(--t-p1);
+  --ui-hand: var(--t-amber);
+  --ui-hover: rgba(77, 251, 139, 0.12);
+
+  --vscode-font-family: var(--ui-font);
+  --vscode-editor-font-family: var(--ui-mono);
+  --vscode-editor-background: var(--t-void);
+  --vscode-panel-background: var(--t-void);
+  --vscode-sideBar-background: var(--t-void);
+  --vscode-editorGroupHeader-tabsBackground: var(--t-void);
+  --vscode-editorWidget-background: #070c09;
+  --vscode-activityBar-background: var(--t-void);
+  --vscode-input-background: #0a1109;
+  --vscode-panel-border: var(--t-p1-dim);
+  --vscode-input-border: var(--t-p1-dim);
+  --vscode-foreground: var(--t-p1);
+  --vscode-input-foreground: var(--t-p1);
+  --vscode-descriptionForeground: var(--t-p1-mid);
+  --vscode-charts-blue: var(--t-p1);
+  --vscode-charts-purple: var(--t-p1-mid);
+  --vscode-charts-green: var(--t-p1);
+  --vscode-charts-orange: var(--t-amber);
+  --vscode-charts-yellow: var(--t-amber);
+  --vscode-charts-red: var(--t-red);
+  --vscode-button-background: var(--t-p1);
+  --vscode-button-foreground: #04140a;
+  --vscode-button-secondaryBackground: transparent;
+  --vscode-button-secondaryForeground: var(--t-p1);
+  --vscode-focusBorder: var(--t-p1);
+  --vscode-textLink-foreground: var(--t-p1);
+  --vscode-tab-activeForeground: var(--t-p1);
+  --vscode-tab-inactiveForeground: var(--t-p1-dim);
+  --vscode-panelTitle-activeForeground: var(--t-p1);
+  --vscode-panelTitle-inactiveForeground: var(--t-p1-dim);
+  --vscode-panelTitle-activeBorder: var(--t-p1);
+  --vscode-statusBar-background: var(--t-void);
+  --vscode-statusBar-foreground: var(--t-p1-mid);
+  --vscode-statusBarItem-errorBackground: var(--t-red);
+  --vscode-statusBarItem-warningBackground: var(--t-amber);
+  --vscode-inputValidation-errorBackground: rgba(255, 95, 86, 0.15);
+  --vscode-inputValidation-errorBorder: var(--t-red);
+  --vscode-toolbar-hoverBackground: rgba(77, 251, 139, 0.12);
+  --vscode-editorIndentGuide-background: transparent;
+}
+
+[data-skin='terminal'] body {
+  background: var(--t-void);
+  color: var(--t-p1);
+  font-family: var(--ui-font);
+}
+
+/* The tube. Scanlines sit above everything and take no input — this is the
+   glass, not a layer of the interface. */
+[data-skin='terminal'] .shell::after,
+[data-skin='terminal'] .welcome::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  pointer-events: none;
+  width: auto;
+  mask-image: none;
+  -webkit-mask-image: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0 2px,
+    rgba(0, 0, 0, 0.28) 2px 3px
+  );
+}
+[data-skin='terminal'] .shell,
+[data-skin='terminal'] .welcome { background: var(--t-void); }
+
+/* A character grid, not a drawing grid. */
+[data-skin='terminal'] .canvas {
+  background:
+    repeating-linear-gradient(to right, transparent 0 63px, rgba(77, 251, 139, 0.055) 63px 64px),
+    repeating-linear-gradient(to bottom, transparent 0 15px, rgba(77, 251, 139, 0.04) 15px 16px);
+  background-color: var(--t-void);
+}
+
+/* Everything the tube lights up blooms. */
+[data-skin='terminal'] .node-label,
+[data-skin='terminal'] .tb-run,
+[data-skin='terminal'] .welcome-name,
+[data-skin='terminal'] .lg-phase,
+[data-skin='terminal'] .lib-label { text-shadow: var(--t-bloom); }
+
+/* ------------------------------------------------------------------- boxes */
+
+[data-skin='terminal'] .node {
+  background: var(--t-void);
+  border: 1px solid var(--t-p1-dim);
+  border-radius: 0;
+  box-shadow: none;
+}
+[data-skin='terminal'] .node:hover { border-color: var(--t-p1-mid); }
+[data-skin='terminal'] .node.composite,
+[data-skin='terminal'] .node.router { border-color: var(--t-p1-mid); border-style: double; border-width: 3px; }
+[data-skin='terminal'] .node.io-node { border-radius: 0; border-color: var(--t-p1); }
+[data-skin='terminal'] .node.handwritten { border-style: dashed; border-color: var(--t-amber); }
+/* Selection is inverse video, exactly as a terminal marks a selection. */
+[data-skin='terminal'] .node.selected {
+  border-color: var(--t-p1);
+  box-shadow: 0 0 0 1px var(--t-p1), 0 0 18px -4px rgba(77, 251, 139, 0.6);
+}
+[data-skin='terminal'] .node-title { border-bottom: 1px solid var(--t-p1-dim); }
+[data-skin='terminal'] .node-label {
+  font-family: var(--ui-mono);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--t-p1);
+}
+[data-skin='terminal'] .node-id { color: var(--t-p1-dim); }
+[data-skin='terminal'] .port-name { color: var(--t-p1-mid); font-size: 10px; }
+[data-skin='terminal'] .var-row { color: var(--t-p1-mid); }
+[data-skin='terminal'] .var-type { color: var(--t-p1-dim); }
+[data-skin='terminal'] .var-section { border-top: 1px dashed var(--t-p1-dim); }
+
+/* A port is a lit cell. */
+[data-skin='terminal'] .port-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 0;
+  transform: none;
+  background: var(--t-p1);
+  border: none;
+  box-shadow: var(--t-bloom);
+}
+[data-skin='terminal'] .port-dot.in { transform: translateY(-50%); background: var(--t-p1-dim); box-shadow: none; }
+[data-skin='terminal'] .port-row.in-row .port-dot.in { transform: none; margin-left: -5px; }
+[data-skin='terminal'] .port-dot.in.wired { background: var(--t-p1); box-shadow: var(--t-bloom); }
+[data-skin='terminal'] .port-dot.new-port {
+  border-radius: 0;
+  transform: none;
+  background: var(--t-p1);
+  color: #04140a;
+}
+[data-skin='terminal'] .port-dot.new-port::before { transform: none; line-height: 13px; }
+
+/* One phosphor: custody is brightness and dash, not hue. */
+[data-skin='terminal'] .wire-wired .wire-line {
+  stroke: var(--t-p1);
+  stroke-width: 1.5;
+  filter: drop-shadow(0 0 4px rgba(77, 251, 139, 0.6));
+}
+[data-skin='terminal'] .wire-routed .wire-line {
+  stroke: var(--t-p1-mid);
+  stroke-width: 1.5;
+  stroke-dasharray: 12 3;
+  filter: none;
+}
+[data-skin='terminal'] .wire-inferred .wire-line {
+  stroke: var(--t-p1-dim);
+  stroke-width: 1;
+  stroke-dasharray: 6 4;
+}
+[data-skin='terminal'] .wire-derived .wire-line {
+  stroke: var(--t-p1-dim);
+  stroke-width: 1;
+  stroke-dasharray: 6 4;
+}
+[data-skin='terminal'] .wire-stub .wire-line,
+[data-skin='terminal'] .wire-unresolved .wire-line {
+  stroke: var(--t-p1-dim);
+  stroke-width: 1.5;
+  stroke-dasharray: 1 3;
+  filter: none;
+}
+[data-skin='terminal'] .wire-unresolved .wire-line { stroke: var(--t-red); }
+[data-skin='terminal'] .wire-fabric .wire-line { stroke: var(--t-p1-dim); opacity: 0.6; }
+[data-skin='terminal'] .wire-label,
+[data-skin='terminal'] .wire-count,
+[data-skin='terminal'] .wire-via,
+[data-skin='terminal'] .wire-warn,
+[data-skin='terminal'] .wire-ext,
+[data-skin='terminal'] .wire-derived-label,
+[data-skin='terminal'] .wire-bw,
+[data-skin='terminal'] .wire-fabric-error {
+  font-family: var(--ui-mono);
+  font-size: 9px;
+  letter-spacing: 0;
+  stroke: var(--t-void);
+  stroke-width: 3;
+  paint-order: stroke;
+  fill: var(--t-p1-mid);
+}
+[data-skin='terminal'] .wire-fabric-error { fill: var(--t-red); }
+[data-skin='terminal'] .message-link { color: var(--t-p1); text-decoration: underline; }
+
+/* ------------------------------------------------------------------ chrome */
+
+[data-skin='terminal'] .titlebar { background: var(--t-void); border-bottom: 1px solid var(--t-p1-dim); }
+[data-skin='terminal'] .ledger { background: var(--t-void); border-top: 1px solid var(--t-p1-dim); }
+[data-skin='terminal'] .canvas-float {
+  background: var(--t-void);
+  border: 1px solid var(--t-p1-dim);
+  border-radius: 0;
+  box-shadow: none;
+}
+[data-skin='terminal'] .canvas-float button,
+[data-skin='terminal'] .crumb,
+[data-skin='terminal'] .tb-btn,
+[data-skin='terminal'] .tb-btn,
+[data-skin='terminal'] .tb-btn,
+[data-skin='terminal'] .ledger-strip,
+[data-skin='terminal'] .panel-tabs button,
+[data-skin='terminal'] .seg button {
+  font-family: var(--ui-mono);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--t-p1-mid);
+  border-radius: 0;
+}
+[data-skin='terminal'] .crumb.on { color: var(--t-p1); }
+/* Inverse video for the active item — the terminal's only "highlight". */
+[data-skin='terminal'] .seg { border: 1px solid var(--t-p1-dim); border-radius: 0; padding: 0; background: transparent; }
+[data-skin='terminal'] .seg button.on,
+[data-skin='terminal'] .canvas-float button.on,
+[data-skin='terminal'] .tb-run {
+  background: var(--t-p1);
+  color: #04140a;
+  border-radius: 0;
+  box-shadow: none;
+  clip-path: none;
+}
+[data-skin='terminal'] .tb-run:hover { background: #7effae; transform: none; box-shadow: none; }
+[data-skin='terminal'] .tb-btn { border: 1px solid var(--t-p1-dim); border-radius: 0; }
+[data-skin='terminal'] .tb-btn:hover,
+[data-skin='terminal'] .tb-btn:hover,
+[data-skin='terminal'] .tb-btn:hover { background: var(--t-p1-faint); color: var(--t-p1); transform: none; }
+[data-skin='terminal'] .tb-btn kbd { border-color: var(--t-p1-dim); color: var(--t-p1-dim); border-radius: 0; }
+
+[data-skin='terminal'] .pane-detail,
+[data-skin='terminal'] .lib,
+[data-skin='terminal'] .connect-form,
+[data-skin='terminal'] .field-card,
+[data-skin='terminal'] .run-config,
+[data-skin='terminal'] .toast {
+  background: var(--t-void);
+  border: 1px solid var(--t-p1);
+  border-radius: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+[data-skin='terminal'] .pane-detail { border-left: 1px solid var(--t-p1); }
+[data-skin='terminal'] .insp-card {
+  background: transparent;
+  border: 1px solid var(--t-p1-dim);
+  border-left: 1px solid var(--t-p1-dim);
+  border-radius: 0;
+}
+[data-skin='terminal'] .insp-card > summary,
+[data-skin='terminal'] .insp-tile-lab { color: var(--t-p1-mid); }
+[data-skin='terminal'] .insp-glyph,
+[data-skin='terminal'] .insp-avatar,
+[data-skin='terminal'] .insp-tile {
+  background: transparent;
+  border: 1px solid var(--t-p1-dim);
+  border-radius: 0;
+  color: var(--t-p1);
+}
+[data-skin='terminal'] .inspector button,
+[data-skin='terminal'] .transport button,
+[data-skin='terminal'] .inspector input,
+[data-skin='terminal'] .insp-card-body input,
+[data-skin='terminal'] .insp-card-body select,
+[data-skin='terminal'] .lib-input,
+[data-skin='terminal'] .connect-form input,
+[data-skin='terminal'] .connect-form select {
+  background: transparent;
+  border: 1px solid var(--t-p1-dim);
+  border-radius: 0;
+  color: var(--t-p1);
+  font-family: var(--ui-mono);
+}
+[data-skin='terminal'] .lib-scrim { background: rgba(5, 8, 6, 0.8); }
+[data-skin='terminal'] .lib-row { border-radius: 0; margin: 0; width: 100%; font-family: var(--ui-mono); }
+/* The selected row is inverse video, with a block cursor for the caret. */
+[data-skin='terminal'] .lib-row.on { background: var(--t-p1); transform: none; }
+[data-skin='terminal'] .lib-row.on .lib-label,
+[data-skin='terminal'] .lib-row.on .lib-hint,
+[data-skin='terminal'] .lib-row.on .lib-glyph { color: #04140a; text-shadow: none; }
+[data-skin='terminal'] .lib-glyph { color: var(--t-p1); }
+[data-skin='terminal'] .lib-label { color: var(--t-p1); }
+[data-skin='terminal'] .lib-hint { color: var(--t-p1-mid); }
+[data-skin='terminal'] .lib-input::placeholder { color: var(--t-p1-dim); }
+
+[data-skin='terminal'] .console,
+[data-skin='terminal'] .console-line { color: var(--t-p1-mid); }
+[data-skin='terminal'] .console-warning { color: var(--t-amber); }
+[data-skin='terminal'] .console-divergence { color: var(--t-red); }
+[data-skin='terminal'] .pipe-bar { background: var(--t-p1); border-radius: 0; }
+[data-skin='terminal'] .lg-phase.lg-building,
+[data-skin='terminal'] .lg-phase.lg-running { color: var(--t-amber); }
+[data-skin='terminal'] .lg-phase.lg-done { color: var(--t-p1); }
+[data-skin='terminal'] .lg-phase.lg-error { background: var(--t-red); color: #1a0402; border-radius: 0; }
+[data-skin='terminal'] .lg-measured { color: var(--t-p1); border-bottom-color: var(--t-p1); }
+
+/* ----------------------------------------------------------------- welcome */
+
+[data-skin='terminal'] .welcome-name {
+  color: var(--t-p1);
+  font-family: var(--ui-mono);
+  font-size: 26px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+[data-skin='terminal'] .welcome-name em { color: var(--t-p1); }
+[data-skin='terminal'] .welcome-rule i,
+[data-skin='terminal'] .welcome-rule b { background: var(--t-p1); }
+[data-skin='terminal'] .welcome-rule b { transform: none; }
+[data-skin='terminal'] .welcome-what,
+[data-skin='terminal'] .welcome-hint,
+[data-skin='terminal'] .welcome-empty { color: var(--t-p1-mid); font-family: var(--ui-mono); font-size: 12px; }
+[data-skin='terminal'] .welcome-primary {
+  background: var(--t-p1);
+  color: #04140a;
+  clip-path: none;
+  border-radius: 0;
+  font-family: var(--ui-mono);
+}
+[data-skin='terminal'] .welcome-recent-name { color: var(--t-p1); font-family: var(--ui-mono); }
+[data-skin='terminal'] .welcome-recent-path { color: var(--t-p1-dim); }
+[data-skin='terminal'] .welcome-recent::before { display: none; }
+[data-skin='terminal'] .welcome-recents li { border-color: var(--t-p1-dim); }
+[data-skin='terminal'] .n-plate { fill: var(--t-void); stroke: var(--t-p1-dim); }
+[data-skin='terminal'] .n-label { fill: var(--t-p1); font-family: var(--ui-mono); text-transform: uppercase; font-size: 11px; }
+[data-skin='terminal'] .n-cat { fill: var(--t-p1-dim); }
+[data-skin='terminal'] .n-fold, [data-skin='terminal'] .n-fold-fabric { fill: var(--t-p1); }
+[data-skin='terminal'] .n-rule-doc { stroke: var(--t-p1); }
+[data-skin='terminal'] .n-rule-fabric { stroke: var(--t-p1-mid); }
+[data-skin='terminal'] .w-documented { stroke: var(--t-p1); }
+[data-skin='terminal'] .w-attested { stroke: var(--t-p1-mid); stroke-dasharray: 12 3; }
+[data-skin='terminal'] .w-inferred { stroke: var(--t-p1-dim); }
+[data-skin='terminal'] .w-silent { stroke: var(--t-p1-dim); }
+[data-skin='terminal'] .w-disputed { stroke: var(--t-red); }
+[data-skin='terminal'] .stamp-box { stroke: var(--t-p1-mid); }
+[data-skin='terminal'] .stamp-text { fill: var(--t-p1-mid); }
+[data-skin='terminal'] .ann-fabric { fill: var(--t-p1-mid); }
+[data-skin='terminal'] .ann-silent { fill: var(--t-p1-dim); }
+[data-skin='terminal'] .ann-disputed { fill: var(--t-red); }
+[data-skin='terminal'] .welcome-schematic text.ann { stroke: var(--t-void); font-family: var(--ui-mono); }
+[data-skin='terminal'] .legend-name { color: var(--t-p1); font-family: var(--ui-mono); }
+[data-skin='terminal'] .legend-meaning { color: var(--t-p1-mid); font-family: var(--ui-mono); }
+
+@media (prefers-reduced-motion: reduce) {
+  [data-skin='terminal'] .shell::after,
+  [data-skin='terminal'] .welcome::after { display: none; }
+}

@@ -1,0 +1,331 @@
+{
+  "components": [
+    {
+      "id": "CPU0",
+      "label": "Core 0",
+      "kind": "composite",
+      "parent": null,
+      "outPorts": [],
+      "consumes": [],
+      "vars": [],
+      "fabric": [
+        "R1"
+      ]
+    },
+    {
+      "id": "CPU0.IF",
+      "label": "Instruction Fetch",
+      "kind": "leaf",
+      "parent": "CPU0",
+      "outPorts": [
+        {
+          "name": "out",
+          "message": "FetchEvent",
+          "to": "CPU0.DE",
+          "latency": 1
+        }
+      ],
+      "consumes": [
+        "StallEvent"
+      ],
+      "vars": [
+        {
+          "name": "pc",
+          "type": "uint32_t",
+          "init": "0x80000000"
+        }
+      ]
+    },
+    {
+      "id": "CPU0.DE",
+      "label": "Decode",
+      "kind": "leaf",
+      "parent": "CPU0",
+      "outPorts": [
+        {
+          "name": "out",
+          "message": "DecodeEvent",
+          "to": "CPU0.EX",
+          "latency": 1
+        }
+      ],
+      "consumes": [
+        "FetchEvent"
+      ],
+      "vars": [
+        {
+          "name": "instruction",
+          "type": "uint32_t",
+          "init": null
+        },
+        {
+          "name": "opcode",
+          "type": "uint32_t",
+          "init": null
+        }
+      ]
+    },
+    {
+      "id": "CPU0.EX",
+      "label": "Execute",
+      "kind": "leaf",
+      "parent": "CPU0",
+      "outPorts": [
+        {
+          "name": "out",
+          "message": "ExecEvent",
+          "to": "CPU0.MEM",
+          "latency": 1
+        },
+        {
+          "name": "branch",
+          "message": "BranchEvent",
+          "to": "CPU0.Control",
+          "latency": 0
+        }
+      ],
+      "consumes": [
+        "DecodeEvent"
+      ],
+      "vars": [
+        {
+          "name": "result",
+          "type": "uint32_t",
+          "init": null
+        }
+      ]
+    },
+    {
+      "id": "CPU0.MEM",
+      "label": "Memory Access",
+      "kind": "leaf",
+      "parent": "CPU0",
+      "outPorts": [
+        {
+          "name": "out",
+          "message": "MemEvent",
+          "to": "CPU0.WB",
+          "latency": 1
+        },
+        {
+          "name": "out_MEM_to_Out1",
+          "message": "MEMToOut1Event",
+          "to": "CPU0.Out1",
+          "latency": 100
+        }
+      ],
+      "consumes": [
+        "ExecEvent"
+      ],
+      "vars": []
+    },
+    {
+      "id": "CPU0.WB",
+      "label": "Writeback",
+      "kind": "leaf",
+      "parent": "CPU0",
+      "outPorts": [],
+      "consumes": [
+        "MemEvent"
+      ],
+      "vars": [
+        {
+          "name": "retired",
+          "type": "uint64_t",
+          "init": "0"
+        }
+      ]
+    },
+    {
+      "id": "CPU0.Control",
+      "label": "Hazard Control",
+      "kind": "leaf",
+      "parent": "CPU0",
+      "outPorts": [
+        {
+          "name": "stall",
+          "message": "StallEvent",
+          "to": "CPU0.IF",
+          "latency": 1
+        }
+      ],
+      "consumes": [
+        "BranchEvent"
+      ],
+      "vars": []
+    },
+    {
+      "id": "Memory1",
+      "label": "Main Memory",
+      "kind": "leaf",
+      "parent": null,
+      "outPorts": [],
+      "consumes": [
+        "MemRequest",
+        "Out1ToMemory1Event"
+      ],
+      "vars": [
+        {
+          "name": "accesses",
+          "type": "uint64_t",
+          "init": "0"
+        }
+      ],
+      "fabric": [
+        "R1"
+      ]
+    },
+    {
+      "id": "CPU0.Out1",
+      "label": "Out1",
+      "kind": "leaf",
+      "parent": "CPU0",
+      "io": "out",
+      "outPorts": [
+        {
+          "name": "out_Out1_to_Memory1",
+          "message": "Out1ToMemory1Event",
+          "to": null,
+          "latency": 1
+        }
+      ],
+      "consumes": [
+        "MEMToOut1Event"
+      ],
+      "vars": []
+    },
+    {
+      "id": "R1",
+      "label": "R1",
+      "kind": "router",
+      "parent": null,
+      "outPorts": [],
+      "consumes": [],
+      "vars": [],
+      "rules": [
+        {
+          "message": "Out1ToMemory1Event",
+          "to": "Memory1"
+        }
+      ]
+    },
+    {
+      "id": "Unit1",
+      "label": "Unit1",
+      "kind": "composite",
+      "parent": null,
+      "outPorts": [],
+      "consumes": [],
+      "vars": [],
+      "fabric": [
+        "R1"
+      ]
+    },
+    {
+      "id": "Unit1.Out1",
+      "label": "Out1",
+      "kind": "leaf",
+      "parent": "Unit1",
+      "io": "out",
+      "outPorts": [],
+      "consumes": [],
+      "vars": []
+    }
+  ],
+  "events": [
+    {
+      "id": "FetchEvent",
+      "fields": [
+        {
+          "name": "pc",
+          "type": "uint32_t"
+        },
+        {
+          "name": "instruction",
+          "type": "uint32_t"
+        }
+      ]
+    },
+    {
+      "id": "DecodeEvent",
+      "fields": [
+        {
+          "name": "opcode",
+          "type": "uint32_t"
+        },
+        {
+          "name": "rd",
+          "type": "uint32_t"
+        }
+      ]
+    },
+    {
+      "id": "ExecEvent",
+      "fields": [
+        {
+          "name": "value",
+          "type": "uint32_t"
+        }
+      ]
+    },
+    {
+      "id": "MemRequest",
+      "fields": [
+        {
+          "name": "addr",
+          "type": "uint32_t"
+        },
+        {
+          "name": "value",
+          "type": "uint32_t"
+        }
+      ]
+    },
+    {
+      "id": "MemEvent",
+      "fields": [
+        {
+          "name": "value",
+          "type": "uint32_t"
+        }
+      ]
+    },
+    {
+      "id": "BranchEvent",
+      "fields": [
+        {
+          "name": "taken",
+          "type": "bool"
+        },
+        {
+          "name": "target",
+          "type": "uint32_t"
+        }
+      ]
+    },
+    {
+      "id": "StallEvent",
+      "fields": []
+    },
+    {
+      "id": "Stage1ToStage2Event",
+      "fields": []
+    },
+    {
+      "id": "Stage2ToStage3Event",
+      "fields": []
+    },
+    {
+      "id": "Stage1ToStage3Event",
+      "fields": []
+    },
+    {
+      "id": "MEMToOut1Event",
+      "fields": []
+    },
+    {
+      "id": "Out1ToMemory1Event",
+      "fields": []
+    }
+  ]
+}

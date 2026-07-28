@@ -1,0 +1,8 @@
+
+/* A P1 tube has one gun. The tool cluster's ✋ is a colour emoji, which would be
+   the only non-phosphor pixel in the mode — tint the glyph layer back into the
+   phosphor rather than letting one control break the constraint. */
+[data-skin='terminal'] .toolcluster button {
+  filter: grayscale(1) sepia(1) hue-rotate(72deg) saturate(5) brightness(1.05);
+}
+[data-skin='terminal'] .toolcluster button.on { filter: none; }

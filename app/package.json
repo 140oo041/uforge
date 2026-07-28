@@ -1,0 +1,30 @@
+{
+  "name": "@iss/app",
+  "version": "0.1.0",
+  "private": true,
+  "description": "The standalone desktop app: the canvas, the engine, and a real project on disk — without VS Code.",
+  "main": "dist/electron/main.cjs",
+  "scripts": {
+    "dev": "node build.mjs --watch",
+    "build": "node build.mjs",
+    "start": "electron .",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.electron.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@iss/canvas": "*",
+    "@iss/contracts": "*",
+    "@iss/host": "*"
+  },
+  "devDependencies": {
+    "@types/node": "^18.19.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "electron": "^32.2.7",
+    "esbuild": "^0.21.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "typescript": "^5.4.0",
+    "vitest": "^1.6.0"
+  }
+}

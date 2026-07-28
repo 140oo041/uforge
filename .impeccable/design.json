@@ -1,0 +1,278 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-07-25T00:00:00.000Z",
+  "title": "Design System: ISS Microarchitecture IDE",
+  "extensions": {
+    "colorMeta": {
+      "signal-cyan": {
+        "role": "primary",
+        "displayName": "Signal Cyan",
+        "canonical": "#4fc3f7",
+        "variable": "--vscode-charts-blue",
+        "meaning": "The authored and the real: solid wired connections, wired port dots, message links, pipeline bars, primary token color, block glyphs.",
+        "drift": ["#3794ff", "#4aa3ff"],
+        "tonalRamp": ["#06222e", "#0a3a4e", "#0f536e", "#166e91", "#2189b4", "#35a6d6", "#4fc3f7", "#c5e9fb"]
+      },
+      "action-blue": {
+        "role": "primary",
+        "displayName": "Action Blue",
+        "canonical": "#0e639c",
+        "variable": "--vscode-button-background",
+        "meaning": "Committed action only: Run, Confirm, Add, the new-port handle, active tool, segmented selection. Never conveys data state.",
+        "tonalRamp": ["#04121d", "#071f31", "#0a2e48", "#0c3e61", "#0e4f7c", "#0e639c", "#2f8ac9", "#bcdcf3"]
+      },
+      "focus-blue": {
+        "role": "primary",
+        "displayName": "Focus Blue",
+        "canonical": "#007fd4",
+        "variable": "--vscode-focusBorder",
+        "meaning": "Focus and intent: selection rings, marquee, the draft wire being dragged, popover borders, field focus.",
+        "tonalRamp": ["#001523", "#002439", "#003555", "#004873", "#005d94", "#0072b7", "#007fd4", "#b3dbf5"]
+      },
+      "fabric-orchid": {
+        "role": "secondary",
+        "displayName": "Fabric Orchid",
+        "canonical": "#b180d7",
+        "variable": "--vscode-charts-purple",
+        "meaning": "The interconnect and the hierarchy: composite and router borders, fabric attachment and trunk wires, route badges, rule-derived ghost edges, forwarding-rule numbers.",
+        "drift": ["#a99df2"],
+        "tonalRamp": ["#1e1229", "#301d42", "#45295e", "#5b377b", "#7549a0", "#9463bd", "#b180d7", "#e2d0f0"]
+      },
+      "sage-green": {
+        "role": "secondary",
+        "displayName": "Sage Green",
+        "canonical": "#89d185",
+        "variable": "--vscode-charts-green",
+        "meaning": "The confirmed boundary: I/O pin nodes, composite boundary pin rows, the simulation-entry badge, SV bit-lane waveforms, the wired status dot.",
+        "drift": ["#71c98d"],
+        "tonalRamp": ["#10230f", "#1a3a19", "#275327", "#366e36", "#4a8c49", "#66ae64", "#89d185", "#d1eed0"]
+      },
+      "sodium-amber": {
+        "role": "tertiary",
+        "displayName": "Sodium Amber",
+        "canonical": "#ffb74d",
+        "variable": "--vscode-charts-orange",
+        "meaning": "The provisional and the hand-owned: dangling stubs, the SV twin chip, hand-written block badges, traffic generators, warnings, latency-model function names, the waveform cursor. Not an error.",
+        "drift": ["#d18616", "#e0b34a"],
+        "tonalRamp": ["#2b1c05", "#442d08", "#60410c", "#7f5711", "#a37318", "#cd9327", "#ffb74d", "#ffe3b8"]
+      },
+      "instrument-yellow": {
+        "role": "tertiary",
+        "displayName": "Instrument Yellow",
+        "canonical": "#f9a825",
+        "variable": "--vscode-charts-yellow",
+        "meaning": "Time, and only time: the playhead and the building/running phase.",
+        "tonalRamp": ["#2a1c02", "#442d04", "#5f4006", "#7e5509", "#a26d0d", "#ca8914", "#f9a825", "#fde0a5"]
+      },
+      "alarm-coral": {
+        "role": "tertiary",
+        "displayName": "Alarm Coral",
+        "canonical": "#ef5350",
+        "variable": "--vscode-charts-red",
+        "meaning": "Failure: unresolved links, diverged blocks, congested routers, fabric errors, hot occupancy, destructive actions. The only hue permitted to animate indefinitely.",
+        "drift": ["#f14c4c"],
+        "tonalRamp": ["#2d0d0c", "#481513", "#661e1c", "#872826", "#ab3532", "#d0433f", "#ef5350", "#f9c3c1"]
+      },
+      "editor-ground": {
+        "role": "neutral",
+        "displayName": "Editor Ground",
+        "canonical": "#1e1e1e",
+        "variable": "--vscode-editor-background",
+        "meaning": "The canvas floor and stat-tile wells, and the halo stroke that lifts labels off wires. The ramp below is the project's real surface ladder, not a synthesized scale.",
+        "tonalRamp": ["#141414", "#1e1e1e", "#252526", "#2a2a2e", "#333333", "#3a3a41", "#3c3c3c", "#9a9a9a"]
+      },
+      "rail-surface": {
+        "role": "neutral",
+        "displayName": "Rail Surface",
+        "canonical": "#252526",
+        "variable": "--vscode-sideBar-background",
+        "meaning": "The flanking rails: palette, inspector, spec sections.",
+        "tonalRamp": ["#141414", "#1e1e1e", "#252526", "#2a2a2e", "#333333", "#3a3a41", "#3c3c3c", "#9a9a9a"]
+      },
+      "widget-surface": {
+        "role": "neutral",
+        "displayName": "Widget Surface",
+        "canonical": "#2a2a2e",
+        "variable": "--vscode-editorWidget-background",
+        "meaning": "Everything that lifts: nodes, popovers, inspector cards, field cards.",
+        "tonalRamp": ["#141414", "#1e1e1e", "#252526", "#2a2a2e", "#333333", "#3a3a41", "#3c3c3c", "#9a9a9a"]
+      },
+      "hairline": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "#3a3a41",
+        "variable": "--vscode-panel-border",
+        "meaning": "Every divider, card edge, table cell and lane boundary. The primary structural device of the system.",
+        "tonalRamp": ["#141414", "#1e1e1e", "#252526", "#2a2a2e", "#333333", "#3a3a41", "#3c3c3c", "#9a9a9a"]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "#cccccc",
+        "variable": "--vscode-foreground",
+        "meaning": "Body text. Secondary levels are reached with opacity (0.5 / 0.65 / 0.8), not with a second color.",
+        "tonalRamp": ["#2a2a2a", "#3d3d3d", "#555555", "#6f6f6f", "#8a8a8a", "#9a9a9a", "#cccccc", "#f0f0f0"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Stat-tile values only. The largest type in the application, and always a measured or entered number." },
+      "headline": { "displayName": "Headline", "purpose": "The SPEC tab's section title. Once per tab." },
+      "title": { "displayName": "Title", "purpose": "Inspector identity header and panel headings." },
+      "body": { "displayName": "Body", "purpose": "The 12.5px base: node labels, toolbar buttons, inspector rows, palette items." },
+      "label": { "displayName": "Label", "purpose": "Uppercase card summaries, section headings, panel tabs." },
+      "micro": { "displayName": "Micro", "purpose": "Stat-tile captions, badges, chips, port names, wire labels. Where most of the interface actually lives." },
+      "mono": { "displayName": "Mono", "purpose": "Anything that appears verbatim in the user's source: member names, mnemonics, hex addresses, semantics, waveform values, route paths." }
+    },
+    "shadows": [
+      { "name": "node-lift", "value": "0 2px 6px rgba(0, 0, 0, 0.35)", "purpose": "A block sitting on the canvas rather than in the layout. The gentlest step; every node has it." },
+      { "name": "overlay-drop", "value": "0 6px 18px rgba(0, 0, 0, 0.5)", "purpose": "Anything that has left the layout entirely: connect form, run-config popover, field card. Always paired with a Focus Blue 1px border." },
+      { "name": "selection-ring", "value": "0 0 0 2px #007fd4, 0 2px 8px rgba(0, 0, 0, 0.4)", "purpose": "The node lift, doubled and ringed. Selection reads as elevation, not as fill." },
+      { "name": "token-glow", "value": "drop-shadow(0 0 4px rgba(255, 255, 255, 0.35))", "purpose": "The only luminous effect in the system, on in-flight token bubbles alone." }
+    ],
+    "motion": [
+      { "name": "state-transition", "value": "0.15s", "purpose": "Chevron rotation, toggle knob travel, background changes. The only transition duration." },
+      { "name": "diverge-pulse", "value": "pulse 0.9s ease-in-out infinite", "purpose": "A diverged block: coral ring expanding 2px to 7px. Runs until the condition clears." },
+      { "name": "congest-pulse", "value": "congest-pulse 1s ease-in-out infinite", "purpose": "A saturated router: coral ring expanding 2px to 8px." },
+      { "name": "dwell-pulse", "value": "dwell-pulse 1.1s ease-in-out infinite", "purpose": "A token stalled inside a block: radius 5 to 6.5, opacity 0.95 to 0.55." }
+    ],
+    "breakpoints": [],
+    "grid": [
+      { "name": "canvas-snap", "value": "8px", "purpose": "Node positions snap to this; matches the spacing rhythm." },
+      { "name": "canvas-dots", "value": "24px", "purpose": "The radial dot grid on the editor ground. The only patterned surface in the system." },
+      { "name": "node-width", "value": "200px", "purpose": "Fixed for every block; identical to the palette column width." },
+      { "name": "shell-tracks", "value": "44px 200px 1fr 250px / 35px 1fr 190px 22px", "purpose": "The four named grid areas: activity, palette, editor, inspector, over tab bar, body, panel, status." }
+    ]
+  },
+  "components": [
+    {
+      "name": "Block Node",
+      "kind": "custom",
+      "refersTo": "node-block",
+      "description": "The system's identity object: a fixed 200px card whose border weight and style encode authorship, with hanging port pins and a mono state-variable section.",
+      "html": "<div class=\"ds-node\"><div class=\"ds-node-title\"><span class=\"ds-node-label\">Fetch</span><span class=\"ds-node-id\">CPU0.IF</span></div><div class=\"ds-node-body\"><div class=\"ds-port-row ds-in\"><span class=\"ds-dot ds-dot-in\"></span><span class=\"ds-port-name\">FetchReq</span></div><div class=\"ds-port-row ds-out\"><span class=\"ds-port-name\">out_IF_to_DE</span><span class=\"ds-dot ds-dot-out\"></span></div><div class=\"ds-var-section\"><div class=\"ds-var-row\"><span class=\"ds-var-name\">pc</span><span class=\"ds-var-type\">uint64_t</span></div></div></div></div>",
+      "css": ".ds-node { position: relative; width: 200px; border: 1.5px solid #3a3a41; border-radius: 8px; background: #2a2a2e; box-shadow: 0 2px 6px rgba(0,0,0,0.35); color: #cccccc; font-family: system-ui, sans-serif; font-size: 12.5px; user-select: none; } .ds-node:hover { border-color: #007fd4; } .ds-node-title { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; padding: 7px 10px 4px; border-bottom: 1px solid #3a3a41; } .ds-node-label { font-weight: 600; font-size: 12.5px; flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .ds-node-id { font-size: 10px; opacity: 0.55; flex: none; max-width: 45%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .ds-node-body { padding: 2px 0; } .ds-port-row { display: flex; align-items: center; gap: 6px; height: 20px; position: relative; } .ds-port-row.ds-in { justify-content: flex-start; padding: 0 10px 0 2px; } .ds-port-row.ds-out { justify-content: flex-end; padding: 0 2px 0 10px; } .ds-port-name { font-size: 10.5px; opacity: 0.85; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .ds-dot { width: 11px; height: 11px; border-radius: 50%; background: #4fc3f7; border: 2px solid #1e1e1e; flex: none; } .ds-dot-in { margin-left: -8px; } .ds-dot-out { margin-right: -8px; cursor: crosshair; } .ds-var-section { border-top: 1px dashed #3a3a41; margin-top: 3px; padding: 3px 10px 0; } .ds-var-row { display: flex; justify-content: space-between; align-items: center; gap: 6px; height: 16px; font-size: 10px; opacity: 0.65; } .ds-var-name { font-family: ui-monospace, monospace; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .ds-var-type { opacity: 0.75; white-space: nowrap; }"
+    },
+    {
+      "name": "Wire Status Vocabulary",
+      "kind": "custom",
+      "refersTo": "wire",
+      "description": "The Dash Rule made visible: a line's stroke and dash pattern declare how much real code substantiates it.",
+      "html": "<div class=\"ds-wires\"><div class=\"ds-wire-row\"><svg width=\"96\" height=\"12\" viewBox=\"0 0 96 12\"><path class=\"ds-w-wired\" d=\"M2 6 H94\"/></svg><span class=\"ds-w-lab\">wired &mdash; in the code</span></div><div class=\"ds-wire-row\"><svg width=\"96\" height=\"12\" viewBox=\"0 0 96 12\"><path class=\"ds-w-routed\" d=\"M2 6 H94\"/></svg><span class=\"ds-w-lab\">routed &mdash; rules own it</span></div><div class=\"ds-wire-row\"><svg width=\"96\" height=\"12\" viewBox=\"0 0 96 12\"><path class=\"ds-w-inferred\" d=\"M2 6 H94\"/></svg><span class=\"ds-w-lab\">inferred &mdash; not authored</span></div><div class=\"ds-wire-row\"><svg width=\"96\" height=\"12\" viewBox=\"0 0 96 12\"><path class=\"ds-w-derived\" d=\"M2 6 H94\"/></svg><span class=\"ds-w-lab\">derived ghost edge</span></div><div class=\"ds-wire-row\"><svg width=\"96\" height=\"12\" viewBox=\"0 0 96 12\"><path class=\"ds-w-unresolved\" d=\"M2 6 H94\"/></svg><span class=\"ds-w-lab\">unresolved</span></div><div class=\"ds-wire-row\"><svg width=\"96\" height=\"12\" viewBox=\"0 0 96 12\"><path class=\"ds-w-stub\" d=\"M2 6 H94\"/></svg><span class=\"ds-w-lab\">stub &mdash; dangling</span></div></div>",
+      "css": ".ds-wires { display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; background: #1e1e1e; background-image: radial-gradient(circle, #ffffff12 1px, transparent 1px); background-size: 24px 24px; border-radius: 8px; font-family: system-ui, sans-serif; } .ds-wire-row { display: flex; align-items: center; gap: 10px; } .ds-wire-row path { fill: none; } .ds-w-lab { font-size: 10.5px; color: #cccccc; opacity: 0.8; white-space: nowrap; } .ds-w-wired { stroke: #4fc3f7; stroke-width: 2; } .ds-w-routed { stroke: #b180d7; stroke-width: 2; } .ds-w-inferred { stroke: #9a9a9a; stroke-width: 2; stroke-dasharray: 6 4; } .ds-w-derived { stroke: #b180d7; stroke-width: 1.5; stroke-dasharray: 8 5; opacity: 0.55; } .ds-w-unresolved { stroke: #ef5350; stroke-width: 2; stroke-dasharray: 4 4; } .ds-w-stub { stroke: #ffb74d; stroke-width: 2; stroke-dasharray: 2 5; }"
+    },
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Committed action only. At most one per surface, always paired with a ghost cancel.",
+      "html": "<button class=\"ds-btn-primary\">Run</button>",
+      "css": ".ds-btn-primary { background: #0e639c; color: #ffffff; border: none; border-radius: 4px; padding: 4px 12px; font-family: system-ui, sans-serif; font-size: 12.5px; cursor: pointer; transition: background 0.15s; } .ds-btn-primary:hover { background: #1276b8; } .ds-btn-primary:focus-visible { outline: 1px solid #007fd4; outline-offset: 1px; } .ds-btn-primary:disabled { opacity: 0.4; cursor: default; }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "The cancel beside every primary: transparent with a hairline border, inheriting ink.",
+      "html": "<button class=\"ds-btn-ghost\">Cancel</button>",
+      "css": ".ds-btn-ghost { background: transparent; color: #cccccc; border: 1px solid #555555; border-radius: 4px; padding: 4px 12px; font-family: system-ui, sans-serif; font-size: 12.5px; cursor: pointer; transition: background 0.15s; } .ds-btn-ghost:hover { background: #ffffff14; } .ds-btn-ghost:focus-visible { outline: 1px solid #007fd4; outline-offset: 1px; } .ds-btn-ghost:disabled { opacity: 0.4; cursor: default; }"
+    },
+    {
+      "name": "Icon Button",
+      "kind": "button",
+      "refersTo": "button-icon",
+      "description": "A 24px square at 0.72 opacity, fully transparent until hovered. The destructive variant turns coral on hover only.",
+      "html": "<div class=\"ds-iconrow\"><button class=\"ds-iconbtn\" aria-label=\"Reveal source\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.4\"><path d=\"M6 3 L11 8 L6 13\"/></svg></button><button class=\"ds-iconbtn ds-danger\" aria-label=\"Delete block\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 16 16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.4\"><path d=\"M3 4h10M6.5 4V2.8h3V4M5 4l.6 9h4.8L11 4\"/></svg></button></div>",
+      "css": ".ds-iconrow { display: flex; gap: 2px; } .ds-iconbtn { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; padding: 0; border: none; border-radius: 5px; background: transparent; color: #cccccc; opacity: 0.72; cursor: pointer; transition: background 0.15s; } .ds-iconbtn:hover { background: #ffffff14; opacity: 1; } .ds-iconbtn.ds-danger:hover { background: #ef535022; color: #ef5350; } .ds-iconbtn:focus-visible { outline: 1px solid #007fd4; outline-offset: 1px; } .ds-iconbtn:disabled { opacity: 0.35; cursor: default; }"
+    },
+    {
+      "name": "Input Field",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "Field-surface fill with a hairline border; focus is carried by the border turning Focus Blue, never by an outline.",
+      "html": "<input class=\"ds-input\" type=\"text\" value=\"0x80000000\" aria-label=\"Base address\" />",
+      "css": ".ds-input { background: #3c3c3c; color: #cccccc; border: 1px solid #555555; border-radius: 3px; padding: 3px 6px; min-width: 0; font-family: ui-monospace, monospace; font-size: 12px; font-variant-numeric: tabular-nums; text-align: right; width: 120px; } .ds-input:focus { border-color: #007fd4; outline: none; } .ds-input.ds-invalid { border-color: #ef5350; }"
+    },
+    {
+      "name": "Status Chip",
+      "kind": "chip",
+      "refersTo": "chip-status",
+      "description": "One pill vocabulary shared by wires, ports and summaries: a neutral track with a 6px dot carrying the semantic hue.",
+      "html": "<div class=\"ds-chiprow\"><span class=\"ds-status ds-wired\"><span class=\"ds-dotmark\"></span><b>wired</b></span><span class=\"ds-status ds-unresolved\"><span class=\"ds-dotmark\"></span><b>unresolved</b></span><span class=\"ds-status\"><span class=\"ds-dotmark\"></span><b>inferred</b></span></div>",
+      "css": ".ds-chiprow { display: flex; gap: 5px; flex-wrap: wrap; font-family: system-ui, sans-serif; } .ds-status { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; padding: 1.5px 8px; border-radius: 999px; background: #ffffff12; color: #cccccc; white-space: nowrap; } .ds-status b { font-weight: 600; } .ds-status .ds-dotmark { width: 6px; height: 6px; border-radius: 50%; background: #8f8f9a; flex: none; } .ds-status.ds-wired .ds-dotmark { background: #89d185; } .ds-status.ds-unresolved .ds-dotmark { background: #ef5350; }"
+    },
+    {
+      "name": "Collapsible Card",
+      "kind": "card",
+      "refersTo": "card-inspector",
+      "description": "The inspector's unit of structure: a flat hairline card built on <details>, with an uppercase label summary, a rotating chevron and a right-aligned count.",
+      "html": "<details class=\"ds-card\" open><summary><span class=\"ds-chev\">&#9654;</span>FORWARDING RULES<span class=\"ds-count\">3</span></summary><div class=\"ds-card-body\"><div class=\"ds-crow\"><span class=\"ds-k\">Rule 1</span><span class=\"ds-ellip\">MemReq &rarr; Memory1</span></div><div class=\"ds-crow\"><span class=\"ds-k\">Range</span><span class=\"ds-ellip\">0x0 &ndash; 0xfff</span></div></div></details>",
+      "css": ".ds-card { border: 1px solid #3a3a41; border-radius: 8px; background: #2a2a2e; overflow: hidden; color: #cccccc; font-family: system-ui, sans-serif; width: 250px; } .ds-card > summary { display: flex; align-items: center; gap: 7px; padding: 7px 11px; cursor: pointer; list-style: none; font-size: 11px; font-weight: 600; letter-spacing: 0.04em; user-select: none; } .ds-card > summary::-webkit-details-marker { display: none; } .ds-chev { opacity: 0.55; font-size: 8px; transition: transform 0.15s; } .ds-card[open] > summary .ds-chev { transform: rotate(90deg); } .ds-count { margin-left: auto; font-size: 10px; padding: 1px 7px; border-radius: 8px; background: #ffffff14; } .ds-card-body { padding: 4px 11px 10px; border-top: 1px solid #ffffff0a; } .ds-crow { display: flex; align-items: center; gap: 8px; padding: 3px 0; min-height: 26px; font-size: 12px; } .ds-k { flex: none; width: 76px; opacity: 0.65; white-space: nowrap; } .ds-ellip { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }"
+    },
+    {
+      "name": "Stat Tile",
+      "kind": "custom",
+      "refersTo": "tile-stat",
+      "description": "A recessed well carrying a micro uppercase caption over a 16px mono tabular number. The only place the system permits large type, and only for numbers.",
+      "html": "<div class=\"ds-tiles\"><div class=\"ds-tile\"><span class=\"ds-tile-lab\">Flat latency</span><div class=\"ds-tile-val\"><input class=\"ds-tile-in\" type=\"text\" value=\"4\" aria-label=\"Flat latency\" /><small>cyc</small></div></div><div class=\"ds-tile\"><span class=\"ds-tile-lab\">Queue depth</span><div class=\"ds-tile-val\"><input class=\"ds-tile-in\" type=\"text\" value=\"16\" aria-label=\"Queue depth\" /></div></div></div>",
+      "css": ".ds-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; width: 250px; font-family: system-ui, sans-serif; } .ds-tile { background: #1e1e1e; border: 1px solid #3a3a41; border-radius: 7px; padding: 7px 9px 6px; min-width: 0; } .ds-tile:hover, .ds-tile:focus-within { border-color: #007fd4; } .ds-tile-lab { display: block; font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.6; color: #cccccc; margin-bottom: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .ds-tile-val { display: flex; align-items: baseline; gap: 4px; min-width: 0; } .ds-tile-val small { font-size: 10px; opacity: 0.55; flex: none; color: #cccccc; } .ds-tile-in { flex: 1; width: 100%; min-width: 0; background: transparent; border: none; padding: 0; font-size: 16px; font-weight: 600; font-family: ui-monospace, monospace; font-variant-numeric: tabular-nums; color: #cccccc; } .ds-tile-in:focus { outline: none; }"
+    },
+    {
+      "name": "Toggle",
+      "kind": "custom",
+      "refersTo": "toggle",
+      "description": "A 26x15px pill whose knob slides and turns cyan when checked. The real checkbox is visually hidden but still drives focus-visible.",
+      "html": "<label class=\"ds-togrow\"><span class=\"ds-tog-lab\">Check SV against C++</span><input type=\"checkbox\" checked /><span class=\"ds-toggle\"></span></label>",
+      "css": ".ds-togrow { display: flex; align-items: center; gap: 8px; padding: 3px 0; min-height: 26px; font-size: 12px; color: #cccccc; font-family: system-ui, sans-serif; cursor: pointer; position: relative; width: 250px; } .ds-tog-lab { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .ds-togrow input { position: absolute; opacity: 0; pointer-events: none; } .ds-toggle { width: 26px; height: 15px; border-radius: 999px; background: #ffffff1e; position: relative; flex: none; transition: background 0.15s; } .ds-toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: 11px; height: 11px; border-radius: 50%; background: #9b9ba6; transition: left 0.15s; } .ds-togrow input:checked ~ .ds-toggle { background: #0e639c88; } .ds-togrow input:checked ~ .ds-toggle::after { left: 13px; background: #4fc3f7; } .ds-togrow input:focus-visible ~ .ds-toggle { outline: 1px solid #007fd4; outline-offset: 1px; } @media (prefers-reduced-motion: reduce) { .ds-toggle, .ds-toggle::after { transition: none; } }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Honest Living Schematic",
+    "overview": "Two invariants, held together. The first is honesty: this is a wiring diagram that refuses to flatter itself. Every stroke on the canvas declares its own epistemic status before it declares anything else — solid where real code substantiates it, dashed where it was inferred, dotted where it is a stub, red where it is broken, purple where a router's rules own the destination rather than an authored wire. The diagram would rather look unfinished than look finished and lie. The second is liveness: at rest the schematic is a static drawing, but the moment you Run, it becomes the execution — tokens travel the real hop geometry, blocks pulse where they diverged, queues visibly congest, waveforms scrub against the same playhead. The drawing and the running machine are the same object.\n\nThe atmosphere is quiet, precise, and alive under load. At rest the surface is near-silent: a 24px dot grid, hairline dividers, flat tonal layers stepping from editor ground to sidebar rail to widget, chrome muted to 55–70% opacity, no gradient and no ornament anywhere. It only raises its voice when something actually happened — a token moves, a block diverges, a router saturates. Calm by default, loud on evidence. Nothing pulses, glows, or colors itself for decoration; every animation in the system is a report.\n\nComponents are recessive until touched. Buttons are transparent with no border until hover. Inspector name fields look like text until you point at them, then grow a border, then a filled field on focus. Composite quick-add pins are hidden until the node is hovered or selected. Structure appears on demand and retreats again, so density never becomes noise. The one exception is deliberate: the largest type in the entire application is a number — the 16px monospace stat-tile value. In a tool whose whole claim is that it ran for real, the measurement outranks every heading.\n\nThe palette is not owned by this project. Every color rides a --vscode-* theme variable with a literal fallback, so the surface inherits the user's light or dark theme and reads as part of the editor rather than as an app embedded inside one. The fallbacks exist for the standalone browser preview; the variable is always the normative source.",
+    "keyCharacteristics": [
+      "Line style is semantic: dash pattern encodes how true a connection is.",
+      "Motion only ever reports state — never decorates.",
+      "Theme-parasitic color: var(--vscode-*, fallback) on every single value.",
+      "Recessive chrome, expressive canvas; brand lives in the schematic, not the shell.",
+      "Tonal layering and hairlines over shadow; three earned elevations only.",
+      "Monospace for anything that is an identifier in real code.",
+      "The biggest type on screen is a measured number."
+    ],
+    "rules": [
+      { "name": "The Theme-Parasite Rule", "body": "Every color is written as var(--vscode-TOKEN, fallback). The variable is normative; the literal exists only so the standalone browser preview stays usable. A raw hex with no variable behind it is a defect unless the value has no host equivalent (the token ramp, the pipeline hash).", "section": "colors" },
+      { "name": "The One Meaning Rule", "body": "A hue means exactly one thing system-wide. Cyan is never decorative, amber is never an error, orchid is never a highlight. Before adding a color, find the existing hue whose meaning already covers the case; if none does, the case probably isn't a new color.", "section": "colors" },
+      { "name": "The Canonical Fallback Rule", "body": "One literal per semantic hue. The inspector-v2 rewrite introduced a parallel set (#3794ff / #4aa3ff for cyan, #f14c4c for coral, #71c98d for sage, #a99df2 for orchid, #d18616 for amber, #e0b34a for the brass function-name variant). Those are drift, not vocabulary — inside a real VS Code theme they collapse to the same value, so they are invisible in the host and only diverge in the browser preview. New code uses the canonical value; touched code reconciles to it.", "section": "colors" },
+      { "name": "The Identifier Rule", "body": "If the string exists verbatim in the user's C++, SystemVerilog or spec JSON — a member name, a class, a mnemonic, an address, a function — it is set in mono. If it is the interface talking about that code, it is set in the UI font. Never mix within one token.", "section": "typography" },
+      { "name": "The Truncation Rule", "body": "Every text container that can receive a generated name carries min-width: 0 plus white-space: nowrap; overflow: hidden; text-overflow: ellipsis. Long generated identifiers must truncate with an ellipsis — never wrap, never spill, never reflow a node. Where truncation loses information, the full string goes in a title attribute.", "section": "typography" },
+      { "name": "The Quiet Secondary Rule", "body": "Secondary text is dimmed with opacity (0.5 for inert, 0.55–0.65 for keys and captions, 0.7–0.8 for supporting values), not with a second ink color. This keeps every level of the hierarchy correct in any host theme.", "section": "typography" },
+      { "name": "The No-Overlay Rule", "body": "Chrome never floats over the canvas. If a surface needs permanent space, it becomes a grid area. Only transient, dismissible things are positioned absolutely.", "section": "layout" },
+      { "name": "The Shrinkable Child Rule", "body": "Every flex child that can hold a generated name gets min-width: 0. Without it the ellipsis never fires and a single long identifier breaks the layout.", "section": "layout" },
+      { "name": "The Earned Shadow Rule", "body": "Three roles, three reasons: lifting off the canvas, detaching from the layout, being selected. A new shadow value requires a fourth kind of detachment, not a fourth taste.", "section": "elevation" },
+      { "name": "The Hairline-First Rule", "body": "Reach for a 1px hairline and a tonal step before reaching for a shadow. Every divider, card edge, table cell and lane boundary in this system is a hairline.", "section": "elevation" },
+      { "name": "The Dash Rule", "body": "The system's central idea, governing both wires and borders. A broken line means the code does not fully substantiate what you are looking at, and the more broken the line, the less real the thing: solid 2px cyan = wired (configureOut exists in the source); solid orchid = routed (a router's rules own the destination); dashed 6 4 grey = inferred by the parser; dashed 8 5 orchid at 1.5px/55% = derived ghost edge, no authored wire at all; dashed 7 5 orchid at 3px/55% = fabric attachment, 4px for a trunk; dashed 5 4 focus blue = a draft being dragged; dashed 4 4 coral = unresolved; dotted 2 5 amber = a stub dangling with its reason. Never draw a solid line for something the parser could not read back out of the code. Never dash something that is genuinely wired.", "section": "shapes" },
+      { "name": "The Halo Rule", "body": "Text over the canvas (route badges, fabric errors) uses paint-order: stroke with a 3px stroke in the editor background, so labels stay readable over any wire without a background plate.", "section": "shapes" }
+    ],
+    "dos": [
+      "Do write every color as var(--vscode-TOKEN, fallback) and use the canonical fallback for its semantic hue — #4fc3f7 cyan, #b180d7 orchid, #89d185 sage, #ffb74d amber, #ef5350 coral, #f9a825 yellow.",
+      "Do encode connection truth in the stroke: solid for wired, dashed for inferred or derived, dotted for stubs, coral for unresolved. Follow the Dash Rule table exactly rather than inventing a new dash pattern.",
+      "Do put min-width: 0 on every flex child that can receive a generated identifier, alongside nowrap / overflow: hidden / text-overflow: ellipsis.",
+      "Do set anything that appears verbatim in the user's source — member names, mnemonics, hex addresses, function names, waveform values — in var(--vscode-editor-font-family, monospace), with tabular-nums on comparable numbers.",
+      "Do dim secondary text with opacity (0.5 / 0.65 / 0.8) rather than introducing a second ink color, so hierarchy survives any host theme.",
+      "Do give new permanent surfaces a named grid area in the shell; keep absolute positioning for genuinely transient overlays only.",
+      "Do pair every primary Action Blue button with a ghost cancel, and keep at most one primary per surface.",
+      "Do snap canvas geometry to the 8px grid and keep node width at 200px.",
+      "Do state a failure visibly — coral stroke, needs-router badge, dangling stub with its reason — in preference to hiding it or silently degrading."
+    ],
+    "donts": [
+      "Don't float chrome over the canvas. If it needs permanent space it belongs in the grid.",
+      "Don't reuse a hue for a second meaning. Cyan is never decorative, amber is never an error, orchid is never a generic highlight, yellow is only the playhead.",
+      "Don't add a fourth shadow. Three roles exist — node lift, overlay drop, selection ring — and each answers a distinct kind of detachment. Reach for a hairline and a tonal step first.",
+      "Don't animate anything that is not reporting state. There are no entrance animations, no decorative transitions, and no motion without a condition behind it.",
+      "Don't use a border radius above 8px on a surface. Pills (999px) are for states, and the 18px node radius is reserved exclusively for I/O boundary pins.",
+      "Don't exceed 16px type, and don't use that size for anything but a number.",
+      "Don't introduce a third font family or a display face.",
+      "Don't use a raw hex without a --vscode-* variable behind it, unless the value has no host equivalent (the eight-color token ramp, the block-id pipeline hash).",
+      "Don't widen a node or let a long generated name wrap — truncate and expose the full string via title.",
+      "Don't convey disabled state with color; use opacity: 0.4 and cursor: default."
+    ]
+  }
+}

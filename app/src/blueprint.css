@@ -1,0 +1,357 @@
+/* BLUEPRINT — the cyanotype drafting sheet.
+ *
+ * The world an architect's grandparents worked in: a print where the paper is
+ * Prussian blue and every line is the white the light never reached. Because
+ * the process is a contact print, there are no fills and no shadows — only
+ * line. That constraint is the whole aesthetic, and it suits a schematic
+ * exactly: a block is an outline, a wire is a stroke, and weight is the only
+ * hierarchy available.
+ *
+ * Devices taken from real drafting sheets, not from "blue and techy": the
+ * two-weight modular grid (fine, then heavy every fifth), outline-only bodies,
+ * single-stroke gothic lettering in caps, and corner registration ticks.
+ */
+
+:root[data-skin='blueprint'] {
+  color-scheme: dark;
+
+  --bp-paper: #0b2a52;
+  --bp-paper-deep: #082140;
+  --bp-line: #cfe6ff;      /* the white the light never reached — 11.9:1 */
+  --bp-line-2: #8fbde6;    /* 6.1:1 */
+  --bp-line-3: #5d92c4;    /* 3.4:1 — construction lines only, never text */
+  --bp-accent: #ffd166;    /* the drafter's pencil annotation */
+  --bp-fabric: #c4a6ff;
+  --bp-bound: #7ff0c4;
+  --bp-hand: #ffb37a;
+  --bp-fail: #ff8fa0;
+
+  --ui-font: 'DejaVu Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --ui-mono: ui-monospace, 'Cascadia Mono', 'DejaVu Sans Mono', monospace;
+
+  --ui-bg: var(--bp-paper);
+  --ui-surface: transparent;
+  --ui-border: rgba(207, 230, 255, 0.28);
+  --ui-border-strong: var(--bp-line);
+  --ui-ink: var(--bp-line);
+  --ui-ink-2: var(--bp-line-2);
+  --ui-ink-3: var(--bp-line-3);
+  --ui-muted: var(--bp-line-3);
+  --ui-accent: var(--bp-accent);
+  --ui-accent-deep: #e6b64f;
+  --ui-accent-wash: rgba(255, 209, 102, 0.14);
+  --ui-fabric: var(--bp-fabric);
+  --ui-bound: var(--bp-bound);
+  --ui-hand: var(--bp-hand);
+  --ui-hover: rgba(207, 230, 255, 0.09);
+
+  --vscode-font-family: var(--ui-font);
+  --vscode-editor-font-family: var(--ui-mono);
+  --vscode-editor-background: var(--bp-paper);
+  --vscode-panel-background: var(--bp-paper);
+  --vscode-sideBar-background: var(--bp-paper-deep);
+  --vscode-editorGroupHeader-tabsBackground: var(--bp-paper-deep);
+  --vscode-editorWidget-background: rgba(8, 33, 64, 0.82);
+  --vscode-activityBar-background: var(--bp-paper-deep);
+  --vscode-input-background: rgba(8, 33, 64, 0.7);
+  --vscode-panel-border: var(--ui-border);
+  --vscode-input-border: var(--ui-border);
+  --vscode-foreground: var(--bp-line);
+  --vscode-input-foreground: var(--bp-line);
+  --vscode-descriptionForeground: var(--bp-line-2);
+  --vscode-charts-blue: var(--bp-line);
+  --vscode-charts-purple: var(--bp-fabric);
+  --vscode-charts-green: var(--bp-bound);
+  --vscode-charts-orange: var(--bp-hand);
+  --vscode-charts-yellow: var(--bp-accent);
+  --vscode-charts-red: var(--bp-fail);
+  --vscode-button-background: var(--bp-accent);
+  --vscode-button-foreground: #2b1d00;
+  --vscode-button-secondaryBackground: rgba(207, 230, 255, 0.1);
+  --vscode-button-secondaryForeground: var(--bp-line);
+  --vscode-focusBorder: var(--bp-accent);
+  --vscode-textLink-foreground: var(--bp-line);
+  --vscode-tab-activeForeground: var(--bp-line);
+  --vscode-tab-inactiveForeground: var(--bp-line-3);
+  --vscode-panelTitle-activeForeground: var(--bp-line);
+  --vscode-panelTitle-inactiveForeground: var(--bp-line-3);
+  --vscode-panelTitle-activeBorder: var(--bp-accent);
+  --vscode-statusBar-background: var(--bp-paper-deep);
+  --vscode-statusBar-foreground: var(--bp-line-2);
+  --vscode-statusBarItem-errorBackground: var(--bp-fail);
+  --vscode-statusBarItem-warningBackground: var(--bp-hand);
+  --vscode-inputValidation-errorBackground: rgba(255, 143, 160, 0.16);
+  --vscode-inputValidation-errorBorder: var(--bp-fail);
+  --vscode-toolbar-hoverBackground: rgba(207, 230, 255, 0.1);
+  --vscode-editorIndentGuide-background: transparent;
+}
+
+[data-skin='blueprint'] body { background: var(--bp-paper); color: var(--bp-line); }
+[data-skin='blueprint'] .shell,
+[data-skin='blueprint'] .welcome { background: var(--bp-paper); }
+
+/* The modular grid: a fine line every 16px, a heavy one every fifth. This is
+   the sheet itself, and it is the only "texture" a contact print can have. */
+[data-skin='blueprint'] .canvas,
+[data-skin='blueprint'] .welcome {
+  background-image:
+    repeating-linear-gradient(to bottom, transparent 0 79px, rgba(207, 230, 255, 0.2) 79px 80px),
+    repeating-linear-gradient(to right, transparent 0 79px, rgba(207, 230, 255, 0.2) 79px 80px),
+    repeating-linear-gradient(to bottom, transparent 0 15px, rgba(207, 230, 255, 0.075) 15px 16px),
+    repeating-linear-gradient(to right, transparent 0 15px, rgba(207, 230, 255, 0.075) 15px 16px);
+  background-color: var(--bp-paper);
+}
+[data-skin='blueprint'] .welcome::after { display: none; }
+
+/* ------------------------------------------------------------------ line only */
+
+/* No fills anywhere: a block is its outline. The slight paper-darkening keeps
+   wires from reading through the body without becoming a fill. */
+[data-skin='blueprint'] .node {
+  background: rgba(8, 33, 64, 0.72);
+  border: 1.5px solid var(--bp-line);
+  border-radius: 0;
+  box-shadow: none;
+}
+[data-skin='blueprint'] .node.composite,
+[data-skin='blueprint'] .node.router { border-color: var(--bp-fabric); border-width: 2px; }
+[data-skin='blueprint'] .node.io-node { border-color: var(--bp-bound); border-radius: 0; }
+[data-skin='blueprint'] .node.handwritten { border-style: dashed; border-color: var(--bp-hand); }
+[data-skin='blueprint'] .node.selected {
+  border-color: var(--bp-accent);
+  box-shadow: 0 0 0 1px var(--bp-accent);
+}
+[data-skin='blueprint'] .node-title { border-bottom: 1px solid rgba(207, 230, 255, 0.35); }
+
+/* Single-stroke gothic: drafting lettering is caps, wide, and never bold. */
+[data-skin='blueprint'] .node-label {
+  font-family: var(--ui-font);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--bp-line);
+}
+[data-skin='blueprint'] .node-id,
+[data-skin='blueprint'] .port-name,
+[data-skin='blueprint'] .var-row { color: var(--bp-line-2); }
+[data-skin='blueprint'] .var-type { color: var(--bp-line-3); }
+[data-skin='blueprint'] .var-section { border-top: 1px dashed rgba(207, 230, 255, 0.3); }
+
+/* Ports are open circles — a drafted junction, not a filled dot. */
+[data-skin='blueprint'] .port-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  transform: none;
+  background: var(--bp-paper);
+  border: 1.5px solid var(--bp-line);
+  box-shadow: none;
+}
+[data-skin='blueprint'] .port-dot.in { transform: translateY(-50%); border-color: var(--bp-line-3); }
+[data-skin='blueprint'] .port-row.in-row .port-dot.in { transform: none; margin-left: -6px; }
+[data-skin='blueprint'] .port-dot.in.wired { border-color: var(--bp-line); }
+[data-skin='blueprint'] .port-row.pin-row .port-dot.pin { border-color: var(--bp-bound); }
+[data-skin='blueprint'] .port-dot.new-port {
+  border-radius: 50%;
+  transform: none;
+  background: var(--bp-accent);
+  border: none;
+  color: #2b1d00;
+}
+[data-skin='blueprint'] .port-dot.new-port::before { transform: none; line-height: 13px; }
+
+/* Weight is the only hierarchy a print has, so custody is carried by it. */
+[data-skin='blueprint'] .wire-wired .wire-line { stroke: var(--bp-line); stroke-width: 2; }
+[data-skin='blueprint'] .wire-routed .wire-line { stroke: var(--bp-fabric); stroke-width: 2; }
+[data-skin='blueprint'] .wire-inferred .wire-line {
+  stroke: var(--bp-line-3);
+  stroke-width: 1;
+  stroke-dasharray: 9 4;
+}
+[data-skin='blueprint'] .wire-derived .wire-line {
+  stroke: var(--bp-fabric);
+  stroke-width: 1;
+  stroke-dasharray: 9 4;
+  opacity: 0.75;
+}
+[data-skin='blueprint'] .wire-stub .wire-line,
+[data-skin='blueprint'] .wire-unresolved .wire-line {
+  stroke: var(--bp-line-3);
+  stroke-width: 1.5;
+  stroke-dasharray: 2 4;
+  filter: none;
+}
+[data-skin='blueprint'] .wire-unresolved .wire-line { stroke: var(--bp-fail); }
+[data-skin='blueprint'] .wire-fabric .wire-line { stroke: var(--bp-fabric); opacity: 0.45; }
+[data-skin='blueprint'] .wire-label,
+[data-skin='blueprint'] .wire-count,
+[data-skin='blueprint'] .wire-via,
+[data-skin='blueprint'] .wire-warn,
+[data-skin='blueprint'] .wire-ext,
+[data-skin='blueprint'] .wire-derived-label,
+[data-skin='blueprint'] .wire-bw,
+[data-skin='blueprint'] .wire-fabric-error {
+  font-family: var(--ui-font);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  stroke: var(--bp-paper);
+  stroke-width: 3;
+  paint-order: stroke;
+}
+[data-skin='blueprint'] .wire-warn { fill: var(--bp-line-2); }
+[data-skin='blueprint'] .wire-via,
+[data-skin='blueprint'] .wire-derived-label { fill: var(--bp-fabric); }
+[data-skin='blueprint'] .wire-fabric-error { fill: var(--bp-fail); }
+[data-skin='blueprint'] .message-link { color: var(--bp-line); font-family: var(--ui-mono); }
+
+/* -------------------------------------------------------------- the sheet */
+
+/* Chrome is ruled onto the sheet, not floated above it. */
+[data-skin='blueprint'] .titlebar {
+  background: transparent;
+  border-bottom: 1.5px solid var(--bp-line);
+}
+[data-skin='blueprint'] .ledger {
+  background: transparent;
+  border-top: 1.5px solid var(--bp-line);
+}
+[data-skin='blueprint'] .canvas-float {
+  background: rgba(8, 33, 64, 0.9);
+  border: 1.5px solid var(--bp-line);
+  border-radius: 0;
+  box-shadow: none;
+}
+[data-skin='blueprint'] .canvas-float button,
+[data-skin='blueprint'] .crumb,
+[data-skin='blueprint'] .tb-btn,
+[data-skin='blueprint'] .tb-btn,
+[data-skin='blueprint'] .tb-btn,
+[data-skin='blueprint'] .ledger-strip,
+[data-skin='blueprint'] .panel-tabs button {
+  color: var(--bp-line-2);
+  font-family: var(--ui-font);
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  font-size: 9.5px;
+}
+[data-skin='blueprint'] .canvas-float button.on,
+[data-skin='blueprint'] .seg button.on {
+  background: var(--bp-accent);
+  color: #2b1d00;
+}
+[data-skin='blueprint'] .seg { border-color: var(--bp-line); border-radius: 0; }
+[data-skin='blueprint'] .crumb.on { color: var(--bp-line); }
+[data-skin='blueprint'] .tb-btn:hover,
+[data-skin='blueprint'] .tb-btn:hover,
+[data-skin='blueprint'] .tb-btn:hover { color: var(--bp-line); border-color: var(--bp-line); }
+[data-skin='blueprint'] .tb-btn { border: 1px solid var(--bp-line); border-radius: 0; }
+[data-skin='blueprint'] .tb-run {
+  background: var(--bp-accent);
+  color: #2b1d00;
+  border-radius: 0;
+}
+[data-skin='blueprint'] .tb-btn kbd { border-color: var(--ui-border); color: var(--bp-line-3); }
+
+/* Overlays are a second sheet laid on the first: outlined, with corner ticks. */
+[data-skin='blueprint'] .pane-detail,
+[data-skin='blueprint'] .lib,
+[data-skin='blueprint'] .connect-form,
+[data-skin='blueprint'] .field-card,
+[data-skin='blueprint'] .run-config,
+[data-skin='blueprint'] .toast {
+  background: rgba(8, 33, 64, 0.96);
+  border: 1.5px solid var(--bp-line);
+  border-radius: 0;
+  box-shadow: none;
+}
+[data-skin='blueprint'] .pane-detail { border-left: 1.5px solid var(--bp-line); }
+[data-skin='blueprint'] .insp-card {
+  background: transparent;
+  border: 1px solid var(--ui-border);
+  border-left: 1px solid var(--ui-border);
+  border-radius: 0;
+}
+[data-skin='blueprint'] .insp-card > summary,
+[data-skin='blueprint'] .insp-tile-lab { color: var(--bp-line-2); }
+[data-skin='blueprint'] .insp-glyph,
+[data-skin='blueprint'] .insp-avatar {
+  background: transparent;
+  border: 1px solid var(--bp-line);
+  border-radius: 0;
+  color: var(--bp-line);
+}
+[data-skin='blueprint'] .insp-tile {
+  background: transparent;
+  border: 1px solid var(--ui-border);
+  border-radius: 0;
+}
+[data-skin='blueprint'] .inspector button,
+[data-skin='blueprint'] .transport button {
+  background: transparent;
+  border: 1px solid var(--ui-border);
+  border-radius: 0;
+  color: var(--bp-line);
+}
+[data-skin='blueprint'] .inspector input,
+[data-skin='blueprint'] .insp-card-body input,
+[data-skin='blueprint'] .insp-card-body select,
+[data-skin='blueprint'] .lib-input,
+[data-skin='blueprint'] .connect-form input,
+[data-skin='blueprint'] .connect-form select {
+  background: rgba(8, 33, 64, 0.7);
+  border: 1px solid var(--ui-border);
+  border-radius: 0;
+  color: var(--bp-line);
+}
+[data-skin='blueprint'] .lib-row { border-left: 2px solid transparent; border-radius: 0; }
+[data-skin='blueprint'] .lib-row.on {
+  background: var(--ui-accent-wash);
+  border-left-color: var(--bp-accent);
+}
+[data-skin='blueprint'] .lib-glyph { color: var(--bp-accent); }
+[data-skin='blueprint'] .lib-label { color: var(--bp-line); }
+[data-skin='blueprint'] .lib-hint { color: var(--bp-line-3); }
+[data-skin='blueprint'] .lib-scrim { background: rgba(4, 16, 32, 0.62); }
+
+[data-skin='blueprint'] .console,
+[data-skin='blueprint'] .console-line { color: var(--bp-line-2); font-family: var(--ui-mono); }
+[data-skin='blueprint'] .pipe-bar { background: var(--bp-line); border-radius: 0; }
+[data-skin='blueprint'] .lg-measured { color: var(--bp-line); border-bottom-color: var(--bp-accent); }
+
+/* ----------------------------------------------------------------- welcome */
+
+[data-skin='blueprint'] .welcome-name { color: var(--bp-line); text-transform: uppercase; letter-spacing: 0.04em; font-size: 30px; }
+[data-skin='blueprint'] .welcome-name em { color: var(--bp-accent); }
+[data-skin='blueprint'] .welcome-rule i,
+[data-skin='blueprint'] .welcome-rule b { background: var(--bp-accent); }
+[data-skin='blueprint'] .welcome-what { color: var(--bp-line-2); }
+[data-skin='blueprint'] .welcome-primary {
+  background: var(--bp-accent);
+  color: #2b1d00;
+  clip-path: none;
+  border-radius: 0;
+}
+[data-skin='blueprint'] .welcome-recent-name { color: var(--bp-line); }
+[data-skin='blueprint'] .welcome-recent::before { border-color: var(--bp-line); background: var(--bp-paper); }
+[data-skin='blueprint'] .n-plate { fill: rgba(8, 33, 64, 0.8); stroke: var(--bp-line); stroke-width: 1.5; }
+[data-skin='blueprint'] .n-label { fill: var(--bp-line); text-transform: uppercase; letter-spacing: 0.1em; font-size: 11px; font-weight: 400; }
+[data-skin='blueprint'] .n-cat { fill: var(--bp-line-3); }
+[data-skin='blueprint'] .n-fold,
+[data-skin='blueprint'] .n-rule-doc { fill: var(--bp-line); stroke: var(--bp-line); }
+[data-skin='blueprint'] .n-fold-fabric,
+[data-skin='blueprint'] .n-rule-fabric { fill: var(--bp-fabric); stroke: var(--bp-fabric); }
+[data-skin='blueprint'] .w-documented { stroke: var(--bp-line); }
+[data-skin='blueprint'] .w-attested { stroke: var(--bp-fabric); }
+[data-skin='blueprint'] .w-inferred { stroke: var(--bp-line-3); }
+[data-skin='blueprint'] .w-silent { stroke: var(--bp-line-3); }
+[data-skin='blueprint'] .w-disputed { stroke: var(--bp-fail); }
+[data-skin='blueprint'] .stamp-box,
+[data-skin='blueprint'] .stamp-text { stroke: var(--bp-fabric); fill: var(--bp-fabric); }
+[data-skin='blueprint'] .ann-fabric { fill: var(--bp-fabric); }
+[data-skin='blueprint'] .ann-silent { fill: var(--bp-line-3); }
+[data-skin='blueprint'] .ann-disputed { fill: var(--bp-fail); }
+[data-skin='blueprint'] .welcome-schematic text.ann { stroke: var(--bp-paper); }
+[data-skin='blueprint'] .legend-name { color: var(--bp-line-2); }
+[data-skin='blueprint'] .legend-meaning { color: var(--bp-line-3); }

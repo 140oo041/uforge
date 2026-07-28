@@ -1,0 +1,78 @@
+{
+  "name": "RISC-V RV32I CPU",
+  "kind": "cpu",
+  "xlen": 32,
+  "lanes": {
+    "harts": 1
+  },
+  "types": [
+    {
+      "name": "word",
+      "base": "uint32_t"
+    }
+  ],
+  "signals": [],
+  "io": [],
+  "state": [
+    {
+      "name": "x",
+      "label": "General registers",
+      "bits": 32,
+      "count": 32,
+      "space": "reg",
+      "type": "word"
+    },
+    {
+      "name": "pc",
+      "label": "Program counter",
+      "bits": 32,
+      "space": "pc",
+      "type": "word",
+      "init": "0x80000000"
+    }
+  ],
+  "operations": [
+    {
+      "mnemonic": "addi",
+      "format": "I",
+      "summary": "rd = rs1 + imm",
+      "oracle": true
+    },
+    {
+      "mnemonic": "add",
+      "format": "R",
+      "summary": "rd = rs1 + rs2",
+      "oracle": true
+    },
+    {
+      "mnemonic": "sub",
+      "format": "R",
+      "summary": "rd = rs1 - rs2",
+      "oracle": true
+    },
+    {
+      "mnemonic": "lui",
+      "format": "U",
+      "summary": "rd = imm << 12",
+      "oracle": true
+    },
+    {
+      "mnemonic": "lw",
+      "format": "I",
+      "summary": "rd = mem[rs1 + imm]",
+      "oracle": true
+    },
+    {
+      "mnemonic": "sw",
+      "format": "S",
+      "summary": "mem[rs1 + imm] = rs2",
+      "oracle": true
+    },
+    {
+      "mnemonic": "beq",
+      "format": "B",
+      "summary": "if rs1 == rs2: pc += imm",
+      "oracle": true
+    }
+  ]
+}

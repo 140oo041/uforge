@@ -1,0 +1,753 @@
+/* GLASS — the modular cosmetic mode.
+ *
+ * Glass is on every "don't" list for a reason: it is usually a translucent
+ * rectangle over a flat colour, which is a texture pretending to be depth. It
+ * earns itself only when there is something real behind it to refract and a
+ * genuine z-order to express. So this mode is built around those two things:
+ *
+ *   · the ground is a LIT FIELD, not a flat fill — three wide colour pools and
+ *     a fine grid, so a panel's blur actually resolves something and each panel
+ *     picks up different light depending on where it sits;
+ *   · panels are MODULES that hover — detached, inset from the edges, each with
+ *     its own elevation, and each lifting toward the viewer on hover;
+ *   · the specular top edge is a 1px lighter border, because real glass catches
+ *     light on the edge facing it. That single line is what stops a translucent
+ *     rectangle reading as a grey box.
+ *
+ * Everything semantic is preserved: the same custody meanings ride the same
+ * --vscode-* tokens, re-tuned for a dark ground. This is a costume, not a
+ * different product.
+ *
+ * Scoped entirely to [data-skin='glass'] and loaded last, so the record skin is
+ * the untouched default and this overrides it only when selected.
+ */
+
+:root[data-skin='glass'] {
+  color-scheme: dark;
+
+  /* ---- the field ------------------------------------------------------- */
+  --g-void: #080b11;
+  --g-ink: #e9eef6;
+  --g-muted: #9aa8bd;      /* 7.8:1 on the ground */
+  --g-dim: #7d8ba1;        /* 5.4:1 — the floor for anything readable */
+
+  /* ---- glass ----------------------------------------------------------- */
+  --g-pane: rgba(146, 176, 214, 0.07);
+  --g-pane-lift: rgba(150, 182, 222, 0.115);
+  --g-edge: rgba(190, 214, 244, 0.14);
+  --g-edge-lift: rgba(200, 224, 255, 0.3);
+  --g-specular: rgba(255, 255, 255, 0.22);
+  --g-blur: blur(22px) saturate(1.5);
+  --g-blur-heavy: blur(40px) saturate(1.6);
+
+  /* Elevation is a real ramp: modules sit at different heights and say so. */
+  --g-lift-1: 0 1px 2px rgba(0, 0, 0, 0.4), 0 6px 18px rgba(0, 0, 0, 0.3);
+  --g-lift-2: 0 2px 4px rgba(0, 0, 0, 0.45), 0 14px 38px rgba(0, 0, 0, 0.42);
+  --g-lift-3: 0 3px 8px rgba(0, 0, 0, 0.5), 0 30px 70px rgba(0, 0, 0, 0.55);
+
+  --g-ease: cubic-bezier(0.22, 0.9, 0.28, 1);
+  --g-r: 14px;
+  --g-r-sm: 9px;
+
+  /* ---- semantic hues, re-tuned for the dark field ---------------------- */
+  --g-custody: #4dd4ff;   /* documented — the ribbon's role */
+  --g-fabric: #a78bfa;    /* a router's rules own this */
+  --g-bound: #34d399;     /* a confirmed boundary */
+  --g-hand: #fbbf24;      /* hand-authored */
+  --g-fail: #fb7185;      /* failure */
+  --g-silent: #64748b;    /* no record */
+
+  --ui-font: system-ui, -apple-system, 'Segoe UI', Roboto, 'DejaVu Sans', sans-serif;
+  --ui-mono: ui-monospace, 'Cascadia Mono', 'DejaVu Sans Mono', monospace;
+
+  /* The shell's token contract. This block was missing while glass was the only
+     other skin and the record tokens still sat unscoped at :root — which made
+     every pane in this mode render on cream. Every skin fills all of these. */
+  --ui-bg: var(--g-void);
+  --ui-surface: var(--g-pane);
+  --ui-border: var(--g-edge);
+  --ui-border-strong: var(--g-edge-lift);
+  --ui-ink: var(--g-ink);
+  --ui-ink-2: var(--g-muted);
+  --ui-ink-3: var(--g-dim);
+  --ui-muted: var(--g-silent);
+  --ui-accent: var(--g-custody);
+  --ui-accent-deep: #35b8e0;
+  --ui-accent-wash: rgba(77, 212, 255, 0.16);
+  --ui-fabric: var(--g-fabric);
+  --ui-bound: var(--g-bound);
+  --ui-hand: var(--g-hand);
+  --ui-hover: rgba(255, 255, 255, 0.07);
+
+  /* The canvas reads these and nothing else — one map, whole new world. */
+  --vscode-font-family: var(--ui-font);
+  --vscode-editor-font-family: var(--ui-mono);
+
+  --vscode-editor-background: transparent;
+  --vscode-panel-background: transparent;
+  --vscode-sideBar-background: transparent;
+  --vscode-editorGroupHeader-tabsBackground: transparent;
+  --vscode-editorWidget-background: var(--g-pane);
+  --vscode-activityBar-background: transparent;
+  --vscode-input-background: rgba(9, 13, 20, 0.5);
+  --vscode-panel-border: var(--g-edge);
+  --vscode-input-border: var(--g-edge);
+
+  --vscode-foreground: var(--g-ink);
+  --vscode-input-foreground: var(--g-ink);
+  --vscode-descriptionForeground: var(--g-muted);
+  --vscode-activityBar-foreground: var(--g-ink);
+  --vscode-activityBar-inactiveForeground: var(--g-dim);
+
+  --vscode-charts-blue: var(--g-custody);
+  --vscode-charts-purple: var(--g-fabric);
+  --vscode-charts-green: var(--g-bound);
+  --vscode-charts-orange: var(--g-hand);
+  --vscode-charts-yellow: #facc15;
+  --vscode-charts-red: var(--g-fail);
+
+  --vscode-button-background: var(--g-custody);
+  --vscode-button-foreground: #04202b;
+  --vscode-button-secondaryBackground: var(--g-pane-lift);
+  --vscode-button-secondaryForeground: var(--g-ink);
+  --vscode-focusBorder: var(--g-custody);
+  --vscode-textLink-foreground: var(--g-custody);
+
+  --vscode-tab-activeForeground: var(--g-ink);
+  --vscode-tab-inactiveForeground: var(--g-dim);
+  --vscode-panelTitle-activeForeground: var(--g-ink);
+  --vscode-panelTitle-inactiveForeground: var(--g-dim);
+  --vscode-panelTitle-activeBorder: var(--g-custody);
+  --vscode-statusBar-background: transparent;
+  --vscode-statusBar-foreground: var(--g-muted);
+  --vscode-statusBarItem-errorBackground: var(--g-fail);
+  --vscode-statusBarItem-warningBackground: var(--g-hand);
+  --vscode-inputValidation-errorBackground: rgba(251, 113, 133, 0.14);
+  --vscode-inputValidation-errorBorder: var(--g-fail);
+  --vscode-toolbar-hoverBackground: rgba(255, 255, 255, 0.07);
+  --vscode-editorIndentGuide-background: transparent;
+}
+
+[data-skin='glass'] body {
+  color: var(--g-ink);
+  background: var(--g-void);
+}
+
+/* ---------------------------------------------------------------- the field */
+
+/* Three wide pools of light. This is what the panels refract; without it the
+   blur has nothing to do and the whole mode collapses into grey rectangles. */
+[data-skin='glass'] .shell,
+[data-skin='glass'] .welcome {
+  background:
+    radial-gradient(120% 90% at 12% 8%, rgba(77, 212, 255, 0.16), transparent 55%),
+    radial-gradient(100% 80% at 88% 18%, rgba(167, 139, 250, 0.16), transparent 55%),
+    radial-gradient(120% 100% at 60% 100%, rgba(52, 211, 153, 0.1), transparent 60%),
+    var(--g-void);
+}
+
+/* The bench floor keeps a grid, but as light rather than ink. */
+[data-skin='glass'] .canvas {
+  background:
+    repeating-linear-gradient(to bottom, transparent 0 31px, rgba(190, 214, 244, 0.045) 31px 32px),
+    repeating-linear-gradient(to right, transparent 0 31px, rgba(190, 214, 244, 0.035) 31px 32px);
+  background-color: transparent;
+}
+
+[data-skin='glass'] .app,
+[data-skin='glass'] .panel-pane,
+[data-skin='glass'] .editor-pane,
+[data-skin='glass'] .panes { background: transparent; }
+
+/* ------------------------------------------------------------- the modules */
+
+/* One shared module recipe: translucent pane, blurred backdrop, hairline edge,
+   and a specular highlight on the top edge only. */
+[data-skin='glass'] .titlebar,
+[data-skin='glass'] .ledger,
+[data-skin='glass'] .canvas-float,
+[data-skin='glass'] .pane-detail,
+[data-skin='glass'] .lib,
+[data-skin='glass'] .connect-form,
+[data-skin='glass'] .field-card,
+[data-skin='glass'] .run-config,
+[data-skin='glass'] .toast,
+[data-skin='glass'] .node {
+  background: var(--g-pane);
+  -webkit-backdrop-filter: var(--g-blur);
+  backdrop-filter: var(--g-blur);
+  border: 1px solid var(--g-edge);
+  border-radius: var(--g-r);
+  box-shadow: var(--g-lift-1), inset 0 1px 0 0 var(--g-specular);
+}
+
+/* Modular means detached: the record bar and ledger float clear of the window
+   edges instead of being welded to them. */
+/* The title bar is a module too, but it must not fight the shell's track
+   sizing — only its own surface. */
+[data-skin='glass'] .titlebar {
+  margin: 6px 8px 0;
+  border-radius: var(--g-r);
+  box-shadow: var(--g-lift-2), inset 0 1px 0 0 var(--g-specular);
+}
+[data-skin='glass'] .scopebar { padding-top: 4px; }
+[data-skin='glass'] .ledger {
+  margin: 0 8px 8px;
+  border-radius: var(--g-r);
+  overflow: hidden;
+  box-shadow: var(--g-lift-2), inset 0 1px 0 0 var(--g-specular);
+}
+[data-skin='glass'] .ledger-strip { height: 34px; color: var(--g-muted); }
+[data-skin='glass'] .ledger-strip:hover { background: rgba(255, 255, 255, 0.05); }
+[data-skin='glass'] .ledger-body { border-top: 1px solid var(--g-edge); }
+
+[data-skin='glass'] .canvas-float {
+  border-radius: 999px;
+  padding: 5px 7px;
+  gap: 3px;
+  box-shadow: var(--g-lift-2), inset 0 1px 0 0 var(--g-specular);
+}
+[data-skin='glass'] .canvas-float button {
+  border-radius: 999px;
+  color: var(--g-muted);
+  transition: background 0.16s var(--g-ease), color 0.16s var(--g-ease),
+    transform 0.16s var(--g-ease);
+}
+[data-skin='glass'] .canvas-float button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--g-ink);
+  transform: translateY(-1px);
+}
+[data-skin='glass'] .canvas-float button.on {
+  background: var(--g-custody);
+  color: #04202b;
+}
+[data-skin='glass'] .float-rule { background: var(--g-edge); }
+
+/* ------------------------------------------------------------------ blocks */
+
+/* A block is a module too — and the one that most wants to hover, because it is
+   the object being manipulated. */
+[data-skin='glass'] .node {
+  border-radius: var(--g-r-sm);
+  border-left: 1px solid var(--g-edge);
+  transition: transform 0.18s var(--g-ease), box-shadow 0.18s var(--g-ease),
+    border-color 0.18s var(--g-ease), background 0.18s var(--g-ease);
+  will-change: transform;
+}
+[data-skin='glass'] .node:hover {
+  transform: translateY(-2px);
+  background: var(--g-pane-lift);
+  border-color: var(--g-edge-lift);
+  box-shadow: var(--g-lift-2), inset 0 1px 0 0 var(--g-specular);
+}
+[data-skin='glass'] .node.selected {
+  border-color: var(--g-custody);
+  box-shadow:
+    0 0 0 1px var(--g-custody),
+    0 0 24px -4px rgba(77, 212, 255, 0.5),
+    var(--g-lift-2),
+    inset 0 1px 0 0 var(--g-specular);
+}
+[data-skin='glass'] .node.composite { border-left: 1px solid rgba(167, 139, 250, 0.55); }
+[data-skin='glass'] .node.router { border-left: 1px solid rgba(167, 139, 250, 0.8); }
+[data-skin='glass'] .node.io-node {
+  border-radius: 999px;
+  border-left: 1px solid rgba(52, 211, 153, 0.6);
+}
+[data-skin='glass'] .node.handwritten { border-style: dashed; }
+
+[data-skin='glass'] .node-title { border-bottom: 1px solid var(--g-edge); }
+[data-skin='glass'] .node-label {
+  font-family: var(--ui-font);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  color: var(--g-ink);
+}
+[data-skin='glass'] .node-id { color: var(--g-dim); font-size: 9.5px; }
+[data-skin='glass'] .port-name { color: var(--g-muted); font-size: 10px; }
+[data-skin='glass'] .var-row { color: var(--g-dim); }
+[data-skin='glass'] .var-type { color: var(--g-silent); }
+[data-skin='glass'] .var-section { border-top: 1px solid var(--g-edge); }
+
+/* Ports become luminous points rather than paper folds. */
+[data-skin='glass'] .port-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  transform: none;
+  background: var(--g-custody);
+  border: 2px solid rgba(8, 11, 17, 0.85);
+  box-shadow: 0 0 10px -1px rgba(77, 212, 255, 0.8);
+  transition: box-shadow 0.16s var(--g-ease), transform 0.16s var(--g-ease);
+}
+[data-skin='glass'] .port-dot:hover { transform: scale(1.25); }
+[data-skin='glass'] .port-row.in-row .port-dot.in { transform: none; margin-left: -6px; }
+[data-skin='glass'] .port-dot.in {
+  background: var(--g-silent);
+  box-shadow: none;
+  transform: translateY(-50%);
+}
+[data-skin='glass'] .port-dot.in.wired {
+  background: var(--g-custody);
+  box-shadow: 0 0 10px -1px rgba(77, 212, 255, 0.8);
+}
+[data-skin='glass'] .port-row.pin-row .port-dot.pin {
+  background: var(--g-bound);
+  box-shadow: 0 0 10px -1px rgba(52, 211, 153, 0.8);
+}
+[data-skin='glass'] .port-dot.new-port {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  transform: none;
+  background: var(--g-custody);
+  color: #04202b;
+}
+[data-skin='glass'] .port-dot.new-port::before { transform: none; line-height: 15px; }
+
+/* ------------------------------------------------------------------- wires */
+
+/* The custody meanings survive; only the material changes. Documented traces
+   glow because on a lit field a line has to compete with the light. */
+[data-skin='glass'] .wire-wired .wire-line {
+  stroke: var(--g-custody);
+  stroke-width: 1.75;
+  filter: drop-shadow(0 0 5px rgba(77, 212, 255, 0.55));
+}
+[data-skin='glass'] .wire-routed .wire-line {
+  stroke: var(--g-fabric);
+  stroke-width: 1.75;
+  filter: drop-shadow(0 0 5px rgba(167, 139, 250, 0.5));
+}
+[data-skin='glass'] .wire-inferred .wire-line {
+  stroke: var(--g-silent);
+  stroke-width: 1.5;
+  stroke-dasharray: 7 5;
+  filter: none;
+}
+[data-skin='glass'] .wire-derived .wire-line {
+  stroke: var(--g-fabric);
+  stroke-width: 1.25;
+  stroke-dasharray: 7 5;
+  opacity: 0.7;
+  filter: none;
+}
+[data-skin='glass'] .wire-stub .wire-line,
+[data-skin='glass'] .wire-unresolved .wire-line {
+  stroke: var(--g-silent);
+  stroke-width: 2;
+  stroke-dasharray: 1 3 2.5 2 1 3.5 2 2;
+  stroke-linecap: round;
+  filter: none;
+}
+[data-skin='glass'] .wire-unresolved .wire-line { stroke: var(--g-fail); }
+[data-skin='glass'] .wire-fabric .wire-line { stroke: var(--g-fabric); opacity: 0.4; }
+
+[data-skin='glass'] .wire-label,
+[data-skin='glass'] .wire-count,
+[data-skin='glass'] .wire-via,
+[data-skin='glass'] .wire-warn,
+[data-skin='glass'] .wire-ext,
+[data-skin='glass'] .wire-derived-label,
+[data-skin='glass'] .wire-bw,
+[data-skin='glass'] .wire-fabric-error {
+  font-family: var(--ui-font);
+  letter-spacing: 0;
+  stroke: rgba(8, 11, 17, 0.9);
+  stroke-width: 3.5;
+  paint-order: stroke;
+}
+[data-skin='glass'] .wire-via,
+[data-skin='glass'] .wire-derived-label { fill: var(--g-fabric); }
+[data-skin='glass'] .wire-warn { fill: var(--g-dim); }
+[data-skin='glass'] .wire-fabric-error { fill: var(--g-fail); }
+[data-skin='glass'] .message-link {
+  color: var(--g-custody);
+  font-family: var(--ui-mono);
+  text-decoration: none;
+}
+[data-skin='glass'] .message-link:hover { text-decoration: underline; }
+
+[data-skin='glass'] .tokens circle {
+  filter: drop-shadow(0 0 6px currentColor);
+  stroke: none;
+}
+
+/* --------------------------------------------------------------- record bar */
+
+[data-skin='glass'] .crumb,
+[data-skin='glass'] .tb-btn,
+[data-skin='glass'] .tb-btn,
+[data-skin='glass'] .seg button,
+[data-skin='glass'] .tb-run,
+[data-skin='glass'] .tb-btn {
+  font-family: var(--ui-font);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  transition: all 0.16s var(--g-ease);
+}
+[data-skin='glass'] .crumb { color: var(--g-muted); }
+[data-skin='glass'] .crumb.on { color: var(--g-ink); font-weight: 600; }
+[data-skin='glass'] .crumb-sep { color: var(--g-silent); }
+
+[data-skin='glass'] .seg {
+  border: 1px solid var(--g-edge);
+  border-radius: 999px;
+  padding: 2px;
+  background: rgba(0, 0, 0, 0.22);
+}
+[data-skin='glass'] .seg button {
+  border-radius: 999px;
+  padding: 4px 14px;
+  color: var(--g-muted);
+}
+[data-skin='glass'] .seg button.on {
+  background: var(--g-pane-lift);
+  color: var(--g-ink);
+  box-shadow: var(--g-lift-1), inset 0 1px 0 0 var(--g-specular);
+}
+
+[data-skin='glass'] .tb-btn,
+[data-skin='glass'] .tb-btn,
+[data-skin='glass'] .tb-btn {
+  border-radius: 999px;
+  border: 1px solid transparent;
+  color: var(--g-muted);
+  padding: 5px 13px;
+}
+[data-skin='glass'] .tb-btn:hover,
+[data-skin='glass'] .tb-btn:hover,
+[data-skin='glass'] .tb-btn:hover {
+  color: var(--g-ink);
+  background: rgba(255, 255, 255, 0.07);
+  border-color: var(--g-edge);
+  transform: translateY(-1px);
+}
+[data-skin='glass'] .tb-btn { border-color: var(--g-edge); }
+[data-skin='glass'] .tb-btn kbd {
+  border: 1px solid var(--g-edge);
+  border-radius: 5px;
+  color: var(--g-dim);
+  background: rgba(0, 0, 0, 0.25);
+}
+
+[data-skin='glass'] .tb-run {
+  clip-path: none;
+  border-radius: 999px;
+  padding: 7px 18px;
+  background: linear-gradient(180deg, #6fe0ff, var(--g-custody));
+  color: #04202b;
+  font-weight: 600;
+  box-shadow: 0 2px 10px -2px rgba(77, 212, 255, 0.7), inset 0 1px 0 0 rgba(255, 255, 255, 0.45);
+}
+[data-skin='glass'] .tb-run:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px -4px rgba(77, 212, 255, 0.85), inset 0 1px 0 0 rgba(255, 255, 255, 0.5);
+}
+[data-skin='glass'] .tb-run.busy { opacity: 0.5; transform: none; box-shadow: none; }
+
+/* ---------------------------------------------------------------- inspector */
+
+[data-skin='glass'] .pane-detail {
+  border-radius: var(--g-r);
+  border-left: 1px solid var(--g-edge);
+  -webkit-backdrop-filter: var(--g-blur-heavy);
+  backdrop-filter: var(--g-blur-heavy);
+  box-shadow: var(--g-lift-3), inset 0 1px 0 0 var(--g-specular);
+}
+[data-skin='glass'] .pane-detail .insp-head {
+  background: transparent;
+  border-bottom: 1px solid var(--g-edge);
+}
+[data-skin='glass'] .insp-card {
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid var(--g-edge);
+  border-left: 1px solid var(--g-edge);
+  border-radius: var(--g-r-sm);
+  transition: background 0.16s var(--g-ease), border-color 0.16s var(--g-ease),
+    transform 0.16s var(--g-ease);
+}
+[data-skin='glass'] .insp-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--g-edge-lift);
+}
+[data-skin='glass'] .insp-card > summary { color: var(--g-muted); }
+[data-skin='glass'] .insp-card-body { border-top: 1px solid var(--g-edge); }
+[data-skin='glass'] .insp-glyph,
+[data-skin='glass'] .insp-avatar {
+  border-radius: var(--g-r-sm);
+  background: rgba(77, 212, 255, 0.14);
+  border: 1px solid var(--g-edge);
+  color: var(--g-custody);
+}
+[data-skin='glass'] .insp-tile {
+  border-radius: var(--g-r-sm);
+  border: 1px solid var(--g-edge);
+  background: rgba(0, 0, 0, 0.24);
+  transition: border-color 0.16s var(--g-ease), transform 0.16s var(--g-ease);
+}
+[data-skin='glass'] .insp-tile:hover {
+  border-color: var(--g-edge-lift);
+  transform: translateY(-1px);
+}
+[data-skin='glass'] .insp-card-body input.insp-tile-in { color: var(--g-ink); }
+[data-skin='glass'] .inspector button {
+  border-radius: 999px;
+  border: 1px solid var(--g-edge);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--g-ink);
+  transition: all 0.16s var(--g-ease);
+}
+[data-skin='glass'] .inspector button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--g-edge-lift);
+  transform: translateY(-1px);
+  color: var(--g-ink);
+}
+[data-skin='glass'] .inspector button.danger { color: var(--g-fail); }
+[data-skin='glass'] .inspector input,
+[data-skin='glass'] .insp-card-body input,
+[data-skin='glass'] .insp-card-body select,
+[data-skin='glass'] .connect-form input,
+[data-skin='glass'] .connect-form select {
+  border-radius: var(--g-r-sm);
+  border: 1px solid var(--g-edge);
+  background: rgba(0, 0, 0, 0.3);
+  color: var(--g-ink);
+}
+
+/* Chips become soft capsules rather than pressed stamps. */
+[data-skin='glass'] .sv-chip,
+[data-skin='glass'] .entry-badge,
+[data-skin='glass'] .badge,
+[data-skin='glass'] .insp-status,
+[data-skin='glass'] .occupancy-chip,
+[data-skin='glass'] .depth-chip {
+  border-radius: 999px;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  font-size: 9.5px;
+  border: 1px solid currentColor;
+  background: rgba(255, 255, 255, 0.05);
+}
+[data-skin='glass'] .insp-status .dot { border-radius: 50%; transform: none; }
+[data-skin='glass'] .insp-toggle {
+  width: 26px;
+  height: 15px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  border: none;
+  transition: background 0.16s var(--g-ease);
+}
+[data-skin='glass'] .insp-toggle::after {
+  display: block;
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 11px;
+  height: 11px;
+  border: none;
+  border-radius: 50%;
+  background: var(--g-muted);
+  transform: none;
+  transition: left 0.16s var(--g-ease), background 0.16s var(--g-ease);
+}
+[data-skin='glass'] .insp-togrow input:checked ~ .insp-toggle { background: rgba(77, 212, 255, 0.45); }
+[data-skin='glass'] .insp-togrow input:checked ~ .insp-toggle::after {
+  left: 13px;
+  background: var(--g-custody);
+}
+
+/* ------------------------------------------------------------------ library */
+
+[data-skin='glass'] .lib-scrim { background: rgba(4, 7, 12, 0.55); }
+[data-skin='glass'] .lib {
+  border-radius: 18px;
+  border: 1px solid var(--g-edge-lift);
+  -webkit-backdrop-filter: var(--g-blur-heavy);
+  backdrop-filter: var(--g-blur-heavy);
+  box-shadow: var(--g-lift-3), inset 0 1px 0 0 var(--g-specular);
+}
+[data-skin='glass'] .lib-input {
+  border-bottom: 1px solid var(--g-edge);
+  color: var(--g-ink);
+  font-family: var(--ui-font);
+  font-weight: 400;
+}
+[data-skin='glass'] .lib-input::placeholder { color: var(--g-dim); }
+[data-skin='glass'] .lib-row {
+  border-left: none;
+  border-radius: var(--g-r-sm);
+  margin: 0 8px;
+  width: calc(100% - 16px);
+  font-family: var(--ui-font);
+  transition: background 0.14s var(--g-ease), transform 0.14s var(--g-ease);
+}
+[data-skin='glass'] .lib-row.on {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateX(3px);
+}
+[data-skin='glass'] .lib-glyph { color: var(--g-custody); }
+[data-skin='glass'] .lib-label { color: var(--g-ink); font-weight: 600; }
+[data-skin='glass'] .lib-hint { color: var(--g-dim); }
+
+/* -------------------------------------------------------------------- dock */
+
+[data-skin='glass'] .lg-phase { color: var(--g-dim); }
+[data-skin='glass'] .lg-phase.lg-building,
+[data-skin='glass'] .lg-phase.lg-running { color: var(--g-hand); }
+[data-skin='glass'] .lg-phase.lg-done { color: var(--g-bound); }
+[data-skin='glass'] .lg-phase.lg-error {
+  color: #2b0a12;
+  background: var(--g-fail);
+  border-radius: 999px;
+}
+[data-skin='glass'] .lg-measured { color: var(--g-ink); border-bottom-color: var(--g-custody); }
+[data-skin='glass'] .lg-problems { color: var(--g-fail); }
+[data-skin='glass'] .ledger-strip,
+[data-skin='glass'] .panel-tabs button {
+  font-family: var(--ui-font);
+  text-transform: none;
+  letter-spacing: 0.02em;
+  font-size: 11px;
+}
+[data-skin='glass'] .panel-tabs button.on { color: var(--g-ink); }
+[data-skin='glass'] .console { color: var(--g-muted); }
+[data-skin='glass'] .console-line { color: var(--g-muted); }
+[data-skin='glass'] .console-divergence { color: var(--g-fail); }
+[data-skin='glass'] .console-warning { color: var(--g-hand); }
+[data-skin='glass'] .transport button {
+  border-radius: 999px;
+  border: 1px solid var(--g-edge);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--g-ink);
+}
+[data-skin='glass'] .pipe-bar { background: var(--g-custody); border-radius: 999px; }
+[data-skin='glass'] .pipe-grid th,
+[data-skin='glass'] .pipe-grid td { border-color: var(--g-edge); }
+
+/* ----------------------------------------------------------------- welcome */
+
+[data-skin='glass'] .welcome::after { display: none; }
+[data-skin='glass'] .welcome-name { color: var(--g-ink); font-family: var(--ui-font); font-weight: 600; letter-spacing: -0.02em; }
+[data-skin='glass'] .welcome-name em { color: var(--g-custody); }
+[data-skin='glass'] .welcome-rule i { background: var(--g-custody); }
+[data-skin='glass'] .welcome-rule b { background: var(--g-custody); border-radius: 2px; }
+[data-skin='glass'] .welcome-what { color: var(--g-muted); font-family: var(--ui-font); }
+[data-skin='glass'] .welcome-label { color: var(--g-dim); font-family: var(--ui-font); letter-spacing: 0.08em; }
+[data-skin='glass'] .welcome-empty { color: var(--g-dim); }
+[data-skin='glass'] .welcome-hint { color: var(--g-dim); }
+[data-skin='glass'] .welcome-primary {
+  clip-path: none;
+  border-radius: 999px;
+  padding: 11px 26px;
+  background: linear-gradient(180deg, #6fe0ff, var(--g-custody));
+  color: #04202b;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  font-family: var(--ui-font);
+  box-shadow: 0 2px 12px -2px rgba(77, 212, 255, 0.7), inset 0 1px 0 0 rgba(255, 255, 255, 0.45);
+  transition: transform 0.16s var(--g-ease), box-shadow 0.16s var(--g-ease);
+}
+[data-skin='glass'] .welcome-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px -6px rgba(77, 212, 255, 0.9), inset 0 1px 0 0 rgba(255, 255, 255, 0.5);
+}
+[data-skin='glass'] .welcome-recents li { border-color: var(--g-edge); }
+[data-skin='glass'] .welcome-recent {
+  border-left: none;
+  border-radius: var(--g-r-sm);
+  transition: background 0.16s var(--g-ease), transform 0.16s var(--g-ease);
+}
+[data-skin='glass'] .welcome-recent::before { display: none; }
+[data-skin='glass'] .welcome-recent:hover {
+  background: rgba(255, 255, 255, 0.06);
+  transform: translateX(4px);
+}
+[data-skin='glass'] .welcome-recent-name { color: var(--g-ink); font-family: var(--ui-font); font-weight: 600; }
+[data-skin='glass'] .welcome-recent-path { color: var(--g-dim); }
+[data-skin='glass'] .welcome-legend li { border-color: var(--g-edge); }
+[data-skin='glass'] .legend-name { color: var(--g-muted); font-family: var(--ui-font); letter-spacing: 0.06em; }
+[data-skin='glass'] .legend-meaning { color: var(--g-dim); font-family: var(--ui-font); }
+[data-skin='glass'] .w-documented { stroke: var(--g-custody); }
+[data-skin='glass'] .w-attested { stroke: var(--g-fabric); }
+[data-skin='glass'] .w-inferred { stroke: var(--g-silent); }
+[data-skin='glass'] .w-silent { stroke: var(--g-silent); }
+[data-skin='glass'] .w-disputed { stroke: var(--g-fail); }
+[data-skin='glass'] .n-plate {
+  fill: rgba(146, 176, 214, 0.09);
+  stroke: var(--g-edge);
+}
+[data-skin='glass'] .n-label { fill: var(--g-ink); font-family: var(--ui-font); font-weight: 600; }
+[data-skin='glass'] .n-cat { fill: var(--g-dim); }
+[data-skin='glass'] .n-fold { fill: var(--g-custody); }
+[data-skin='glass'] .n-fold-fabric { fill: var(--g-fabric); }
+[data-skin='glass'] .n-rule-doc { stroke: var(--g-custody); }
+[data-skin='glass'] .n-rule-fabric { stroke: var(--g-fabric); }
+[data-skin='glass'] .stamp-box { stroke: var(--g-fabric); }
+[data-skin='glass'] .stamp-text { fill: var(--g-fabric); }
+[data-skin='glass'] .ann-fabric { fill: var(--g-fabric); }
+[data-skin='glass'] .ann-silent { fill: var(--g-dim); }
+[data-skin='glass'] .ann-disputed { fill: var(--g-fail); }
+[data-skin='glass'] .welcome-schematic text.ann { stroke: rgba(8, 11, 17, 0.9); }
+
+/* --------------------------------------------------------------- the toast */
+
+[data-skin='glass'] .toast {
+  border-radius: var(--g-r);
+  border: 1px solid rgba(251, 113, 133, 0.5);
+  color: var(--g-ink);
+}
+
+/* Glass is expensive. Honour the OS request to calm things down by dropping the
+   blur and the lift entirely — the layout is unaffected, only the material. */
+@media (prefers-reduced-motion: reduce) {
+  [data-skin='glass'] * { transition: none !important; }
+  [data-skin='glass'] .node:hover,
+  [data-skin='glass'] .tb-run:hover,
+  [data-skin='glass'] .welcome-primary:hover,
+  [data-skin='glass'] .insp-tile:hover,
+  [data-skin='glass'] .welcome-recent:hover,
+  [data-skin='glass'] .canvas-float button:hover { transform: none; }
+}
+
+/* Cyan is a light accent: text on it must be dark, not white. */
+[data-skin='glass'] .tb-run,
+[data-skin='glass'] .seg button.on,
+[data-skin='glass'] .canvas-float button.on { color: #04202b; }
+
+/* Panes are modules here too — blurred, edged, lifted. */
+[data-skin='glass'] .pane {
+  background: var(--g-pane);
+  -webkit-backdrop-filter: var(--g-blur);
+  backdrop-filter: var(--g-blur);
+  border: 1px solid var(--g-edge);
+  border-radius: var(--g-r);
+  box-shadow: var(--g-lift-1), inset 0 1px 0 0 var(--g-specular);
+}
+[data-skin='glass'] .pane-head,
+[data-skin='glass'] .list-search { border-bottom: 1px solid var(--g-edge); }
+[data-skin='glass'] .list-search input {
+  background: rgba(0, 0, 0, 0.28);
+  border-color: var(--g-edge);
+  color: var(--g-ink);
+}
+[data-skin='glass'] .row:hover { background: rgba(255, 255, 255, 0.07); }
+[data-skin='glass'] .canvas-float {
+  background: var(--g-pane);
+  -webkit-backdrop-filter: var(--g-blur);
+  backdrop-filter: var(--g-blur);
+  border: 1px solid var(--g-edge);
+  border-radius: 999px;
+  box-shadow: var(--g-lift-2), inset 0 1px 0 0 var(--g-specular);
+}
+
+/* The active segment must be the accent, not a pale wash: an earlier rule left
+   it at 11% white, which put the dark accent-text on a dark pill. */
+[data-skin='glass'] .seg button.on { background: var(--g-custody); color: #04202b; }

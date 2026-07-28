@@ -1,0 +1,183 @@
+{
+  "name": "iss-microarch-ide2",
+  "displayName": "ISS Microarchitecture IDE 2",
+  "description": "Design a CPU as a graph of cycle-accurate C++ blocks: a Figma-style canvas that reads and writes the real code, runs it, and shows where it diverges from the ISA oracle.",
+  "version": "0.1.0",
+  "private": true,
+  "publisher": "iss",
+  "engines": {
+    "vscode": "^1.85.0",
+    "node": ">=18"
+  },
+  "main": "./out/extension.js",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "iss2",
+          "title": "ISS",
+          "icon": "media/iss.svg"
+        }
+      ]
+    },
+    "views": {
+      "iss2": [
+        {
+          "id": "iss2.components",
+          "name": "Blocks"
+        },
+        {
+          "id": "iss2.links",
+          "name": "Wires"
+        },
+        {
+          "id": "iss2.events",
+          "name": "Messages"
+        },
+        {
+          "id": "iss2.isa",
+          "name": "ISA — Layer 1"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "iss2.openCanvas",
+        "title": "ISS: Open Canvas"
+      },
+      {
+        "command": "iss2.reparse",
+        "title": "ISS: Reparse Project"
+      },
+      {
+        "command": "iss2.reveal",
+        "title": "ISS: Reveal Block Source"
+      },
+      {
+        "command": "iss2.generateHarness",
+        "title": "ISS: Generate Run-Harness"
+      },
+      {
+        "command": "iss2.runSimulation",
+        "title": "ISS: Run Simulation (own engine)"
+      },
+      {
+        "command": "iss2.animateRun",
+        "title": "ISS: Animate Run"
+      },
+      {
+        "command": "iss2.verifyAgainstSail",
+        "title": "ISS: Verify against Sail",
+        "icon": "$(verified)"
+      },
+      {
+        "command": "iss2.addInstruction",
+        "title": "ISS: Add Custom Instruction",
+        "icon": "$(add)"
+      },
+      {
+        "command": "iss2.addStateElement",
+        "title": "ISS: Add Architectural State",
+        "icon": "$(symbol-field)"
+      },
+      {
+        "command": "iss2.regenerateOracle",
+        "title": "ISS: Regenerate Oracle (not yet wired)",
+        "icon": "$(sync)"
+      },
+      {
+        "command": "iss2.lintSv",
+        "title": "ISS: Lint SystemVerilog Twins (verilator)",
+        "icon": "$(check)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "iss2.verifyAgainstSail",
+          "when": "view == iss2.isa",
+          "group": "navigation@1"
+        },
+        {
+          "command": "iss2.addInstruction",
+          "when": "view == iss2.isa",
+          "group": "navigation@2"
+        },
+        {
+          "command": "iss2.addStateElement",
+          "when": "view == iss2.isa",
+          "group": "navigation@3"
+        },
+        {
+          "command": "iss2.regenerateOracle",
+          "when": "view == iss2.isa",
+          "group": "navigation@4"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "ISS Microarchitecture IDE 2",
+      "properties": {
+        "iss2.projectRoot": {
+          "type": "string",
+          "default": "",
+          "description": "Design project root (contains inc/ and src/). Default: first workspace folder."
+        },
+        "iss2.enginePath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to the micro_arch_ide2 engine directory (include/ + build/libmicroarch.a). Default: ../engine relative to the extension, else <projectRoot>/../engine."
+        },
+        "iss2.xverifyPath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to the xverify binary for ISA cross-verification."
+        },
+        "iss2.sailCommitrecPath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to the sail_commitrec driver (sets XVERIFY_SAIL_COMMITREC for --ref sail)."
+        },
+        "iss2.refModel": {
+          "type": "string",
+          "enum": [
+            "sail",
+            "stub"
+          ],
+          "default": "sail",
+          "description": "Reference model xverify grades runs against. Defaults to sail; falls back to stub with a console notice when the Sail driver is unavailable."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "node esbuild.mjs",
+    "watch": "node esbuild.mjs --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "package": "vsce package",
+    "test:integration": "tsx test-integration/runTest.ts"
+  },
+  "dependencies": {
+    "@iss/canvas": "*",
+    "@iss/contracts": "*",
+    "@iss/host": "*"
+  },
+  "devDependencies": {
+    "@testing-library/react": "^16.3.2",
+    "@types/node": "^18.19.0",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@types/vscode": "^1.85.0",
+    "@vscode/test-electron": "^3.0.0",
+    "esbuild": "^0.21.0",
+    "happy-dom": "^20.10.6",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "typescript": "^5.4.0",
+    "vitest": "^1.6.0"
+  }
+}

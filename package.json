@@ -1,0 +1,22 @@
+{
+  "name": "iss-microarch",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Design an SoC — and the microarchitecture inside it — as a graph of connected blocks whose real cycle-accurate C++ source is the design itself.",
+  "workspaces": [
+    "packages/*",
+    "ide",
+    "app"
+  ],
+  "scripts": {
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspace ide",
+    "build": "npm run build --workspace ide && npm run build --workspace app",
+    "docs": "node scripts/build-cpp-api.mjs",
+    "app": "npm run dev --workspace app",
+    "ext": "npm run build --workspace ide"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

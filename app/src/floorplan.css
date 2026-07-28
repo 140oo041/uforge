@@ -1,0 +1,324 @@
+/* FLOORPLAN — the IC layout plot.
+ *
+ * The direction the concept roll originally assigned, before the provenance
+ * challenger won: the app stops looking like an editor and starts looking like
+ * the thing being designed. A floorplan viewer shows macro cells packed on a
+ * dark field, saturated false colour keyed by function, thin bright routing
+ * between them, and every measurement in mono.
+ *
+ * Why it is a good dark mode rather than just a dark palette: the discipline is
+ * the *plot*, not the die photo. Every saturated field is a labelled cell that
+ * means something, nothing glows for atmosphere, and the grid is a real
+ * coordinate reference rather than texture.
+ */
+
+:root[data-skin='floorplan'] {
+  color-scheme: dark;
+
+  --fp-field: #0c0e13;
+  --fp-well: #141822;
+  --fp-cell: #1b2130;
+  --fp-rule: #263044;
+  --fp-rule-2: #35425c;
+  --fp-ink: #e6ecf7;      /* 15.2:1 */
+  --fp-ink-2: #9fb0cb;    /* 7.6:1 */
+  --fp-ink-3: #6f809b;    /* 4.3:1 */
+  --fp-route: #45e0d0;    /* signal routing — documented */
+  --fp-fabric: #b388ff;   /* the interconnect */
+  --fp-io: #6ee787;       /* a boundary cell */
+  --fp-macro: #ffb454;    /* hand-authored macro */
+  --fp-drc: #ff6b81;      /* a violation */
+
+  --ui-font: system-ui, -apple-system, 'Segoe UI', Roboto, 'DejaVu Sans', sans-serif;
+  --ui-mono: ui-monospace, 'Cascadia Mono', 'DejaVu Sans Mono', monospace;
+
+  --ui-bg: var(--fp-field);
+  --ui-surface: var(--fp-well);
+  --ui-border: var(--fp-rule);
+  --ui-border-strong: var(--fp-rule-2);
+  --ui-ink: var(--fp-ink);
+  --ui-ink-2: var(--fp-ink-2);
+  --ui-ink-3: var(--fp-ink-3);
+  --ui-muted: var(--fp-ink-3);
+  --ui-accent: var(--fp-route);
+  --ui-accent-deep: #2fbdaf;
+  --ui-accent-wash: rgba(69, 224, 208, 0.14);
+  --ui-fabric: var(--fp-fabric);
+  --ui-bound: var(--fp-io);
+  --ui-hand: var(--fp-macro);
+  --ui-hover: rgba(159, 176, 203, 0.09);
+
+  --vscode-font-family: var(--ui-font);
+  --vscode-editor-font-family: var(--ui-mono);
+  --vscode-editor-background: var(--fp-field);
+  --vscode-panel-background: var(--fp-field);
+  --vscode-sideBar-background: var(--fp-well);
+  --vscode-editorGroupHeader-tabsBackground: var(--fp-well);
+  --vscode-editorWidget-background: var(--fp-cell);
+  --vscode-activityBar-background: var(--fp-well);
+  --vscode-input-background: #0e131c;
+  --vscode-panel-border: var(--fp-rule);
+  --vscode-input-border: var(--fp-rule-2);
+  --vscode-foreground: var(--fp-ink);
+  --vscode-input-foreground: var(--fp-ink);
+  --vscode-descriptionForeground: var(--fp-ink-2);
+  --vscode-charts-blue: var(--fp-route);
+  --vscode-charts-purple: var(--fp-fabric);
+  --vscode-charts-green: var(--fp-io);
+  --vscode-charts-orange: var(--fp-macro);
+  --vscode-charts-yellow: #ffd166;
+  --vscode-charts-red: var(--fp-drc);
+  --vscode-button-background: var(--fp-route);
+  --vscode-button-foreground: #04231f;
+  --vscode-button-secondaryBackground: var(--fp-cell);
+  --vscode-button-secondaryForeground: var(--fp-ink);
+  --vscode-focusBorder: var(--fp-route);
+  --vscode-textLink-foreground: var(--fp-route);
+  --vscode-tab-activeForeground: var(--fp-ink);
+  --vscode-tab-inactiveForeground: var(--fp-ink-3);
+  --vscode-panelTitle-activeForeground: var(--fp-ink);
+  --vscode-panelTitle-inactiveForeground: var(--fp-ink-3);
+  --vscode-panelTitle-activeBorder: var(--fp-route);
+  --vscode-statusBar-background: var(--fp-well);
+  --vscode-statusBar-foreground: var(--fp-ink-2);
+  --vscode-statusBarItem-errorBackground: var(--fp-drc);
+  --vscode-statusBarItem-warningBackground: var(--fp-macro);
+  --vscode-inputValidation-errorBackground: rgba(255, 107, 129, 0.15);
+  --vscode-inputValidation-errorBorder: var(--fp-drc);
+  --vscode-toolbar-hoverBackground: rgba(159, 176, 203, 0.1);
+  --vscode-editorIndentGuide-background: transparent;
+}
+
+[data-skin='floorplan'] body { background: var(--fp-field); color: var(--fp-ink); }
+[data-skin='floorplan'] .shell,
+[data-skin='floorplan'] .welcome { background: var(--fp-field); }
+[data-skin='floorplan'] .welcome::after { display: none; }
+
+/* The die grid: a coordinate reference, not decoration. */
+[data-skin='floorplan'] .canvas {
+  background:
+    repeating-linear-gradient(to right, transparent 0 159px, rgba(159, 176, 203, 0.13) 159px 160px),
+    repeating-linear-gradient(to bottom, transparent 0 159px, rgba(159, 176, 203, 0.13) 159px 160px),
+    repeating-linear-gradient(to right, transparent 0 31px, rgba(159, 176, 203, 0.05) 31px 32px),
+    repeating-linear-gradient(to bottom, transparent 0 31px, rgba(159, 176, 203, 0.05) 31px 32px);
+  background-color: var(--fp-field);
+}
+
+/* ------------------------------------------------------------- macro cells */
+
+/* A block is a macro cell: a filled rectangle with a saturated function stripe
+   along its left edge. Square, packed, no shadow — this is a plot. */
+[data-skin='floorplan'] .node {
+  background: var(--fp-cell);
+  border: 1px solid var(--fp-rule-2);
+  border-left: 3px solid var(--fp-route);
+  border-radius: 2px;
+  box-shadow: none;
+}
+[data-skin='floorplan'] .node:hover { border-color: var(--fp-ink-3); }
+[data-skin='floorplan'] .node.composite,
+[data-skin='floorplan'] .node.router { border-left-color: var(--fp-fabric); }
+[data-skin='floorplan'] .node.io-node { border-left-color: var(--fp-io); border-radius: 2px; }
+[data-skin='floorplan'] .node.handwritten { border-left-color: var(--fp-macro); border-style: solid; }
+[data-skin='floorplan'] .node.selected {
+  border-color: var(--fp-route);
+  box-shadow: 0 0 0 1px var(--fp-route);
+}
+[data-skin='floorplan'] .node-title { border-bottom: 1px solid var(--fp-rule); }
+[data-skin='floorplan'] .node-label {
+  font-family: var(--ui-font);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  color: var(--fp-ink);
+}
+/* Every identifier and measurement is mono here — it is a plot annotation. */
+[data-skin='floorplan'] .node-id,
+[data-skin='floorplan'] .port-name,
+[data-skin='floorplan'] .var-row { font-family: var(--ui-mono); font-size: 9.5px; color: var(--fp-ink-2); }
+[data-skin='floorplan'] .var-type { color: var(--fp-ink-3); }
+[data-skin='floorplan'] .var-section { border-top: 1px solid var(--fp-rule); }
+
+/* Pins are square pads on the cell edge. */
+[data-skin='floorplan'] .port-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 1px;
+  transform: none;
+  background: var(--fp-route);
+  border: none;
+  box-shadow: none;
+}
+[data-skin='floorplan'] .port-dot.in { transform: translateY(-50%); background: var(--fp-ink-3); }
+[data-skin='floorplan'] .port-row.in-row .port-dot.in { transform: none; margin-left: -5px; }
+[data-skin='floorplan'] .port-dot.in.wired { background: var(--fp-route); }
+[data-skin='floorplan'] .port-row.pin-row .port-dot.pin { background: var(--fp-io); }
+[data-skin='floorplan'] .port-dot.new-port {
+  border-radius: 1px;
+  transform: none;
+  background: var(--fp-route);
+  color: #04231f;
+}
+[data-skin='floorplan'] .port-dot.new-port::before { transform: none; line-height: 13px; }
+
+/* Routing: thin, bright, and layered by metal — one hue per class. */
+[data-skin='floorplan'] .wire-wired .wire-line { stroke: var(--fp-route); stroke-width: 1.5; }
+[data-skin='floorplan'] .wire-routed .wire-line { stroke: var(--fp-fabric); stroke-width: 1.5; }
+[data-skin='floorplan'] .wire-inferred .wire-line {
+  stroke: var(--fp-ink-3);
+  stroke-width: 1;
+  stroke-dasharray: 5 4;
+}
+[data-skin='floorplan'] .wire-derived .wire-line {
+  stroke: var(--fp-fabric);
+  stroke-width: 1;
+  stroke-dasharray: 5 4;
+  opacity: 0.65;
+}
+[data-skin='floorplan'] .wire-stub .wire-line,
+[data-skin='floorplan'] .wire-unresolved .wire-line {
+  stroke: var(--fp-ink-3);
+  stroke-width: 1.5;
+  stroke-dasharray: 2 3;
+  filter: none;
+}
+[data-skin='floorplan'] .wire-unresolved .wire-line { stroke: var(--fp-drc); }
+[data-skin='floorplan'] .wire-fabric .wire-line { stroke: var(--fp-fabric); opacity: 0.4; }
+[data-skin='floorplan'] .wire-label,
+[data-skin='floorplan'] .wire-count,
+[data-skin='floorplan'] .wire-via,
+[data-skin='floorplan'] .wire-warn,
+[data-skin='floorplan'] .wire-ext,
+[data-skin='floorplan'] .wire-derived-label,
+[data-skin='floorplan'] .wire-bw,
+[data-skin='floorplan'] .wire-fabric-error {
+  font-family: var(--ui-mono);
+  font-size: 9px;
+  letter-spacing: 0;
+  stroke: var(--fp-field);
+  stroke-width: 3;
+  paint-order: stroke;
+  fill: var(--fp-ink-2);
+}
+[data-skin='floorplan'] .wire-via,
+[data-skin='floorplan'] .wire-derived-label { fill: var(--fp-fabric); }
+[data-skin='floorplan'] .wire-fabric-error { fill: var(--fp-drc); }
+[data-skin='floorplan'] .message-link { color: var(--fp-route); font-family: var(--ui-mono); }
+
+/* ------------------------------------------------------------------- chrome */
+
+[data-skin='floorplan'] .titlebar { background: var(--fp-field); }
+[data-skin='floorplan'] .pane { background: var(--fp-well); border-color: var(--fp-rule); }
+[data-skin='floorplan'] .pane-head,
+[data-skin='floorplan'] .list-search { border-bottom: 1px solid var(--fp-rule); }
+[data-skin='floorplan'] .list-search input,
+[data-skin='floorplan'] .lib-input,
+[data-skin='floorplan'] .inspector input,
+[data-skin='floorplan'] .insp-card-body input,
+[data-skin='floorplan'] .insp-card-body select,
+[data-skin='floorplan'] .sb-select select {
+  background: #0e131c;
+  border-color: var(--fp-rule-2);
+  color: var(--fp-ink);
+  border-radius: 3px;
+}
+[data-skin='floorplan'] .canvas-float {
+  background: var(--fp-well);
+  border-color: var(--fp-rule-2);
+  border-radius: 3px;
+}
+[data-skin='floorplan'] .insp-card {
+  background: var(--fp-cell);
+  border-color: var(--fp-rule);
+  border-left-color: var(--fp-rule);
+  border-radius: 3px;
+}
+[data-skin='floorplan'] .insp-glyph,
+[data-skin='floorplan'] .insp-avatar {
+  background: var(--ui-accent-wash);
+  border: none;
+  border-radius: 3px;
+  color: var(--fp-route);
+}
+[data-skin='floorplan'] .insp-tile {
+  background: #0e131c;
+  border-color: var(--fp-rule);
+  border-radius: 3px;
+}
+/* Measurements are the point of a plot: mono, bright, tabular. */
+[data-skin='floorplan'] .insp-card-body input.insp-tile-in,
+[data-skin='floorplan'] .lg-measured,
+[data-skin='floorplan'] .chip-n {
+  font-family: var(--ui-mono);
+  color: var(--fp-ink);
+}
+[data-skin='floorplan'] .inspector button,
+[data-skin='floorplan'] .transport button {
+  background: var(--fp-cell);
+  border: 1px solid var(--fp-rule-2);
+  border-radius: 3px;
+  color: var(--fp-ink);
+}
+[data-skin='floorplan'] .tb-run,
+[data-skin='floorplan'] .seg button.on,
+[data-skin='floorplan'] .canvas-float button.on,
+[data-skin='floorplan'] .menu-item:hover { color: #04231f; }
+[data-skin='floorplan'] .lib,
+[data-skin='floorplan'] .menu-pop,
+[data-skin='floorplan'] .skin-menu,
+[data-skin='floorplan'] .connect-form,
+[data-skin='floorplan'] .field-card,
+[data-skin='floorplan'] .run-config,
+[data-skin='floorplan'] .toast {
+  background: var(--fp-well);
+  border-color: var(--fp-rule-2);
+  border-radius: 4px;
+}
+[data-skin='floorplan'] .lib-scrim { background: rgba(6, 8, 12, 0.6); }
+[data-skin='floorplan'] .console,
+[data-skin='floorplan'] .console-line,
+[data-skin='floorplan'] .term-out { color: var(--fp-ink-2); }
+[data-skin='floorplan'] .pipe-bar { background: var(--fp-route); border-radius: 2px; }
+[data-skin='floorplan'] .lg-phase.lg-done { color: var(--fp-io); }
+[data-skin='floorplan'] .lg-phase.lg-error { background: var(--fp-drc); color: #2a0007; }
+
+/* ----------------------------------------------------------------- welcome */
+
+[data-skin='floorplan'] .welcome-name { color: var(--fp-ink); font-weight: 600; letter-spacing: -0.015em; }
+[data-skin='floorplan'] .welcome-name em { color: var(--fp-route); }
+[data-skin='floorplan'] .welcome-rule i,
+[data-skin='floorplan'] .welcome-rule b { background: var(--fp-route); }
+[data-skin='floorplan'] .welcome-rule b { transform: none; border-radius: 1px; }
+[data-skin='floorplan'] .welcome-what { color: var(--fp-ink-2); }
+[data-skin='floorplan'] .welcome-primary {
+  background: var(--fp-route);
+  color: #04231f;
+  clip-path: none;
+  border-radius: 3px;
+  text-transform: none;
+  letter-spacing: 0;
+}
+[data-skin='floorplan'] .welcome-recent::before { display: none; }
+[data-skin='floorplan'] .welcome-recent-name { color: var(--fp-ink); }
+[data-skin='floorplan'] .welcome-recents li { border-color: var(--fp-rule); }
+[data-skin='floorplan'] .n-plate { fill: var(--fp-cell); stroke: var(--fp-rule-2); }
+[data-skin='floorplan'] .n-label { fill: var(--fp-ink); text-transform: none; letter-spacing: 0; }
+[data-skin='floorplan'] .n-cat { fill: var(--fp-ink-3); }
+[data-skin='floorplan'] .n-fold { fill: var(--fp-route); }
+[data-skin='floorplan'] .n-fold-fabric { fill: var(--fp-fabric); }
+[data-skin='floorplan'] .n-rule-doc { stroke: var(--fp-route); }
+[data-skin='floorplan'] .n-rule-fabric { stroke: var(--fp-fabric); }
+[data-skin='floorplan'] .w-documented { stroke: var(--fp-route); }
+[data-skin='floorplan'] .w-attested { stroke: var(--fp-fabric); }
+[data-skin='floorplan'] .w-inferred,
+[data-skin='floorplan'] .w-silent { stroke: var(--fp-ink-3); }
+[data-skin='floorplan'] .w-disputed { stroke: var(--fp-drc); }
+[data-skin='floorplan'] .stamp-box { stroke: var(--fp-fabric); }
+[data-skin='floorplan'] .stamp-text { fill: var(--fp-fabric); }
+[data-skin='floorplan'] .ann-fabric { fill: var(--fp-fabric); }
+[data-skin='floorplan'] .ann-silent { fill: var(--fp-ink-3); }
+[data-skin='floorplan'] .ann-disputed { fill: var(--fp-drc); }
+[data-skin='floorplan'] .welcome-schematic text.ann { stroke: var(--fp-field); }
+[data-skin='floorplan'] .legend-name { color: var(--fp-ink); }
+[data-skin='floorplan'] .legend-meaning { color: var(--fp-ink-2); }

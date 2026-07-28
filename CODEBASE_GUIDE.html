@@ -1,0 +1,1371 @@
+<!doctype html>
+<!--
+THESIS: This guide treats the repository as one executable evidence loop, refusing a directory-by-directory inventory with no causal thread.
+OWN-WORLD: VS Code-dark instrument ground, canonical theme-parasitic cyan/orchid/amber/coral signals, hairline structure, square controls, and monospace only for identifiers and measurements.
+STORY: Orient on the product, follow an edit to source, follow a run back to the canvas, then drill into each layer with file-level entry points.
+FIRST VIEWPORT: A compact masthead sits above a full-width system trace: two hosts converge on one canvas, pass through contracts and host services, execute in C++, and return JSONL evidence.
+FORM: Vertical circuit trace, the fifth of seven grounded Read structures; sections behave like probes along one signal path. Read-mode exception: the page title exceeds the product UI scale; identifiers remain mono. Seed db73c9ba.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Microarchitecture IDE — Codebase Field Guide</title>
+  <style>
+    :root {
+      --ground: var(--vscode-editor-background, #1e1e1e);
+      --rail: var(--vscode-sideBar-background, #252526);
+      --lift: var(--vscode-editorWidget-background, #2a2a2e);
+      --field: var(--vscode-input-background, #3c3c3c);
+      --line: var(--vscode-panel-border, #3a3a41);
+      --line-soft: #34343a;
+      --ink: var(--vscode-foreground, #cccccc);
+      --muted: var(--vscode-descriptionForeground, #9a9a9a);
+      --faint: #7e7e89;
+      --cyan: var(--vscode-charts-blue, #4fc3f7);
+      --orchid: var(--vscode-charts-purple, #b180d7);
+      --green: var(--vscode-charts-green, #89d185);
+      --amber: var(--vscode-charts-orange, #ffb74d);
+      --coral: var(--vscode-charts-red, #ef5350);
+      --yellow: var(--vscode-charts-yellow, #f9a825);
+      --blue: var(--vscode-focusBorder, #007fd4);
+      --nav: 17.5rem;
+      --top: 3.25rem;
+      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      --mono: "Cascadia Code", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: calc(var(--top) + 1.25rem); }
+    body {
+      margin: 0;
+      overflow-x: clip;
+      color: var(--ink);
+      background: var(--ground);
+      font: 14px/1.62 var(--sans);
+      text-rendering: optimizeLegibility;
+    }
+    a { color: var(--cyan); text-underline-offset: 3px; }
+    a:hover { color: #8bd9fb; }
+    button, input { font: inherit; }
+    code, pre, .mono { font-family: var(--mono); }
+    code { color: #d9eff9; font-size: .92em; }
+    :focus-visible { outline: 2px solid var(--cyan); outline-offset: 3px; }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .topbar {
+      position: fixed;
+      inset: 0 0 auto 0;
+      z-index: 20;
+      height: var(--top);
+      display: grid;
+      grid-template-columns: var(--nav) minmax(0, 1fr) auto;
+      align-items: center;
+      background: #202024;
+      border-bottom: 1px solid var(--line);
+    }
+    .brand {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      gap: .65rem;
+      padding: 0 1rem;
+      border-right: 1px solid var(--line);
+      color: var(--ink);
+      text-decoration: none;
+      font-weight: 650;
+    }
+    .brand-mark {
+      width: 1.1rem;
+      height: 1.1rem;
+      position: relative;
+      border: 1px solid var(--cyan);
+    }
+    .brand-mark::before, .brand-mark::after {
+      content: "";
+      position: absolute;
+      background: var(--cyan);
+    }
+    .brand-mark::before { width: 5px; height: 5px; left: -3px; top: 5px; }
+    .brand-mark::after { width: 5px; height: 5px; right: -3px; top: 5px; }
+    .search-wrap { position: relative; max-width: 43rem; margin: 0 1rem; }
+    .search-wrap::before {
+      content: "⌕";
+      position: absolute;
+      left: .7rem;
+      top: .35rem;
+      color: var(--muted);
+      font: 18px var(--mono);
+    }
+    #search {
+      width: 100%;
+      height: 2rem;
+      padding: 0 2.2rem;
+      color: var(--ink);
+      background: var(--field);
+      border: 1px solid transparent;
+      border-radius: 3px;
+    }
+    #search:focus { border-color: var(--cyan); outline: 0; }
+    #searchCount {
+      position: absolute;
+      right: .65rem;
+      top: .42rem;
+      color: var(--muted);
+      font: 11px var(--mono);
+    }
+    .top-meta { padding: 0 1rem; color: var(--muted); font: 11px var(--mono); }
+    .nav-toggle {
+      display: none;
+      width: 2.25rem;
+      height: 2.25rem;
+      margin-left: .65rem;
+      color: var(--ink);
+      background: transparent;
+      border: 0;
+      font-size: 1.15rem;
+    }
+
+    .sidebar {
+      position: fixed;
+      inset: var(--top) auto 0 0;
+      z-index: 12;
+      width: var(--nav);
+      overflow-y: auto;
+      padding: 1.1rem .75rem 2rem;
+      background: var(--rail);
+      border-right: 1px solid var(--line);
+    }
+    .nav-label {
+      margin: .2rem .55rem .65rem;
+      color: var(--faint);
+      font: 10px/1 var(--mono);
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+    .toc { display: grid; gap: 2px; }
+    .toc a {
+      display: grid;
+      grid-template-columns: 1.55rem minmax(0, 1fr);
+      align-items: baseline;
+      padding: .42rem .55rem;
+      border-radius: 3px;
+      color: var(--muted);
+      text-decoration: none;
+      line-height: 1.3;
+    }
+    .toc a:hover { background: #ffffff0a; color: var(--ink); }
+    .toc a.active { color: white; background: #0e639c; }
+    .toc-num { color: inherit; opacity: .65; font: 10px var(--mono); }
+    .legend-mini {
+      margin: 1.25rem .55rem 0;
+      padding-top: 1rem;
+      border-top: 1px solid var(--line);
+      display: grid;
+      gap: .45rem;
+      color: var(--muted);
+      font-size: 11px;
+    }
+    .legend-mini span { display: flex; align-items: center; gap: .55rem; }
+    .wire { width: 2.3rem; height: 0; border-top: 2px solid var(--cyan); }
+    .wire.routed { border-color: var(--orchid); }
+    .wire.inferred { border-top-style: dashed; border-color: var(--muted); }
+    .wire.stub { border-top-style: dotted; border-color: var(--amber); }
+    .wire.broken { border-top-style: dashed; border-color: var(--coral); }
+
+    main { margin-left: var(--nav); padding-top: var(--top); }
+    .content { width: min(100%, 96rem); margin: 0 auto; padding: 0 3rem 6rem; }
+    .masthead {
+      min-height: calc(100vh - var(--top));
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      align-content: center;
+      padding: 3rem 0 1.5rem;
+      border-bottom: 1px solid var(--line);
+    }
+    .kicker { color: var(--cyan); font: 11px var(--mono); letter-spacing: .07em; }
+    h1 {
+      max-width: 20ch;
+      margin: .85rem 0 1.1rem;
+      font-size: clamp(2.55rem, 4.6vw, 4.3rem);
+      line-height: .98;
+      letter-spacing: -.035em;
+      text-wrap: balance;
+    }
+    .lede {
+      max-width: 62ch;
+      margin: 0;
+      color: #c5c5cc;
+      font-size: clamp(1rem, 1.25vw, 1.12rem);
+    }
+    .thesis { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(19rem, .65fr); gap: 2rem; align-items: end; }
+    .truth-note {
+      max-width: 31rem;
+      justify-self: end;
+      padding: 1rem 1.1rem;
+      background: var(--lift);
+      border: 1px solid var(--line);
+      border-top-color: var(--cyan);
+      color: var(--muted);
+    }
+    .truth-note strong { display: block; color: var(--ink); margin-bottom: .2rem; }
+
+    .system-map {
+      position: relative;
+      margin-top: 2rem;
+      padding: 1.3rem;
+      overflow: hidden;
+      background-color: #1b1b1f;
+      background-image: radial-gradient(circle, #52525b 1px, transparent 1px);
+      background-size: 24px 24px;
+      border: 1px solid var(--line);
+    }
+    .map-label { margin-bottom: 1.1rem; color: var(--faint); font: 10px var(--mono); letter-spacing: .08em; }
+    .architecture {
+      display: grid;
+      grid-template-columns: minmax(8rem, .8fr) 2rem minmax(9rem, 1fr) 2rem minmax(9rem, 1fr) 2rem minmax(9rem, 1fr) 2rem minmax(8rem, .9fr);
+      align-items: center;
+      gap: .2rem;
+    }
+    .arch-stack { display: grid; gap: .6rem; }
+    .arch-node {
+      min-height: 4.4rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: .85rem .95rem;
+      color: var(--ink);
+      background: var(--lift);
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      text-decoration: none;
+    }
+    .arch-node:hover { border-color: var(--cyan); color: white; }
+    .arch-node b { font-size: .92rem; }
+    .arch-node small { color: var(--muted); line-height: 1.35; margin-top: .25rem; }
+    .arch-node.host { border-color: #4c6774; }
+    .arch-node.canvas { border-color: var(--cyan); }
+    .arch-node.contracts { border-color: var(--green); }
+    .arch-node.services { border-color: var(--amber); }
+    .arch-node.engine { border-color: var(--orchid); }
+    .arch-node.trace { border-color: var(--yellow); }
+    .arrow { color: var(--faint); text-align: center; font: 18px var(--mono); }
+    .return-path {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: .7rem;
+      margin-top: 1.2rem;
+      color: var(--yellow);
+      font: 11px var(--mono);
+    }
+    .return-path::before { content: ""; width: 62%; border-top: 1px dashed var(--yellow); }
+    .hero-foot {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      margin-top: .9rem;
+      border: 1px solid var(--line);
+      border-right: 0;
+    }
+    .hero-fact { padding: .8rem 1rem; border-right: 1px solid var(--line); }
+    .hero-fact b { display: block; color: var(--ink); font: 600 12px var(--mono); }
+    .hero-fact span { color: var(--muted); font-size: 11px; }
+
+    section.doc-section {
+      position: relative;
+      padding: 5rem 0 1.25rem;
+      border-bottom: 1px solid var(--line-soft);
+    }
+    .section-head {
+      display: grid;
+      grid-template-columns: 5rem minmax(0, 1fr);
+      gap: 1.25rem;
+      align-items: start;
+      margin-bottom: 2rem;
+    }
+    .section-index { padding-top: .55rem; color: var(--faint); font: 11px var(--mono); }
+    h2 { margin: 0; font-size: clamp(1.8rem, 3.4vw, 3.1rem); line-height: 1.08; letter-spacing: -.025em; text-wrap: balance; }
+    .section-summary { max-width: 70ch; margin: .8rem 0 0; color: var(--muted); font-size: 1rem; }
+    h3 { margin: 2.5rem 0 .65rem; font-size: 1.15rem; line-height: 1.3; }
+    h4 { margin: 1.6rem 0 .4rem; font-size: .95rem; }
+    p, li { max-width: 75ch; }
+    p { margin: .65rem 0; }
+    ul, ol { padding-left: 1.25rem; }
+    li + li { margin-top: .35rem; }
+
+    .callout {
+      max-width: 75ch;
+      margin: 1.35rem 0;
+      padding: .9rem 1rem;
+      color: #d5d5db;
+      background: #25252a;
+      border: 1px solid var(--line);
+    }
+    .callout strong { color: var(--cyan); }
+    .callout.warn strong { color: var(--amber); }
+    .callout.error strong { color: var(--coral); }
+    .two-col { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.6rem 2.2rem; }
+    .three-col { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+    .rail-block { padding: 1rem 0; border-top: 1px solid var(--line); }
+    .rail-block h3 { margin: 0 0 .45rem; }
+    .rail-block p { color: var(--muted); }
+
+    .layer-table, .file-table { width: 100%; border-collapse: collapse; margin: 1.25rem 0 2rem; }
+    .layer-table th, .layer-table td, .file-table th, .file-table td {
+      padding: .75rem .8rem;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+    .layer-table th, .file-table th { color: var(--muted); font: 10px var(--mono); letter-spacing: .06em; }
+    .layer-table td:first-child { width: 13rem; font-weight: 650; }
+    .file-table td:first-child { width: 32%; font-family: var(--mono); font-size: 12px; }
+    .layer-table tr:hover td, .file-table tr:hover td { background: #ffffff05; }
+    .owner { display: inline-block; padding: .05rem .4rem; border: 1px solid var(--line); color: var(--muted); font: 10px var(--mono); }
+    .owner.real { border-color: var(--cyan); color: var(--cyan); }
+    .owner.sidecar { border-color: var(--amber); color: var(--amber); }
+    .owner.derived { border-style: dashed; }
+
+    .flow {
+      counter-reset: flow;
+      position: relative;
+      display: grid;
+      gap: 0;
+      max-width: 80rem;
+      margin: 1.5rem 0;
+    }
+    .flow::before { content: ""; position: absolute; left: 1.1rem; top: 1.2rem; bottom: 1.2rem; border-left: 1px solid var(--line); }
+    .flow-step { counter-increment: flow; display: grid; grid-template-columns: 2.3rem minmax(0, 1fr); gap: 1rem; padding: .5rem 0 1.3rem; }
+    .flow-step::before {
+      content: counter(flow);
+      z-index: 1;
+      width: 2.25rem;
+      height: 2.25rem;
+      display: grid;
+      place-items: center;
+      color: var(--ground);
+      background: var(--cyan);
+      border-radius: 50%;
+      font: 700 11px var(--mono);
+    }
+    .flow-step.run::before { background: var(--yellow); }
+    .flow-step h3 { margin: .25rem 0 .25rem; }
+    .flow-step p { margin: .2rem 0; color: var(--muted); }
+    .flow-step .path { color: var(--cyan); font: 11px var(--mono); }
+
+    .tree, pre {
+      position: relative;
+      overflow: auto;
+      margin: 1rem 0;
+      padding: 1rem 1.1rem;
+      color: #d9d9df;
+      background: #18181b;
+      border: 1px solid var(--line);
+      font: 12px/1.65 var(--mono);
+      tab-size: 2;
+    }
+    .tree .dir { color: var(--cyan); }
+    .tree .comment { color: var(--faint); }
+    .copy-btn {
+      position: absolute;
+      top: .45rem;
+      right: .45rem;
+      padding: .18rem .48rem;
+      color: var(--muted);
+      background: #28282d;
+      border: 1px solid var(--line);
+      border-radius: 3px;
+      font: 10px var(--mono);
+      cursor: pointer;
+    }
+    .copy-btn:hover { color: var(--ink); border-color: var(--muted); }
+
+    .contract-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid var(--line); }
+    .contract {
+      min-height: 15rem;
+      padding: 1.2rem;
+      border-right: 1px solid var(--line);
+    }
+    .contract:last-child { border-right: 0; }
+    .contract .sig { color: var(--green); font: 11px var(--mono); }
+    .contract h3 { margin: .65rem 0; }
+    .contract p { color: var(--muted); }
+    .contract ul { padding-left: 1rem; color: #c4c4cb; }
+
+    .phase-strip { display: grid; grid-template-columns: repeat(3, 1fr); margin: 1.4rem 0; border: 1px solid var(--line); }
+    .phase { min-height: 9rem; padding: 1rem; border-right: 1px solid var(--line); }
+    .phase:last-child { border-right: 0; }
+    .phase b { color: var(--yellow); font: 12px var(--mono); }
+    .phase p { color: var(--muted); font-size: 12px; }
+
+    .status-list { display: grid; grid-template-columns: repeat(5, 1fr); margin: 1.25rem 0; border: 1px solid var(--line); }
+    .status-item { padding: .85rem; border-right: 1px solid var(--line); }
+    .status-item:last-child { border-right: 0; }
+    .status-item .wire { margin-bottom: .75rem; }
+    .status-item b { display: block; font: 11px var(--mono); }
+    .status-item span { color: var(--muted); font-size: 11px; }
+
+    details { margin: .6rem 0; border-top: 1px solid var(--line); }
+    summary { padding: .8rem 0; cursor: pointer; font-weight: 650; }
+    details[open] summary { color: var(--cyan); }
+    details > div { padding: 0 0 1rem; color: var(--muted); }
+
+    .glossary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 2rem; }
+    .term { display: grid; grid-template-columns: 9rem minmax(0, 1fr); gap: .8rem; padding: .85rem 0; border-top: 1px solid var(--line); }
+    .term dt { color: var(--cyan); font: 12px var(--mono); }
+    .term dd { margin: 0; color: var(--muted); }
+    .next-paths { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--line); }
+    .next-path { padding: 1.1rem; border-right: 1px solid var(--line); }
+    .next-path:last-child { border-right: 0; }
+    .next-path b { display: block; margin-bottom: .5rem; }
+    .next-path p { color: var(--muted); font-size: 12px; }
+    .next-path a { font: 11px var(--mono); }
+    .page-foot { padding: 2rem 0 0; color: var(--faint); font: 11px var(--mono); }
+    .search-hidden { display: none !important; }
+
+    @media (max-width: 1050px) {
+      :root { --nav: 15rem; }
+      .content { padding-left: 2rem; padding-right: 2rem; }
+      .architecture { grid-template-columns: 1fr; gap: .65rem; }
+      .arrow { transform: rotate(90deg); }
+      .arch-stack { grid-template-columns: 1fr 1fr; }
+      .return-path::before { width: 30%; }
+      .three-col, .contract-grid, .next-paths { grid-template-columns: 1fr; }
+      .contract, .next-path { min-height: 0; border-right: 0; border-bottom: 1px solid var(--line); }
+      .contract:last-child, .next-path:last-child { border-bottom: 0; }
+      .status-list { grid-template-columns: 1fr 1fr; }
+      .status-item { border-bottom: 1px solid var(--line); }
+    }
+    @media (max-width: 760px) {
+      :root { --top: 3.25rem; }
+      .topbar { grid-template-columns: auto auto minmax(0, 1fr); }
+      .nav-toggle { display: block; }
+      .brand { border-right: 0; padding-left: .35rem; }
+      .brand span:last-child, .top-meta { display: none; }
+      .search-wrap { margin-left: .25rem; }
+      .sidebar { transform: translateX(-102%); width: min(19rem, 86vw); transition: transform .18s ease-out; box-shadow: 10px 0 24px #0008; }
+      body.nav-open .sidebar { transform: translateX(0); }
+      main { margin-left: 0; }
+      .content { padding: 0 1rem 4rem; }
+      .masthead { padding-top: 3.5rem; }
+      .thesis, .two-col { grid-template-columns: 1fr; }
+      .truth-note { justify-self: stretch; }
+      .system-map { padding: 1rem; }
+      .arch-stack { grid-template-columns: 1fr; }
+      .hero-foot { grid-template-columns: 1fr 1fr; }
+      .hero-fact { border-bottom: 1px solid var(--line); }
+      .section-head { grid-template-columns: 1fr; gap: .4rem; }
+      .section-index { padding: 0; }
+      .phase-strip, .status-list { grid-template-columns: 1fr; }
+      .phase, .status-item { min-height: 0; border-right: 0; border-bottom: 1px solid var(--line); }
+      .glossary { grid-template-columns: 1fr; }
+      .term { grid-template-columns: 1fr; gap: .25rem; }
+      .layer-table, .file-table { display: block; overflow-x: auto; }
+    }
+    @media print {
+      :root { --ground: white; --ink: #111; --muted: #444; --line: #aaa; --line-soft: #ccc; --lift: #f6f6f6; }
+      body { background: white; color: #111; }
+      .topbar, .sidebar, .copy-btn { display: none; }
+      main { margin: 0; padding: 0; }
+      .content { width: 100%; padding: 0; }
+      .masthead { min-height: 0; padding: 1rem 0 2rem; }
+      .system-map, pre, .tree { background: #f7f7f7; color: #111; break-inside: avoid; }
+      section.doc-section { break-before: page; padding-top: 1rem; }
+      a { color: #075d85; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .sidebar { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <button class="nav-toggle" id="navToggle" aria-label="Open table of contents" aria-expanded="false" aria-controls="guideSidebar">☰</button>
+    <a class="brand" href="#top"><span class="brand-mark" aria-hidden="true"></span><span>Codebase field guide</span></a>
+    <label class="search-wrap">
+      <span class="sr-only">Search this guide</span>
+      <input id="search" type="search" placeholder="Search concepts, files, flows…" autocomplete="off">
+      <span id="searchCount" aria-live="polite"></span>
+    </label>
+    <div class="top-meta">micro_arch_ide2 / offline guide</div>
+  </header>
+
+  <aside class="sidebar" id="guideSidebar" aria-label="Guide contents">
+    <div class="nav-label">Trace points</div>
+    <nav class="toc" id="toc">
+      <a href="#orientation"><span class="toc-num">01</span><span>Orientation</span></a>
+      <a href="#repository"><span class="toc-num">02</span><span>Repository map</span></a>
+      <a href="#edit-flow"><span class="toc-num">03</span><span>Edit → source</span></a>
+      <a href="#run-flow"><span class="toc-num">04</span><span>Run → evidence</span></a>
+      <a href="#contracts"><span class="toc-num">05</span><span>Shared contracts</span></a>
+      <a href="#host"><span class="toc-num">06</span><span>Host services</span></a>
+      <a href="#canvas"><span class="toc-num">07</span><span>Canvas and shells</span></a>
+      <a href="#engine"><span class="toc-num">08</span><span>C++ engine</span></a>
+      <a href="#fabric"><span class="toc-num">09</span><span>Router fabric</span></a>
+      <a href="#cosim"><span class="toc-num">10</span><span>SV co-simulation</span></a>
+      <a href="#cpp-api"><span class="toc-num">11</span><span>C++ authoring API</span></a>
+      <a href="#project-files"><span class="toc-num">12</span><span>Design project files</span></a>
+      <a href="#tests"><span class="toc-num">13</span><span>Build and tests</span></a>
+      <a href="#noc-roadmap"><span class="toc-num">14</span><span>Planned NoC evolution</span></a>
+      <a href="#change-map"><span class="toc-num">15</span><span>Where to make changes</span></a>
+      <a href="#invariants"><span class="toc-num">16</span><span>Invariants and traps</span></a>
+      <a href="#glossary"><span class="toc-num">17</span><span>Glossary</span></a>
+    </nav>
+    <div class="legend-mini" aria-label="Connection truth legend">
+      <span><i class="wire"></i> authored in code</span>
+      <span><i class="wire routed"></i> owned by fabric rules</span>
+      <span><i class="wire inferred"></i> inferred by parser</span>
+      <span><i class="wire stub"></i> dangling or provisional</span>
+      <span><i class="wire broken"></i> unresolved / invalid</span>
+    </div>
+  </aside>
+
+  <main id="top">
+    <div class="content">
+      <header class="masthead searchable" data-search="overview architecture hosts canvas contracts host engine trace">
+        <div class="thesis">
+          <div>
+            <div class="kicker">REPOSITORY FIELD GUIDE · START HERE</div>
+            <h1>The code is the design. The run is the proof.</h1>
+            <p class="lede">This repository is a microarchitecture and SoC design environment with two hosts, one React schematic, a host-neutral parse/write/run layer, and a cycle-accurate C++ engine. Its central loop is not “draw, then export.” The canvas edits real source, the source executes, and the resulting trace returns to the canvas.</p>
+          </div>
+          <aside class="truth-note">
+            <strong>The shortest useful mental model</strong>
+            <code>@iss/canvas</code> emits an <code>EditIntent</code>. <code>@iss/host</code> validates it and regenerates only marker-owned source. The C++ engine executes that source and writes JSONL hops, metrics, and divergences. The same canvas plays those records back.
+          </aside>
+        </div>
+
+        <div class="system-map">
+          <h2 class="sr-only">System architecture: hosts through canvas, contracts, host services, engine, and trace returning to canvas</h2>
+          <div class="map-label">SYSTEM TRACE · CLICK A BLOCK TO DRILL DOWN</div>
+          <div class="architecture">
+            <div class="arch-stack">
+              <a class="arch-node host" href="#canvas"><b>VS Code extension</b><small><code>ide/</code> · webview, trees, commands</small></a>
+              <a class="arch-node host" href="#canvas"><b>Electron desktop</b><small><code>app/</code> · preload bridge, session, bench</small></a>
+            </div>
+            <div class="arrow">→</div>
+            <a class="arch-node canvas" href="#canvas"><b>Shared React canvas</b><small><code>@iss/canvas</code> · graph editor, inspector, playback</small></a>
+            <div class="arrow">↔</div>
+            <a class="arch-node contracts" href="#contracts"><b>Shared vocabulary</b><small><code>@iss/contracts</code> · Graph, AuthoringModel, protocol</small></a>
+            <div class="arrow">↔</div>
+            <a class="arch-node services" href="#host"><b>Project services</b><small><code>@iss/host</code> · parse, write, build, run, trace</small></a>
+            <div class="arrow">→</div>
+            <div class="arch-stack">
+              <a class="arch-node engine" href="#engine"><b>C++17 engine</b><small>Scheduler, Link, Router, Registry</small></a>
+              <a class="arch-node trace" href="#run-flow"><b>JSONL evidence</b><small>hops, queue metrics, divergences</small></a>
+            </div>
+          </div>
+          <div class="return-path">trace playback returns to the same graph</div>
+        </div>
+
+        <div class="hero-foot" aria-label="Repository facts">
+          <div class="hero-fact"><b>2 hosts</b><span>VS Code + Electron</span></div>
+          <div class="hero-fact"><b>1 canvas</b><span>host-neutral React package</span></div>
+          <div class="hero-fact"><b>3 shared packages</b><span>contracts, host, canvas</span></div>
+          <div class="hero-fact"><b>1 real engine</b><span>C++17, cycle-accurate</span></div>
+        </div>
+      </header>
+
+      <section id="orientation" class="doc-section searchable" data-search="orientation product mental model source truth authoring read write sidecar generated">
+        <div class="section-head"><div class="section-index">01 / ORIENT</div><div><h2>What this codebase is actually doing</h2><p class="section-summary">It is a structured editor over executable microarchitecture source, not a drawing tool with code generation bolted on afterward.</p></div></div>
+
+        <div class="two-col">
+          <div class="rail-block">
+            <h3>The read direction</h3>
+            <p>C++ files are scanned into facts, facts are assembled into a <code>Graph</code>, and the sidecar augments the few concepts source alone cannot express cleanly: empty composites, labels, I/O roles, implementation choice, router topology, run settings, and layout.</p>
+          </div>
+          <div class="rail-block">
+            <h3>The write direction</h3>
+            <p>Canvas operations become typed <code>EditIntent</code> messages. A pure reducer updates the <code>AuthoringModel</code>; deterministic writers render marker-owned regions back into C++, SystemVerilog, headers, and a generated harness.</p>
+          </div>
+          <div class="rail-block">
+            <h3>The execution direction</h3>
+            <p>The host compiles the generated harness and blocks against <code>engine/build/libmicroarch.a</code>. Events move through real <code>Link</code>s on a real scheduler; routers apply real queues, arbitration, bandwidth, and routing rules.</p>
+          </div>
+          <div class="rail-block">
+            <h3>The evidence direction</h3>
+            <p>The engine records each hop at send time, plus router metrics and divergences. The host parses that JSONL into a <code>Trace</code>; the canvas animates tokens, fills the pipeline, paints congestion, and anchors failures to blocks.</p>
+          </div>
+        </div>
+
+        <div class="callout"><strong>Source of truth is deliberately split by meaning.</strong> Executable structure lives in source. Authoring state that cannot live there without distortion lives in <a href="sample/iss_authored.model.json"><code>iss_authored.model.json</code></a>. Pure view state lives in <code>iss_layout.json</code>. Run inputs live in <code>iss_run.json</code>. Architectural intent lives in <code>iss_spec.json</code>.</div>
+
+        <h3>Three models you should not conflate</h3>
+        <table class="layer-table">
+          <thead><tr><th>Model</th><th>Purpose</th><th>Canonical definition</th></tr></thead>
+          <tbody>
+            <tr><td>Read model: <code>Graph</code></td><td>What the parser can substantiate from source, then augmented for display and fabric behavior.</td><td><a href="packages/contracts/src/graph.ts">packages/contracts/src/graph.ts</a></td></tr>
+            <tr><td>Write model: <code>AuthoringModel</code></td><td>What the canvas is allowed to author and regenerate, including components, ports, events, variables, router rules, and implementation choices.</td><td><a href="packages/contracts/src/model.ts">packages/contracts/src/model.ts</a></td></tr>
+            <tr><td>Execution record: <code>Trace</code></td><td>What actually happened during a run: hops, divergences, metrics, timeline length, and actual clock stop.</td><td><a href="packages/contracts/src/trace.ts">packages/contracts/src/trace.ts</a></td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="repository" class="doc-section searchable" data-search="repository directory map packages engine ide app sample robot_soc scripts generated build dist out">
+        <div class="section-head"><div class="section-index">02 / MAP</div><div><h2>Repository map</h2><p class="section-summary">The root is an npm workspace wrapped around a separate C++ engine. The three shared TypeScript packages are the center; both UI hosts sit above them.</p></div></div>
+
+        <pre class="tree"><span class="dir">micro_arch_ide2/</span>
+├─ <span class="dir">engine/</span>              <span class="comment"># standalone C++17 simulation runtime</span>
+│  ├─ include/microarch/  <span class="comment"># public engine API</span>
+│  ├─ include/infra/      <span class="comment"># compatibility aliases for generated/legacy blocks</span>
+│  ├─ src/                <span class="comment"># Scheduler, Link, Router, trace implementations</span>
+│  └─ tests/              <span class="comment"># engine semantics and router behavior</span>
+├─ <span class="dir">packages/</span>
+│  ├─ contracts/          <span class="comment"># pure shared types + pure derivation helpers</span>
+│  ├─ host/               <span class="comment"># filesystem, parser, writer, compiler, trace reader</span>
+│  └─ canvas/             <span class="comment"># host-agnostic React schematic and playback UI</span>
+├─ <span class="dir">ide/</span>                 <span class="comment"># VS Code extension host and webview entry</span>
+├─ <span class="dir">app/</span>                 <span class="comment"># Electron main/preload + standalone bench shell</span>
+├─ <span class="dir">sample/</span>              <span class="comment"># generated CPU-style worked design</span>
+├─ <span class="dir">robot_soc/</span>           <span class="comment"># address-routed SoC + multi-router example</span>
+├─ <span class="dir">scripts/</span>             <span class="comment"># documentation build tooling</span>
+├─ package.json           <span class="comment"># workspace scripts</span>
+├─ README.md              <span class="comment"># product and feature overview</span>
+├─ CPP_API.md             <span class="comment"># hand-written C++ authoring reference</span>
+└─ DESIGN.md              <span class="comment"># durable visual/semantic system</span></pre>
+
+        <table class="file-table">
+          <thead><tr><th>Directory</th><th>Owns</th><th>Must not know about</th></tr></thead>
+          <tbody>
+            <tr><td><a href="packages/contracts/src/index.ts">packages/contracts</a></td><td>Types, validation helpers, bit widths, fabric derivation, spec templates.</td><td>Node, DOM, VS Code, Electron.</td></tr>
+            <tr><td><a href="packages/host/src/index.ts">packages/host</a></td><td>Disk, source parsing, code emission, compilation, Verilator, traces, editor launching.</td><td>VS Code API, Electron IPC, React.</td></tr>
+            <tr><td><a href="packages/canvas/src/index.ts">packages/canvas</a></td><td>Graph interaction, layout, inspector, spec/events views, playback, metrics, shared behavior.</td><td>Filesystem, child processes, host-specific APIs.</td></tr>
+            <tr><td><a href="ide/src/extension.ts">ide</a></td><td>VS Code activation, trees, commands, watchers, source reveal, webview lifecycle.</td><td>Duplicated canvas behavior.</td></tr>
+            <tr><td><a href="app/electron/main.ts">app</a></td><td>Desktop lifecycle, IPC bridge, native menus, project opening, editor and terminal integration, alternate shell.</td><td>A private fork of the canvas.</td></tr>
+            <tr><td><a href="engine/include/microarch/engine.hpp">engine</a></td><td>Cycle semantics, event ownership, delivery, routing, queueing, arbitration, JSONL sinks.</td><td>TypeScript models or UI concepts.</td></tr>
+          </tbody>
+        </table>
+
+        <div class="callout warn"><strong>Generated directories are not architecture.</strong> <code>app/dist/</code>, <code>ide/out/</code>, <code>engine/build/</code>, project <code>build/</code> folders, and <code>node_modules/</code> are products of the build. Read their sources instead.</div>
+      </section>
+
+      <section id="edit-flow" class="doc-section searchable" data-search="edit flow add wire EditIntent applyIntent writeModel marker splice reparse GraphStore overlay debounce">
+        <div class="section-head"><div class="section-index">03 / WRITE</div><div><h2>Follow one canvas edit into real source</h2><p class="section-summary">A drawn wire is the clearest vertical slice because it touches UI behavior, protocol, model validation, source emission, and immediate read-back.</p></div></div>
+
+        <div class="flow">
+          <div class="flow-step"><div><h3>The canvas creates an intent</h3><p><code>useDesignSession.connect()</code> chooses a stable C++ port name, optionally creates an event, and posts <code>{ type: 'edit', intent: { kind: 'addWire', … } }</code>.</p><div class="path"><a href="packages/canvas/src/useDesignSession.ts">packages/canvas/src/useDesignSession.ts</a></div></div></div>
+          <div class="flow-step"><div><h3>The transport crosses the host boundary</h3><p>VS Code uses <code>acquireVsCodeApi().postMessage</code>. Electron uses the narrow preload bridge. Both satisfy the same two-method <code>HostTransport</code>.</p><div class="path"><a href="packages/canvas/src/transport.tsx">packages/canvas/src/transport.tsx</a> · <a href="app/electron/preload.ts">app/electron/preload.ts</a></div></div></div>
+          <div class="flow-step"><div><h3>A pure reducer validates the change</h3><p><code>applyIntent(model, intent)</code> clones the write model, rejects invalid paths, cross-top wires, bad identifiers, invalid ranges, and incompatible component kinds, then returns the next model.</p><div class="path"><a href="packages/host/src/writer/edits.ts">packages/host/src/writer/edits.ts</a></div></div></div>
+          <div class="flow-step"><div><h3>The writer regenerates owned regions</h3><p><code>writeModel()</code> emits events, block bodies, twins, routers, and the sidecar. <code>spliceRegion()</code> replaces only the text between <code>ISS-AUTHORED</code> markers; hand-owned tails survive byte-for-byte.</p><div class="path"><a href="packages/host/src/writer/index.ts">packages/host/src/writer/index.ts</a> · <a href="packages/host/src/writer/markers.ts">markers.ts</a></div></div></div>
+          <div class="flow-step"><div><h3>The wire becomes <code>configureOut</code></h3><p>The generated block's <code>wire(Registry&amp;)</code> method resolves the destination by full dot-path. This is why a wire is visible as Tier-1 “wired” truth when the source is parsed again.</p><div class="path"><a href="sample/src/CPU0/IF.cpp">sample/src/CPU0/IF.cpp</a></div></div></div>
+          <div class="flow-step"><div><h3>The project is reparsed immediately</h3><p>The per-file parser cache extracts only changed facts, then pure assembly reconstructs the graph. In VS Code, unsaved documents arrive as overlays on a 120 ms debounce; a parse failure preserves the last good graph and reports the error.</p><div class="path"><a href="packages/host/src/project/graphStore.ts">packages/host/src/project/graphStore.ts</a> · <a href="packages/host/src/parser/index.ts">parser/index.ts</a></div></div></div>
+          <div class="flow-step"><div><h3>The same canvas receives substantiated state</h3><p>The host augments the parsed graph with sidecar-only state and posts a new <code>HostMsg</code>. The UI does not optimistically become a source editor; it waits for the model it can substantiate.</p><div class="path"><a href="packages/host/src/project/augment.ts">packages/host/src/project/augment.ts</a></div></div></div>
+        </div>
+
+        <h3>The marker contract</h3>
+        <pre><code>// === ISS-AUTHORED:BEGIN — generated by the ISS canvas. Edit via the canvas, not by hand. ===
+// This region may be replaced deterministically.
+// === ISS-AUTHORED:END ===
+
+// Everything outside/below the markers is hand-owned and preserved.</code></pre>
+        <div class="callout error"><strong>Do not put hand-written behavior inside the marker region.</strong> The writer is designed to replace it. For routers, SV twins, and custom traffic generators, the intended extension point is the tail below the end marker.</div>
+      </section>
+
+      <section id="run-flow" class="doc-section searchable" data-search="run simulate build compile g++ harness trace JSONL playback verify xverify sail synthetic thin">
+        <div class="section-head"><div class="section-index">04 / RUN</div><div><h2>Follow Run into execution and back</h2><p class="section-summary">The normal path builds and executes the design for real. Synthetic trace generation is a clearly reported preview fallback only when a successful run yields no hops.</p></div></div>
+
+        <div class="flow">
+          <div class="flow-step run"><div><h3>The host gates invalid fabric</h3><p><code>deriveFabric()</code> runs before compilation. Cross-top point-to-point wires are hard errors and block Run. Rule ambiguities and missing matches are warnings because the runtime can drop and report them honestly.</p></div></div>
+          <div class="flow-step run"><div><h3>The harness is regenerated</h3><p><code>emitHarness()</code> includes every leaf, creates one <code>Link</code> per out-port, instantiates blocks, registers full IDs, invokes each block's <code>wire()</code>, configures routers, installs trace sinks, selects entries, and seeds tokens.</p></div></div>
+          <div class="flow-step run"><div><h3>SV leaves are verilated if selected</h3><p>Each <code>impl: 'sv'</code> leaf is linted and compiled under a unique prefix. A cheap mtime cache avoids repeating Verilator work when the twin has not changed.</p></div></div>
+          <div class="flow-step run"><div><h3>The host compiles one executable</h3><p><code>g++ -std=c++17 -O2</code> compiles the generated harness, any hand-written translation units, optional Verilated sources/runtime, and <code>libmicroarch.a</code> into <code>build/design</code>.</p></div></div>
+          <div class="flow-step run"><div><h3>The scheduler runs the cycle budget</h3><p>The harness seeds configured or auto-detected entry leaves, calls <code>scheduler.runFor(maxCycles)</code>, and writes <code>iss_trace.jsonl</code> as events are sent and router state changes.</p></div></div>
+          <div class="flow-step run"><div><h3>The host parses evidence</h3><p><code>parseTrace()</code> resolves engine names back to graph IDs and separates hop, metric, and divergence records. It also records the actual clock stop so in-flight-but-undelivered events remain visible.</p></div></div>
+          <div class="flow-step run"><div><h3>The canvas derives playback views</h3><p>Token timelines, positions, occupancy, congestion, pipeline cells, latency histograms, wave lanes, and problem entries are all projections over the returned trace—not simulated UI decoration.</p></div></div>
+        </div>
+
+        <div class="two-col">
+          <div>
+            <h3>Trace record shapes</h3>
+            <pre><code>{"token":7,"from":"CPU0.EX","to":"CPU0.MEM",
+ "event":"ExecEvent","depart":4,"arrive":5}
+
+{"metric":"qdepth","cycle":12,"component":"R1",
+ "port":"Memory1","value":3}
+
+{"diverge":true,"cycle":14,"component":"EX",
+ "token":7,"detail":"x5 mismatch","kind":"cosim"}</code></pre>
+          </div>
+          <div>
+            <h3>Verify is a second path</h3>
+            <p><code>verify()</code> invokes <code>xverify --json --ref sail|stub</code>. Divergence order is associated with the last trace hop for that token, so an architectural mismatch lands on a useful block and cycle.</p>
+            <p>If Sail is requested but its driver is unavailable, the code falls back to <code>stub</code> and logs that fact. Missing <code>xverify</code> or program input skips verification visibly rather than fabricating a verdict.</p>
+            <p><a href="packages/host/src/project/run.ts">Read the run and verify implementation →</a></p>
+          </div>
+        </div>
+      </section>
+
+      <section id="contracts" class="doc-section searchable" data-search="contracts Graph AuthoringModel EditIntent HostMsg ViewMsg protocol bits spec fabric pure types">
+        <div class="section-head"><div class="section-index">05 / CONTRACT</div><div><h2>The shared contracts are the load-bearing seam</h2><p class="section-summary"><code>@iss/contracts</code> is intentionally pure. The canvas, both hosts, project services, and tests all compile against one vocabulary instead of importing one another.</p></div></div>
+
+        <div class="contract-grid">
+          <article class="contract"><div class="sig">Graph ← parser</div><h3>Read model</h3><p>What source says now.</p><ul><li>components and hierarchy</li><li>first-class out-ports</li><li>events and fields</li><li>wired / inferred / unresolved / routed links</li><li>stubs, fabric, derived edges, diagnostics</li></ul><a href="packages/contracts/src/graph.ts">graph.ts</a></article>
+          <article class="contract"><div class="sig">AuthoringModel → writer</div><h3>Write model</h3><p>What the UI may author.</p><ul><li>components, variables, ports, events</li><li>composites and I/O roles</li><li>routers, peers, rules, arbitration</li><li>traffic generators</li><li>C++/SV choice and divergence flags</li></ul><a href="packages/contracts/src/model.ts">model.ts</a></article>
+          <article class="contract"><div class="sig">HostMsg ⇄ ViewMsg</div><h3>Message protocol</h3><p>The complete host/view boundary.</p><ul><li>graph, layout, authored IDs</li><li>trace, logs, run state, waves</li><li>edit/spec intents</li><li>reveal, simulate, verify</li><li>run configuration</li></ul><a href="packages/contracts/src/messaging.ts">messaging.ts</a></article>
+        </div>
+
+        <h3>Other pure contracts</h3>
+        <table class="file-table">
+          <thead><tr><th>File</th><th>Responsibility</th></tr></thead>
+          <tbody>
+            <tr><td><a href="packages/contracts/src/fabric.ts">fabric.ts</a></td><td>The only authority for inter-top routing derivation: ingress bindings, concrete rule routes, ghost edges, and diagnostics.</td></tr>
+            <tr><td><a href="packages/contracts/src/bits.ts">bits.ts</a></td><td>Maps field types to widths, calculates event width, and owns the shared default of 32 bits.</td></tr>
+            <tr><td><a href="packages/contracts/src/spec.ts">spec.ts</a></td><td>Architecture-spec schema, edit reducer, validation, builtin types, encoding layouts, and CPU/GPU/accelerator/blank templates.</td></tr>
+            <tr><td><a href="packages/contracts/src/runConfig.ts">runConfig.ts</a></td><td>Entry seeds, token count, cycle budget, waveform toggle, and global divergence-check switch.</td></tr>
+            <tr><td><a href="packages/contracts/src/waves.ts">waves.ts</a></td><td>Host-neutral VCD-derived signal and change shapes.</td></tr>
+          </tbody>
+        </table>
+
+        <div class="callout warn"><strong>Addresses are strings on the TypeScript side.</strong> Router bounds and traffic ranges are canonical lowercase <code>0x</code>-hex strings, parsed to <code>BigInt</code>. A JavaScript <code>number</code> cannot safely represent the full uint64 range.</div>
+      </section>
+
+      <section id="host" class="doc-section searchable" data-search="host parser facts infer writer augment graphstore run trace vcd spec project services">
+        <div class="section-head"><div class="section-index">06 / HOST</div><div><h2><code>@iss/host</code>: disk and process authority</h2><p class="section-summary">This package contains everything that needs Node—filesystem access, source analysis, generation, compilers, external processes—and nothing that assumes VS Code or Electron.</p></div></div>
+
+        <h3>Read pipeline</h3>
+        <table class="file-table">
+          <thead><tr><th>Entry point</th><th>What it does</th></tr></thead>
+          <tbody>
+            <tr><td><a href="packages/host/src/parser/facts.ts">parser/facts.ts</a></td><td>Regex-and-scope extraction of classes, ports, wiring, latency, sends, consumes, handler ranges, labels, fields, and router latency-model functions. Comment/string handling prevents obvious false positives.</td></tr>
+            <tr><td><a href="packages/host/src/parser/infer.ts">parser/infer.ts</a></td><td>Pure <code>FileFacts[] → Graph</code>. Builds dot-path hierarchy and applies the link truth ladder: explicit wire, unique inferred consumer, unresolved candidates, or stub.</td></tr>
+            <tr><td><a href="packages/host/src/parser/index.ts">parser/index.ts</a></td><td>Walks <code>inc/</code> and <code>src/</code>, skips builds, hashes files, caches facts, accepts unsaved overlays, and reassembles the graph.</td></tr>
+            <tr><td><a href="packages/host/src/project/augment.ts">project/augment.ts</a></td><td>Merges sidecar-only state, computes composite pins, derives fabric, converts attached dangling ports into routed links, and calculates event widths.</td></tr>
+            <tr><td><a href="packages/host/src/project/graphStore.ts">project/graphStore.ts</a></td><td>Keeps the last good graph, debounces reparses, and presents the same observable store to both hosts.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Write pipeline</h3>
+        <table class="file-table">
+          <thead><tr><th>Entry point</th><th>What it owns</th></tr></thead>
+          <tbody>
+            <tr><td><a href="packages/host/src/writer/edits.ts">writer/edits.ts</a></td><td>Pure validation/reducer for every <code>EditIntent</code>. This is the model's integrity boundary.</td></tr>
+            <tr><td><a href="packages/host/src/writer/blockfile.ts">writer/blockfile.ts</a></td><td>Event header, architecture header, leaf class, variables, consumes, sends, and registry wiring emission.</td></tr>
+            <tr><td><a href="packages/host/src/writer/index.ts">writer/index.ts</a></td><td>The only filesystem-touching writer: marker splicing, file lifecycle, sidecar persistence, SV twin/router/traffic specialization.</td></tr>
+            <tr><td><a href="packages/host/src/writer/harness.ts">writer/harness.ts</a></td><td>Complete generated <code>main()</code>: instances, links, Registry, fabric, trace sinks, seeds, and cycle budget.</td></tr>
+            <tr><td><a href="packages/host/src/writer/svtwin.ts">writer/svtwin.ts</a> / <a href="packages/host/src/writer/svadapter.ts">svadapter.ts</a></td><td>SystemVerilog module surface and the generated bridge between RTL signals and engine events.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Run and evidence pipeline</h3>
+        <table class="file-table">
+          <thead><tr><th>Entry point</th><th>What it owns</th></tr></thead>
+          <tbody>
+            <tr><td><a href="packages/host/src/project/run.ts">project/run.ts</a></td><td>Subprocess runner, engine build, design compile, execution, trace parse, thin-trace fallback, xverify integration.</td></tr>
+            <tr><td><a href="packages/host/src/project/verilate.ts">project/verilate.ts</a></td><td>Per-leaf Verilator invocation, unique prefixes, mtime caching, model/runtime source collection.</td></tr>
+            <tr><td><a href="packages/host/src/trace/parse.ts">trace/parse.ts</a></td><td>JSONL to typed Trace, including name resolution and provenance normalization.</td></tr>
+            <tr><td><a href="packages/host/src/trace/vcd.ts">trace/vcd.ts</a></td><td>VCD parsing into host-neutral wave documents.</td></tr>
+            <tr><td><a href="packages/host/src/trace/synthesize.ts">trace/synthesize.ts</a></td><td>Explicit synthetic preview used only when a run has no usable hops or for the Animate fallback command.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="canvas" class="doc-section searchable" data-search="canvas React useDesignSession host transport VS Code Electron shell inspector layout token animation metrics bench">
+        <div class="section-head"><div class="section-index">07 / VIEW</div><div><h2>One canvas, two shells, identical behavior</h2><p class="section-summary">The shared package owns the design session and visual components. Hosts choose the surrounding shell and the transport, not the editor behavior.</p></div></div>
+
+        <div class="two-col">
+          <div class="rail-block"><h3>VS Code shell</h3><p><a href="packages/canvas/src/app.tsx"><code>App</code></a> arranges palette, editor canvas, inspector, bottom panel, and status bar as a familiar IDE surface. <a href="ide/src/webview/index.tsx">ide/src/webview/index.tsx</a> is only the mount and VS Code transport.</p></div>
+          <div class="rail-block"><h3>Desktop shell</h3><p><a href="app/src/bench.tsx"><code>Bench</code></a> composes the same session and components as a full-bleed desktop workbench with movable panes, native project lifecycle, integrated terminal, and cosmetic skins.</p></div>
+        </div>
+
+        <h3>The behavior center: <code>useDesignSession()</code></h3>
+        <p>This hook holds graph, layout, authored ownership, selection, drill path, trace, playhead, run/spec state, waves, console, tool mode, undo/redo, copy/paste, wire creation, router operations, keyboard shortcuts, and auto-layout. Moving behavior out of either shell is what keeps the two hosts equivalent.</p>
+
+        <table class="file-table">
+          <thead><tr><th>Canvas file</th><th>Responsibility</th></tr></thead>
+          <tbody>
+            <tr><td><a href="packages/canvas/src/useDesignSession.ts">useDesignSession.ts</a></td><td>Shared state machine and all user operations. Posts intents; consumes host messages.</td></tr>
+            <tr><td><a href="packages/canvas/src/canvas.tsx">canvas.tsx</a></td><td>Graph interaction: selection, drag, pan, zoom, wire gestures, node rendering, fabric geometry, trace overlays.</td></tr>
+            <tr><td><a href="packages/canvas/src/layout.ts">layout.ts</a></td><td>Hierarchy projection, port anchors, edge aggregation, layered auto-layout, orthogonal/curved routing, point interpolation.</td></tr>
+            <tr><td><a href="packages/canvas/src/inspector.tsx">inspector.tsx</a></td><td>Editing surfaces for components, variables, ports, consumes, routers, forwarding rules, traffic, implementation, and divergence checks.</td></tr>
+            <tr><td><a href="packages/canvas/src/tokenAnim.ts">tokenAnim.ts</a></td><td>Pure trace projections: token timelines/positions, pipeline table, occupancy, and congestion.</td></tr>
+            <tr><td><a href="packages/canvas/src/metrics.ts">metrics.ts</a></td><td>Trace metric summaries, histograms, path latency, bandwidth, queue heat, router depth totals.</td></tr>
+            <tr><td><a href="packages/canvas/src/bottom-panel.tsx">bottom-panel.tsx</a></td><td>Console, trace, pipeline, waves, metrics, and problems tabs sharing one playhead.</td></tr>
+            <tr><td><a href="packages/canvas/src/spec-designer.tsx">spec-designer.tsx</a></td><td>Layer-1 architectural spec editor.</td></tr>
+            <tr><td><a href="packages/canvas/src/events-view.tsx">events-view.tsx</a></td><td>Message vocabulary, payload fields, width overrides, emitters, and consumers.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>The host adapters</h3>
+        <div class="three-col">
+          <div class="rail-block"><h4>VS Code extension</h4><p><a href="ide/src/extension.ts">extension.ts</a> owns the webview panel, file watchers, trees, source reveal, commands, run/verify orchestration, and settings resolution.</p></div>
+          <div class="rail-block"><h4>Electron session</h4><p><a href="app/electron/session.ts">session.ts</a> mirrors the extension's authoring and run orchestration without editor APIs.</p></div>
+          <div class="rail-block"><h4>Preload bridge</h4><p><a href="app/electron/preload.ts">preload.ts</a> exposes named messages only. The renderer gets no filesystem, process, or raw IPC capability.</p></div>
+        </div>
+      </section>
+
+      <section id="engine" class="doc-section searchable" data-search="engine Scheduler Event Link Component Registry cycles dispatch settle tick token hop trace">
+        <div class="section-head"><div class="section-index">08 / EXECUTE</div><div><h2>The C++ engine in one cycle</h2><p class="section-summary">The engine is small by design: event delivery, two-phase clocking, named wiring, routing, and evidence sinks. Generated designs include its public umbrella header or compatibility shims.</p></div></div>
+
+        <div class="phase-strip">
+          <div class="phase"><b>1 · DISPATCH</b><p>Drain every event scheduled for the current cycle in FIFO order. A handler may send zero-latency events back into the same cycle; dispatch keeps draining until the bucket is empty.</p></div>
+          <div class="phase"><b>2 · SETTLE</b><p>Call <code>settle(cycle)</code> on clocked components until none requests another delta cycle. A safety limit throws if combinational logic never quiesces.</p></div>
+          <div class="phase"><b>3 · TICK</b><p>Call <code>tick(cycle)</code> once on every clocked component, then advance the clock. A zero-latency send during Tick lands next cycle, preserving synchronous causality.</p></div>
+        </div>
+
+        <table class="file-table">
+          <thead><tr><th>Type</th><th>Contract</th></tr></thead>
+          <tbody>
+            <tr><td><a href="engine/include/microarch/component.hpp">Component</a></td><td>A named block with required <code>handler(Event&amp;)</code> and optional <code>settle</code>/<code>tick</code> phases.</td></tr>
+            <tr><td><a href="engine/include/microarch/event.hpp">Event</a></td><td>Move-only message carrying type, delivery cycle, stable token, destination, fabric destination, origin, address, and width in bits.</td></tr>
+            <tr><td><a href="engine/include/microarch/link.hpp">Link</a></td><td>Directed connection with latency. It stamps origin/token context, schedules delivery, records a hop, can divert to a shadow tap, or interpose a router.</td></tr>
+            <tr><td><a href="engine/include/microarch/scheduler.hpp">Scheduler</a></td><td>Map-based calendar, token minting, active event ownership, phase-aware delivery, clocked components, and hop/divergence/metric sinks.</td></tr>
+            <tr><td><a href="engine/include/microarch/registry.hpp">Registry</a></td><td>String-to-component lookup that lets each generated block contain its own <code>configureOut</code> truth.</td></tr>
+            <tr><td><a href="engine/include/microarch/router.hpp">Router</a></td><td>Ordered match rules, destination routes, queues, bandwidth credit, arbitration, latency models, drop/stall policy, and metrics.</td></tr>
+            <tr><td><a href="engine/include/microarch/trace.hpp">Trace writer</a></td><td>JSONL serialization for hop, divergence, and metric records.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Token propagation</h3>
+        <p><code>Scheduler::seed()</code> mints a token. During handler dispatch, the scheduler exposes that token as active context. Every event sent by a <code>Link</code> while handling the current event inherits it, which lets multiple hops form a single transaction timeline without coupling event subclasses to pipeline semantics.</p>
+
+        <h3>Compatibility layer</h3>
+        <p>The <a href="engine/include/infra/component.h"><code>engine/include/infra/*.h</code></a> headers hoist <code>microarch::Component</code>, <code>Event</code>, <code>Link</code>, and <code>Scheduler</code> into the global namespace. Generated sample blocks currently use these shims; new hand-written code may include <code>microarch/engine.hpp</code> directly.</p>
+      </section>
+
+      <section id="fabric" class="doc-section searchable" data-search="router fabric top level rules address BFS arbitration fifo round robin priority weighted bandwidth bits queue stall drop latency model">
+        <div class="section-head"><div class="section-index">09 / ROUTE</div><div><h2>Top-level dataflow is rule-based fabric</h2><p class="section-summary">Point-to-point wires are valid inside a top-level unit. Traffic between top-level units must enter routers and be resolved by ordered forwarding rules.</p></div></div>
+
+        <div class="callout"><strong>Why the hard boundary exists:</strong> an authored wire has one destination; an SoC fabric routes packets by type and address. Allowing a direct cross-top wire would bypass contention, router latency, queueing, arbitration, and address decode—the exact behavior this tool exists to explore.</div>
+
+        <h3>Derivation algorithm</h3>
+        <ol>
+          <li>Report every cross-top point-to-point wire as a blocking <code>crossTopWire</code> error.</li>
+          <li>Find dangling, message-carrying out-ports under attached top-level units.</li>
+          <li>Choose an ingress router, preferring an attachment with a matching rule.</li>
+          <li>Expand each authored rule by known ingress messages, resolve its destination leaf, and find the shortest router trunk path with BFS.</li>
+          <li>Emit concrete <code>addMatchRule</code>, <code>addRoute</code>, <code>setRouteLatency</code>, and <code>routeVia</code> calls into the harness.</li>
+          <li>Expose derived top-to-top ghost edges and diagnostics to the canvas.</li>
+        </ol>
+
+        <div class="two-col">
+          <div>
+            <h3>Packet matching</h3>
+            <p>Rules are ordered and first-match-wins. A rule may constrain message type, inclusive address lower/upper bounds, or neither. A packet with no match is dropped and emitted as a <code>drop</code> divergence; the simulation continues.</p>
+          </div>
+          <div>
+            <h3>Packet cost</h3>
+            <p>Bandwidth is bits per output port per cycle. A packet costs its event width: a 512-bit packet on a 128-bit/cycle output occupies four cycles, while several narrow packets can share one cycle.</p>
+          </div>
+          <div>
+            <h3>Queue policy</h3>
+            <p>Unbounded is the default. A bounded full queue either stalls the packet by rescheduling it at the router next cycle or drops it and records a divergence.</p>
+          </div>
+          <div>
+            <h3>Arbitration</h3>
+            <p>FIFO preserves arrival order; round-robin alternates origins; fixed priority drains lower rank first; weighted DRR grants bit-quantum proportional to origin weight.</p>
+          </div>
+        </div>
+
+        <h3>Router evidence</h3>
+        <p>Routers emit change-only queue depth (<code>qdepth</code>), per-cycle packet flow (<code>flow</code>), forwarded bits (<code>bits</code>), and full-queue retries (<code>stall</code>). These records feed the canvas heat overlay and METRICS tab without a router-specific UI simulation.</p>
+        <p><a href="packages/contracts/src/fabric.ts">Read the pure derivation →</a> · <a href="engine/src/router.cpp">Read runtime routing →</a></p>
+      </section>
+
+      <section id="cosim" class="doc-section searchable" data-search="SystemVerilog SV Verilator co-simulation adapter twin VCD waves divergence shadow token FIFO">
+        <div class="section-head"><div class="section-index">10 / CO-SIM</div><div><h2>SystemVerilog twins execute inside the same timeline</h2><p class="section-summary">Every ordinary leaf can have a generated-port / hand-behavior SV twin. Selecting <code>impl: 'sv'</code> replaces that C++ instance with a Verilated adapter in the harness.</p></div></div>
+
+        <div class="flow">
+          <div class="flow-step"><div><h3>Twin surface is generated</h3><p>The marker-owned SV region contains the module header, clock/reset, input valid strobes and fields for consumed events, and output valid strobes and fields for out-ports. The RTL body below the marker is yours.</p></div></div>
+          <div class="flow-step"><div><h3>Verilator builds a unique model</h3><p>Each leaf gets a prefix such as <code>V_CPU0_DE</code> and its own <code>build/verilated/&lt;id&gt;</code> directory, so duplicated composites can coexist.</p></div></div>
+          <div class="flow-step"><div><h3>The adapter translates both directions</h3><p><code>handler()</code> latches engine events into RTL inputs. <code>tick()</code> drives a full clock pulse, reads valid outputs, converts them back to engine events, and sends them through the leaf's normal Links.</p></div></div>
+          <div class="flow-step"><div><h3>VCD shares the playhead</h3><p>Optional per-block VCDs are written to <code>build/waves/</code>. Host parsing turns them into <code>WaveDoc</code>s; the WAVES tab uses the same cycle playhead as trace and pipeline views.</p></div></div>
+        </div>
+
+        <h3>Opt-in SV ↔ C++ divergence checking</h3>
+        <p>A checked adapter also instantiates the real C++ block as a shadow. Its output Links are diverted into expectation buffers and never enter the design or trace. Actual SV emissions are compared field-by-field against expectations keyed by token; mismatches, SV-only outputs, and C++-only outputs become <code>cosim</code> divergences.</p>
+        <div class="callout warn"><strong>Documented limit:</strong> token attribution uses an input FIFO and comparison is per-token. It is exact for in-order transaction flows, including fan-out, but heuristic for internally reordering pipelines.</div>
+        <p><a href="packages/host/src/writer/svadapter.ts">Generated adapter logic →</a> · <a href="packages/host/src/project/verilate.ts">Verilator integration →</a></p>
+      </section>
+
+      <section id="cpp-api" class="doc-section searchable" data-search="C++ API authoring recognized slice hand written block parser forms Component Event Link Registry Scheduler Router marker recipe compile translation unit gotcha">
+        <div class="section-head"><div class="section-index">11 / AUTHOR</div><div><h2>Hand-written C++ that the canvas understands</h2><p class="section-summary">This section incorporates the repository's new <a href="CPP_API.md"><code>CPP_API.md</code></a> reference: the public engine surface, exact parser-recognized forms, marker ownership by file type, recipes, and verified build traps.</p></div></div>
+
+        <div class="callout"><strong>The recognized slice is not a language restriction.</strong> Ordinary C++ outside it still compiles and runs. The slice only determines how much structure the parser can project back onto the canvas.</div>
+
+        <h3>Include surface</h3>
+        <pre><code>#include "microarch/engine.hpp"  // preferred for new hand-written code
+#include "iss_events.h"          // the project's generated message vocabulary</code></pre>
+        <p>Generated blocks currently include the compatibility shims under <code>engine/include/infra/</code>, which alias the same engine types into the global namespace. Both styles work; new hand-authored code should prefer the umbrella header and explicit <code>microarch::</code> qualification.</p>
+
+        <h3>Public API at authoring depth</h3>
+        <table class="file-table">
+          <thead><tr><th>Type / method</th><th>What a block author needs to know</th></tr></thead>
+          <tbody>
+            <tr><td><code>Component(name)</code></td><td><code>handler(Event&amp;)</code> is required. <code>settle(Cycle)</code> and <code>tick(Cycle)</code> run only after <code>Scheduler::addClocked</code>. The name should be the full engine ID.</td></tr>
+            <tr><td><code>Event(type)</code></td><td>Derived messages carry payload fields plus delivery cycle, token, destination, fabric destination, origin, uint64 address, and width in bits.</td></tr>
+            <tr><td><code>Link::connected()</code></td><td>Use this as the send guard. Checking <code>destination()</code> is wrong for fabric-routed ports because they intentionally have no direct destination.</td></tr>
+            <tr><td><code>Link::send(unique_ptr)</code></td><td>Schedules phase-aware delivery, inherits the active token, stamps the first origin, and writes a hop when a sink is installed.</td></tr>
+            <tr><td><code>Registry::find(id)</code></td><td>Returns null when absent. Use it inside a block's <code>wire()</code> so explicit wiring lives in that block's source and parses as Tier-1 truth.</td></tr>
+            <tr><td><code>Scheduler::seed()</code></td><td>Mints a token and schedules an originating event. <code>mintToken()</code> is for generators originating traffic during <code>tick()</code>.</td></tr>
+            <tr><td><code>Scheduler::releaseActiveEvent()</code></td><td>Takes ownership of the currently dispatched event. A handler that parks a packet, as Router does, must call this before returning.</td></tr>
+            <tr><td><code>Router</code></td><td>First-match ingress rules, destination routes, bit bandwidth, per-port queues, four arbitration modes, and optional per-destination latency functions.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>The exact forms the parser recognizes</h3>
+        <table class="file-table">
+          <thead><tr><th>C++ form</th><th>Canvas meaning</th></tr></thead>
+          <tbody>
+            <tr><td><code>class X : public Component</code></td><td>A leaf block. <code>struct</code>, <code>final</code>, and <code>microarch::</code>-qualified bases are accepted.</td></tr>
+            <tr><td><code>: Component("label")</code></td><td>Engine identity when equal to the full ID; otherwise a display label recovered from source.</td></tr>
+            <tr><td><code>class E : public Event</code></td><td>A message plus payload fields.</td></tr>
+            <tr><td><code>Link* member;</code> or <code>Link&amp; member;</code></td><td>An out-port named <code>member</code>.</td></tr>
+            <tr><td><code>port-&gt;configureOut(registry.find("Y"))</code></td><td>A solid, explicitly wired edge to the exact block ID <code>Y</code>.</td></tr>
+            <tr><td><code>port-&gt;configureOut(&amp;y)</code></td><td>A wired fact using variable name <code>y</code>; it resolves only if that name is also a block ID. Prefer Registry.</td></tr>
+            <tr><td><code>port-&gt;latency = N</code> / <code>setLatency(N)</code></td><td>The port's latency.</td></tr>
+            <tr><td><code>make_unique&lt;E&gt;()</code> then <code>port-&gt;send(move(v))</code></td><td>The port emits <code>E</code>. Inline unique_ptr and templated <code>send&lt;E&gt;</code> forms also match.</td></tr>
+            <tr><td><code>static_cast&lt;E&amp;&gt;(ev)</code> / <code>dynamic_cast&lt;E&amp;&gt;(ev)</code></td><td>The block consumes <code>E</code>.</td></tr>
+            <tr><td><code>void handler(E&amp; ev)</code></td><td>A typed handler consumes <code>E</code>. The base <code>handler(Event&amp;)</code> alone is deliberately not a consume claim.</td></tr>
+            <tr><td><code>ev.type() == "E"</code></td><td>The block consumes <code>E</code>.</td></tr>
+            <tr><td><code>&lt;type&gt; &lt;name&gt; [= init];</code> at class depth 1</td><td>A state variable.</td></tr>
+            <tr><td><code>namespace CPU0 { class IF … }</code></td><td>Hierarchy: the block ID becomes <code>CPU0.IF</code>.</td></tr>
+            <tr><td><code>Cycle name(const Event&amp;)</code> on a Router subclass</td><td>A latency model offered in the router inspector.</td></tr>
+          </tbody>
+        </table>
+
+        <div class="two-col">
+          <div>
+            <h3>Parser attribution rules</h3>
+            <ul>
+              <li>Prefer <code>registry.find("Full.Id")</code>; it names identity directly.</li>
+              <li>Facts in standalone free functions are ignored because blocks own their wiring.</li>
+              <li>Declarations and definitions can contribute facts from different files.</li>
+              <li>The scanner reads C/C++ source under <code>inc/</code> and <code>src/</code>, skipping build outputs.</li>
+              <li>Tier-1 explicit wiring always wins over message-based inference.</li>
+            </ul>
+          </div>
+          <div>
+            <h3>File-specific marker ownership</h3>
+            <ul>
+              <li>Leaf C++: generated class; surrounding text is hand-owned.</li>
+              <li>Router C++: generated region opens the class; hand latency models and closing <code>};</code> live below END.</li>
+              <li>Traffic generator, generated mode: entire file is canvas-owned.</li>
+              <li>Traffic generator, custom mode: generated class head; hand-owned <code>tick()</code> tail.</li>
+              <li>SV twin: generated module header/ports; hand-owned behavior and <code>endmodule</code>.</li>
+              <li>Harness: rewritten as a whole despite carrying markers.</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3>Recipe: a hand-written block that remains legible</h3>
+        <pre><code>#pragma once
+#include "microarch/engine.hpp"
+#include "iss_events.h"
+
+class Probe : public microarch::Component {
+  public:
+    explicit Probe(microarch::Link* out = nullptr)
+        : Component("Probe"), out_(out) {}
+
+    void handler(microarch::Event&amp; ev) override {
+        if (ev.type() == "PingEvent") {          // consume: recognized
+            ++hits_;
+            if (out_ &amp;&amp; out_-&gt;connected()) {
+                auto reply = std::make_unique&lt;PongEvent&gt;();
+                out_-&gt;send(std::move(reply));    // emit: recognized
+            }
+        }
+    }
+
+  private:
+    microarch::Link* out_;                        // out-port: recognized
+    uint32_t hits_ = 0;                           // state: recognized
+};</code></pre>
+        <p>With one other <code>PongEvent</code> consumer, the parser shows <code>Probe</code> as a hand-written leaf with one consumed message, one out-port, one state variable, and an inferred edge to that consumer. Its dashed border and refused canvas edits communicate that the sidecar does not own it.</p>
+
+        <div class="two-col">
+          <div>
+            <h3>Recipe: addressed traffic</h3>
+            <pre><code>auto ev = std::make_unique&lt;ReadEvent&gt;();
+ev-&gt;addr = 0x8000'0000;
+out_-&gt;send(std::move(ev));</code></pre>
+            <p>Router rules match that uint64 address against their inclusive ranges.</p>
+          </div>
+          <div>
+            <h3>Recipe: originate on a clock edge</h3>
+            <pre><code>void tick(microarch::Cycle cycle) override {
+    if (cycle % 4) return;
+    auto ev = std::make_unique&lt;ReqEvent&gt;();
+    ev-&gt;token = scheduler_.mintToken();
+    out_-&gt;send(std::move(ev));
+}</code></pre>
+            <p>There is no active handler token during Tick, so the originator mints one explicitly and must be registered as clocked.</p>
+          </div>
+        </div>
+
+        <h3>What actually becomes a translation unit</h3>
+        <p>Run always compiles <code>src/iss_main_gen.cpp</code>. Generated block files are inline classes included by that harness, not separate translation units. The host separately compiles only top-level <code>src/*.cpp</code> files with no marker.</p>
+        <div class="callout warn"><strong>Parsed does not mean executable.</strong> A marker-free hand-written class can be parsed and drawn on the canvas, but the generated harness constructs, wires, and clocks only components present in <code>iss_authored.model.json</code>. Seeing a block is proof that the parser recognized it—not proof that a run instantiates it.</div>
+        <div class="callout error"><strong>Two verified traps:</strong> a marker-free hand-written file under <code>src/CPU0/</code> is neither compiled as a top-level translation unit nor automatically included by the harness. Also, adding a canvas block with the same ID as a hand-written class does not adopt it—the writer appends a generated class and causes a duplicate definition. Keep hand-written TUs at top-level or include them explicitly, and convert/adopt ownership deliberately.</div>
+
+        <h3>Editing rules worth keeping beside the code</h3>
+        <ul>
+          <li>Inside markers, edit through the canvas. Below END, use ordinary C++/SV.</li>
+          <li><code>Component("&lt;id&gt;")</code> is identity. Use the inspector for cosmetic labels.</li>
+          <li>Generated constructors take out-links positionally in writer order.</li>
+          <li><code>setLink(const char*, Link*)</code> is the stable late-injection surface.</li>
+          <li>Describe exceptional packet widths in the Messages view; do not patch generated <code>iss_events.h</code>.</li>
+          <li>Serialize uint64 addresses as hex strings when data crosses into JavaScript.</li>
+        </ul>
+        <p><a href="CPP_API.md">Open the Markdown source →</a> · <a href="CPP_API.html">Open its generated standalone HTML →</a></p>
+      </section>
+
+      <section id="project-files" class="doc-section searchable" data-search="design project files sidecar layout spec run trace generated owned sample robot soc">
+        <div class="section-head"><div class="section-index">12 / DISK</div><div><h2>A design project is a portable directory</h2><p class="section-summary">There is no database. Opening the same project in VS Code and Electron means opening the same files.</p></div></div>
+
+        <pre class="tree"><span class="dir">project/</span>
+├─ <span class="dir">src/</span>
+│  ├─ CPU0/IF.cpp          <span class="comment"># one inline C++ class per leaf</span>
+│  ├─ CPU0/IF.sv           <span class="comment"># generated ports, hand-owned RTL tail</span>
+│  ├─ R1.cpp               <span class="comment"># router class + hand latency models</span>
+│  └─ iss_main_gen.cpp     <span class="comment"># fully generated executable harness</span>
+├─ <span class="dir">inc/</span>
+│  ├─ iss_events.h         <span class="comment"># generated event vocabulary</span>
+│  └─ iss_arch.h           <span class="comment"># generated spec/architecture types</span>
+├─ iss_authored.model.json <span class="comment"># write model and sidecar-only semantics</span>
+├─ iss_layout.json         <span class="comment"># portable node positions</span>
+├─ iss_spec.json           <span class="comment"># layer-1 architecture contract</span>
+├─ iss_run.json            <span class="comment"># entries, tokens, cycles, waves, checks</span>
+├─ iss_trace.jsonl         <span class="comment"># last run's evidence</span>
+└─ <span class="dir">build/</span>               <span class="comment"># binary, adapters, verilated models, waves</span></pre>
+
+        <h3>Ownership ledger</h3>
+        <table class="file-table">
+          <thead><tr><th>Artifact</th><th>Ownership</th><th>Edit it how?</th></tr></thead>
+          <tbody>
+            <tr><td>marker region in <code>.cpp/.h/.sv</code></td><td><span class="owner real">canvas-owned</span></td><td>Use the canvas; manual changes will be replaced.</td></tr>
+            <tr><td>text outside markers</td><td><span class="owner sidecar">hand-owned</span></td><td>Edit directly in C++ or SystemVerilog.</td></tr>
+            <tr><td><code>iss_authored.model.json</code></td><td><span class="owner sidecar">writer-owned</span></td><td>Normally through EditIntents; it is readable JSON for transparency.</td></tr>
+            <tr><td><code>iss_layout.json</code></td><td><span class="owner derived">view state</span></td><td>Move nodes or auto-layout; no design semantics.</td></tr>
+            <tr><td><code>iss_spec.json</code></td><td><span class="owner sidecar">architectural input</span></td><td>Spec editor or careful JSON editing.</td></tr>
+            <tr><td><code>iss_main_gen.cpp</code></td><td><span class="owner real">fully generated</span></td><td>Change the harness writer, not the output.</td></tr>
+            <tr><td><code>build/</code> and <code>iss_trace.jsonl</code></td><td><span class="owner derived">derived evidence</span></td><td>Rebuild or rerun.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Worked examples already in the repository</h3>
+        <div class="two-col">
+          <div class="rail-block"><h3><a href="sample/iss_authored.model.json">sample/</a></h3><p>12 modeled components: two composites, nine leaves, one router; 12 events. It demonstrates a CPU-style pipeline, feedback control, an I/O pin, a router rule, and a deliberately long-latency path that can outlive the run budget.</p></div>
+          <div class="rail-block"><h3><a href="robot_soc/iss_authored.model.json">robot_soc/</a></h3><p>12 modeled components: two composites, seven leaves, three routers; six events. It exercises multi-router topology, traffic generation, address-based splitting, SV twins, and a recorded trace.</p></div>
+        </div>
+      </section>
+
+      <section id="tests" class="doc-section searchable" data-search="build test typecheck npm make vitest engine test commands docs start extension Electron">
+        <div class="section-head"><div class="section-index">13 / VERIFY</div><div><h2>Build and test the layers independently</h2><p class="section-summary">The root npm workspace handles TypeScript packages and both hosts. The engine remains an ordinary Make-based C++ project.</p></div></div>
+
+        <h3>Common commands</h3>
+        <pre><code># Install all npm workspaces
+npm install
+
+# Type-check every workspace that exposes a typecheck script
+npm run typecheck
+
+# Build the VS Code extension and Electron app
+npm run build
+
+# Run the headless IDE/package suite
+npm test --workspace ide
+
+# Run desktop-host tests
+npm test --workspace app
+
+# Build and test the C++ engine (engine_tests currently prints 33/33)
+make -C engine
+make -C engine test
+
+# Build and execute the sample without either UI
+make -C sample
+./sample/build/design 64
+
+# Rebuild the C++ API HTML from its Markdown source
+npm run docs</code></pre>
+
+        <h3>What the suites protect</h3>
+        <table class="file-table">
+          <thead><tr><th>Suite</th><th>Coverage emphasis</th></tr></thead>
+          <tbody>
+            <tr><td><a href="engine/tests/engine_tests.cpp">engine/tests</a></td><td>Clocking, far-future calendar delivery, token propagation, trace shape, registry wiring, diversion, routing, contention, all arbitration policies, bit bandwidth, bounded queues, metrics, address rules, and latency models.</td></tr>
+            <tr><td><a href="ide/test/roundtrip.test.ts">ide/test</a></td><td>Parser/write round-trips, P0 wire persistence, fabric rules, layout, pins, specs, run config, traffic, SV twins/co-sim, VCD, metrics, token animation, vocabulary, and DOM webview seam.</td></tr>
+            <tr><td><a href="app/test/session.test.ts">app/test</a></td><td>Desktop session messaging, editor detection, inferred graph behavior, and a real compile/run integration path.</td></tr>
+            <tr><td><a href="ide/test-integration/runTest.ts">ide/test-integration</a></td><td>VS Code Extension Development Host integration.</td></tr>
+          </tbody>
+        </table>
+
+        <div class="callout warn"><strong>Prefer the test command over counts in prose.</strong> This codebase is moving quickly; README counts can lag the suite. The source files and current command output are authoritative.</div>
+      </section>
+
+      <section id="noc-roadmap" class="doc-section searchable" data-search="planned roadmap future NoC flit wormhole virtual channel credit backpressure clock domain timebase address map network interface migration fidelity stages">
+        <div class="section-head"><div class="section-index">14 / PLANNED</div><div><h2>Roadmap: a flit-level NoC over the IP canvas</h2><p class="section-summary">The plan at <a href="/home/aarush/.claude/plans/glimmering-foraging-elephant.md"><code>glimmering-foraging-elephant.md</code></a> proposes a major transport redesign. Everything in this chapter is planned work—not behavior present in the repository today.</p></div></div>
+
+        <div class="callout warn"><strong>Status boundary:</strong> current code uses whole <code>Event</code> packets, one global-cycle Scheduler, per-router ordered forwarding rules, and queue-local stall/drop behavior. The proposed system replaces inter-tile transport while preserving event-driven <code>handler()</code> semantics inside each tile.</div>
+
+        <h3>Why the current transport is not enough</h3>
+        <table class="layer-table">
+          <thead><tr><th>Current limitation</th><th>Consequence</th><th>Planned answer</th></tr></thead>
+          <tbody>
+            <tr><td>No real flits</td><td><code>Event::bits</code> meters a port, but a packet is never fragmented and cannot occupy several routers at once. Load-dependent latency is too optimistic.</td><td>Head/body/tail wormhole flits, virtual channels, and synchronous channels.</td></tr>
+            <tr><td>No upstream backpressure</td><td>“Stall” reschedules a packet at the same router; the sender never sees downstream capacity.</td><td>Reverse credits sized from the downstream router's declared VC buffers.</td></tr>
+            <tr><td>One clock</td><td>A slow peripheral tile and a fast core tile tick together; frequency and CDC latency cannot be modeled.</td><td>Fine integer tick timebase plus authored clock domains with period, phase, and synchronizer depth.</td></tr>
+            <tr><td>No global address map</td><td>Ranges are repeated per router, so overlaps/gaps are not globally validated and first-match order can hide mistakes.</td><td>One non-overlapping design-wide region map decoded at network injection.</td></tr>
+            <tr><td>Destination guessed by message consumers</td><td>Two banks inside one tile can be indistinguishable.</td><td>Each region explicitly targets both a tile and an existing <code>io:'in'</code> interface pin.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>The target split</h3>
+        <div class="contract-grid">
+          <article class="contract"><div class="sig">ROOT · NoC stage</div><h3>Synchronous transport</h3><p>Top-level tiles, routers, channels, address regions, clock domains, virtual networks, and topology. Flits move only on domain edges through evaluate/commit.</p></article>
+          <article class="contract"><div class="sig">DRILL-IN · IP stage</div><h3>Event-driven microarchitecture</h3><p>Existing leaf blocks and point-to-point <code>Link</code>s remain event-driven. <code>handler()</code> stays the IP contract, protecting authored block behavior.</p></article>
+          <article class="contract"><div class="sig">SEAM · NetworkInterface</div><h3>Adapter between worlds</h3><p>The NI packetizes Events into flits, injects and ejects them, performs global address decode, snaps across clock domains, and returns the Event payload at the tail.</p></article>
+        </div>
+
+        <h3>Eight settled decisions</h3>
+        <ol>
+          <li><strong>Wormhole transport with virtual channels:</strong> the head allocates route and VC; the tail releases them; credits enforce real downstream capacity.</li>
+          <li><strong>VCs belong to routers:</strong> heterogeneous counts are legal, while <code>vcCount ≥ vnetCount</code> is a validated fabric invariant.</li>
+          <li><strong>Integer physical time:</strong> derived ps-scale ticks plus per-domain frequency/phase. Latencies remain authored in domain cycles; CDC delay emerges by snapping to the destination edge.</li>
+          <li><strong>Global address map:</strong> the NI stamps a dense destination node; router forwarding tables are derived, with per-region route override as the escape hatch.</li>
+          <li><strong>Phases guide but never gate:</strong> readiness is visible and navigable, but the UI never locks work.</li>
+          <li><strong>Flits stay off the calendar:</strong> synchronous channels move them on ticks. The event calendar is touched only at NI injection/ejection.</li>
+          <li><strong>Evaluate then commit:</strong> routers read current state, compute next state, then commit together. Iteration order cannot permit two hops in one cycle.</li>
+          <li><strong>Two fidelity modes:</strong> <code>fast</code> store-and-forward packets and <code>accurate</code> wormhole/VC/credit execution share one model, trace schema, and metric vocabulary.</li>
+        </ol>
+
+        <h3>Time and configuration model</h3>
+        <table class="file-table">
+          <thead><tr><th>Planned concept</th><th>Rule</th></tr></thead>
+          <tbody>
+            <tr><td><code>Tick</code> vs <code>DomainCycle</code></td><td>Physical time and authored cycle counts become distinct types. The deprecated <code>Cycle</code> alias stays so hand-owned router tails do not break during migration.</td></tr>
+            <tr><td><code>ClockDomain</code></td><td>Authored MHz, optional phase, and synchronizer depth. No silent default frequency; migrations use a named fallback plus an <code>assumedValue</code> diagnostic.</td></tr>
+            <tr><td><code>tickPs</code></td><td>Derived as the greatest common quantum that makes all domain periods integral—never hardcoded.</td></tr>
+            <tr><td><code>flitBits</code></td><td>Derived from the GCD of authored bandwidths and event widths; a named fallback is allowed only with an explicit diagnostic.</td></tr>
+            <tr><td><code>AddressRegion</code></td><td>Canonical hex base + size, target tile + existing inbound interface, optional vnet and route override. Regions are a set sorted by base, not first-match rules.</td></tr>
+            <tr><td><code>NodeId</code></td><td>Dense stable uint16 ID over <code>(tile, iface)</code>, giving a stated maximum of 65,535 endpoints and avoiding per-flit string lookup.</td></tr>
+            <tr><td><code>bufferDepthFlits</code></td><td>Derived from credit round trip (<code>channelLatency × 2</code>), which is also the validator threshold.</td></tr>
+            <tr><td><code>vnetCount</code></td><td>Starts at exactly one; adding virtual networks is deliberate and can surface insufficient-VC diagnostics.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Staged implementation plan</h3>
+        <table class="file-table">
+          <thead><tr><th>Stage</th><th>Work</th><th>Acceptance boundary</th></tr></thead>
+          <tbody>
+            <tr><td>0 · Scaffolding</td><td>Add <code>schemaVersion</code>, safe three-outcome model loading, pure migrations, one-time backups, shared templates, <code>isTile()</code>, and split oversized tests. No behavior change.</td><td>Real sample and robot sidecars round-trip; newer/corrupt models refuse writes instead of becoming empty projects.</td></tr>
+            <tr><td>1 · Time</td><td>Add <code>time.hpp/.cpp</code>, domains, event-driven next-edge stepping, evaluate/commit hooks, mandatory trace timebase, tick-shaped adapters/VCD, and scheduled traffic bursts.</td><td>Existing traces differ only by one uniform time scale; two-domain fixture proves CDC snapping; missing timebase is rejected.</td></tr>
+            <tr><td>2 · Map + tiles</td><td>Add design-wide config, tile classes/domains, address regions, vnets, NoC settings, new intents, <code>deriveNetwork</code>, and migration from forwarding rules. Engine remains untouched.</td><td>Migrated traces remain byte-identical to Stage 1; overlaps/gaps and bad interfaces diagnose correctly.</td></tr>
+            <tr><td>3 · Inert authoring</td><td>Ship topology, VC/vnet, clock-domain editors and all validators before the engine consumes them. Add a non-gating five-phase strip.</td><td>Every validator has a test; readiness never disables controls.</td></tr>
+            <tr><td>4 · NoC engine</td><td>Add flits, address map, channels, dense ports, two router cores, NI, credit flow, CDC, then cut over the harness and retire the old Router.</td><td>Wormhole ordering, VC release, credit backpressure, vnet deadlock behavior, heterogeneous VCs, and calendar-flat multi-hop transit all have engine tests.</td></tr>
+            <tr><td>5 · Trace + metrics</td><td>Packet hops stay the default; add optional bounded per-flit windows, truncation records, engine summaries, histograms, VC occupancy, credit/VC stalls, injection depth, and HOL blocking.</td><td><code>tokenAnim</code> output stays stable; capped flit traces report truncation; engine and fallback summaries agree.</td></tr>
+            <tr><td>6 · UI</td><td>Add phase strip, Memory and Fabric tabs, address-map axis, derived forwarding view, VC inspector, topology generator, design-level domains/vnets/flit controls, tile glyphs, and run-config fidelity.</td><td>Both hosts render every class, and the existing edit/run-config protocol handles the work with zero new message variants.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Planned engine topology</h3>
+        <table class="file-table">
+          <thead><tr><th>New engine surface</th><th>Responsibility</th></tr></thead>
+          <tbody>
+            <tr><td><code>time.hpp/.cpp</code></td><td>Clock domains, tick/cycle conversion, edge search, phase, and CDC snap-up.</td></tr>
+            <tr><td><code>flit.hpp/.cpp</code></td><td>Head/body/tail/head-tail flits, packet IDs, dense NodeIds, vnet/VC identity, and tail-owned Event payload.</td></tr>
+            <tr><td><code>addrmap.hpp/.cpp</code></td><td>Sorted non-overlapping regions and binary-search decode to NodeId.</td></tr>
+            <tr><td><code>channel.hpp/.cpp</code></td><td>Synchronous forward register pair and reverse credit path.</td></tr>
+            <tr><td><code>nocrouter.hpp/.cpp</code></td><td>Shared ports/forwarding/arbitration/credits/metrics with injected store-forward or wormhole core.</td></tr>
+            <tr><td><code>netif.hpp/.cpp</code></td><td>Packetize, inject, queue/backpressure, eject, and bridge calendar Events to synchronous Channels.</td></tr>
+            <tr><td><code>topology.hpp</code></td><td>Header-only port and neighbor helpers.</td></tr>
+          </tbody>
+        </table>
+        <div class="callout warn"><strong>Planned Makefile constraint:</strong> new engine sources remain flat under <code>engine/src/</code>. The current pattern rule does not create nested object directories, so <code>src/noc/*.cpp</code> would fail unless the Makefile changes too.</div>
+
+        <h3>Migration is a first-class safety feature</h3>
+        <p>Today <code>loadModel()</code> returns null for both absent and corrupt sidecars, and both hosts fall back to an empty model. The plan treats that as a live data-loss path: loading becomes a discriminated result for success, absent, newer schema, or corruption; newer/corrupt projects refuse writes. A pure <code>migrate.ts</code> produces a report and the writer creates one versioned backup before the first migration.</p>
+        <p>The real <code>robot_soc</code> overlap at <code>0x1000</code> is migrated by interval-subtracting later rules against earlier ones, preserving current first-match semantics as a non-overlapping map. Rules without bounds become explicit per-port destination overrides. Old bandwidths derive <code>flitBits</code> with GCD so 96 bits/cycle stays 96 rather than silently rounding up.</p>
+
+        <h3>Trace contract after cutover</h3>
+        <ul>
+          <li>A mandatory first record declares <code>tickPs</code> and all domain periods/phases/synchronizer depths.</li>
+          <li><code>Trace.cycles</code>/<code>ranCycles</code> are renamed to <code>ticks</code>/<code>ranTicks</code>; no compatibility alias is kept because a silent scale error is worse than a compile error.</li>
+          <li>Packet-level hops retain <code>depart</code>/<code>arrive</code> meaning for <code>tokenAnim.ts</code>, and gain packet bits, vnet, and flit count.</li>
+          <li>Per-flit trace is opt-in, time-windowed, record-capped, and emits a <code>truncated</code> record when capped.</li>
+          <li>Histogram records stay separate from scalar metrics so existing metric parsing remains structurally valid.</li>
+          <li>New metrics include <code>vcOcc</code>, <code>credStall</code>, <code>vcStall</code>, <code>injectDepth</code>, and head-of-line blocking; compatible <code>flow/bits/stall/qdepth</code> names survive.</li>
+        </ul>
+
+        <h3>Planned UI without host drift</h3>
+        <div class="two-col">
+          <div class="rail-block"><h3>Memory as a map</h3><p>A new Memory tab renders regions as contiguous address bars with target tile and interface. Gaps and overlaps are spatial evidence, not validation text hidden in a form.</p></div>
+          <div class="rail-block"><h3>Fabric as derived truth</h3><p>Router inspectors lose editable forwarding rules and gain VCs plus a read-only next-hop table that explains each path. Route overrides move to regions.</p></div>
+          <div class="rail-block"><h3>Topology remains authored</h3><p>A one-shot topology picker expands a macro intent into ordinary routers, peers, and attachments so layout, source files, inspector state, and undo remain normal.</p></div>
+          <div class="rail-block"><h3>Two-host discipline holds</h3><p>Clock domains, vnets, flit width, tile class, address regions, and fidelity all use existing <code>edit</code> intents or <code>setRunConfig</code>. The target is zero new <code>HostMsg</code>/<code>ViewMsg</code> variants.</p></div>
+        </div>
+
+        <h3>Ordering hazards and proof</h3>
+        <ul>
+          <li>Land the address map before the engine NoC; otherwise the NI needs a throwaway destination decoder.</li>
+          <li>Keep the Stage-1 time scaling and Stage-4 port-order determinism changes in separate commits so trace diffs stay reviewable.</li>
+          <li>Update SV adapter clock edges and VCD timescale together; update the synthetic-trace fallback or it silently emits an incompatible time shape.</li>
+          <li>Dense PortIds must replace pointer-keyed router maps in the same change as evaluate/commit, or metrics remain allocator-order-dependent.</li>
+          <li>Do not poll traffic generators every tick once the scheduler can jump time; schedule bursts on the calendar.</li>
+        </ul>
+        <div class="callout"><strong>End-to-end proof target:</strong> generate a 2×2 mesh, run a 2 GHz CPU tile and 60 MHz USB tile in different domains, map two regions to two interfaces of the same memory tile, use accurate mode, and verify correct bank delivery, visible CDC latency, and a real offered-load latency knee accompanied by rising credit stalls.</div>
+      </section>
+
+      <section id="change-map" class="doc-section searchable" data-search="change map add feature modify where edit files contributor onboarding">
+        <div class="section-head"><div class="section-index">15 / CHANGE</div><div><h2>Where to make a change</h2><p class="section-summary">Start at the semantic owner. Most cross-cutting work should flow contracts → pure logic → host orchestration → shared canvas, then host-specific shell only if needed.</p></div></div>
+
+        <table class="file-table">
+          <thead><tr><th>You want to…</th><th>Start here</th><th>Likely follow-through</th></tr></thead>
+          <tbody>
+            <tr><td>Add a new editable design property</td><td><a href="packages/contracts/src/model.ts">contracts/model.ts</a></td><td>Add its <code>EditIntent</code>, reducer case in <code>writer/edits.ts</code>, code/sidecar emission, graph augmentation, inspector control, and round-trip tests.</td></tr>
+            <tr><td>Teach the parser a C++ form</td><td><a href="packages/host/src/parser/facts.ts">parser/facts.ts</a></td><td>Add facts, assemble in <code>infer.ts</code>, cover comments/scopes/ambiguity in parser tests.</td></tr>
+            <tr><td>Change generated block code</td><td><a href="packages/host/src/writer/blockfile.ts">writer/blockfile.ts</a></td><td>Confirm the parser reads the emitted form; update round-trip fixtures, never patch generated sample files first.</td></tr>
+            <tr><td>Add an engine execution feature</td><td><a href="engine/include/microarch/engine.hpp">engine API</a></td><td>Implement under <code>engine/src</code>, add engine tests, then expose trace/contract data if the UI must observe it.</td></tr>
+            <tr><td>Add a new trace record</td><td><a href="engine/include/microarch/trace.hpp">engine trace.hpp</a></td><td>Serialize in <code>trace.cpp</code>, add a TypeScript contract, parse it in host, derive a canvas view, test the full seam.</td></tr>
+            <tr><td>Change wire truth or fabric semantics</td><td><a href="packages/contracts/src/fabric.ts">contracts/fabric.ts</a></td><td>Keep one derivation authority; update harness and augmentation consumers plus fabric tests.</td></tr>
+            <tr><td>Change editing behavior in both hosts</td><td><a href="packages/canvas/src/useDesignSession.ts">useDesignSession.ts</a></td><td>Modify shared components; avoid implementing it in <code>ide/</code> or <code>app/</code>.</td></tr>
+            <tr><td>Change only desktop composition</td><td><a href="app/src/bench.tsx">app/src/bench.tsx</a></td><td>Keep design operations in the shared session. Skin CSS is isolated under <code>[data-skin]</code>.</td></tr>
+            <tr><td>Change only VS Code integration</td><td><a href="ide/src/extension.ts">ide/src/extension.ts</a></td><td>Commands, settings, tree providers, watchers, source reveal, panel lifecycle.</td></tr>
+            <tr><td>Add an Electron capability</td><td><a href="app/electron/preload.ts">preload.ts</a></td><td>Expose a narrow named method, handle it in <code>main.ts</code>, and do not leak raw IPC or Node into the renderer.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Recommended reading paths</h3>
+        <div class="next-paths">
+          <div class="next-path"><b>I am changing the UI</b><p>Learn the protocol, then the session, then the specific component.</p><a href="packages/contracts/src/messaging.ts">messaging.ts</a> → <a href="packages/canvas/src/useDesignSession.ts">useDesignSession.ts</a> → <a href="packages/canvas/src/canvas.tsx">canvas.tsx</a></div>
+          <div class="next-path"><b>I am changing code generation</b><p>Learn both models, the reducer, and the parser before touching an emitter.</p><a href="packages/contracts/src/model.ts">model.ts</a> → <a href="packages/host/src/writer/edits.ts">edits.ts</a> → <a href="packages/host/src/writer/index.ts">writer/index.ts</a></div>
+          <div class="next-path"><b>I am changing simulation</b><p>Start with engine phases, then harness generation, then trace parsing.</p><a href="engine/src/scheduler.cpp">scheduler.cpp</a> → <a href="packages/host/src/writer/harness.ts">harness.ts</a> → <a href="packages/host/src/trace/parse.ts">parse.ts</a></div>
+        </div>
+      </section>
+
+      <section id="invariants" class="doc-section searchable" data-search="invariants pitfalls traps never rules architecture constraints errors">
+        <div class="section-head"><div class="section-index">16 / GUARD</div><div><h2>Invariants that explain surprising code</h2><p class="section-summary">Most of the architecture becomes obvious once these rules are treated as non-negotiable.</p></div></div>
+
+        <details open><summary>Exactly one shared canvas</summary><div>Do not add a second graph editor for Electron or a host-specific copy of interaction logic. The injected <code>HostTransport</code> and <code>useDesignSession()</code> exist to keep behavior byte-identical across hosts.</div></details>
+        <details open><summary>Every structural edit leaves as an EditIntent</summary><div>The webview/renderer is not allowed to write files or become a text editor. Hosts validate and persist; the view asks.</div></details>
+        <details open><summary>Generated regions are replaceable; everything else survives</summary><div><code>spliceRegion()</code> is the preservation boundary. A feature that needs hand-written behavior must provide a tail or another explicit ownership mode.</div></details>
+        <details open><summary>Full dot-path IDs are engine identity</summary><div><code>CPU0.IF</code> maps to the directory <code>src/CPU0/IF.cpp</code>, namespace <code>CPU0</code>, type <code>CPU0::IF</code>, registry key <code>CPU0.IF</code>, and canvas hierarchy. Display labels may differ.</div></details>
+        <details open><summary>Cross-top wires are invalid</summary><div>Wires model direct intra-unit structure. Router rules model top-level dataflow. Do not “fix” the guard without replacing fabric semantics end-to-end.</div></details>
+        <details open><summary>A hop is recorded at send time</summary><div>A hop can have an arrival at or beyond the actual clock stop. Those records mean “sent but never delivered,” and <code>ranCycles</code> exists so the UI can say exactly that.</div></details>
+        <details open><summary>Failures stay visible</summary><div>Unknown destinations become unresolved links, no consumers become stubs, parse failure retains the previous graph plus an error, fabric warnings become drops, and missing verification dependencies become explicit notices.</div></details>
+        <details open><summary>Packet widths and addresses need exact representations</summary><div>Bandwidth is in bits; event widths derive from field types unless overridden. Host addresses are strings/BigInt, never floating-point numbers.</div></details>
+        <details open><summary>Build outputs must not parse as authored blocks</summary><div>The parser skips <code>build/</code> and <code>out/</code>; generated SV adapters deliberately live under build so they cannot masquerade as design components.</div></details>
+      </section>
+
+      <section id="glossary" class="doc-section searchable" data-search="glossary terms authored inferred routed trace token composite leaf router fabric spec twin divergence">
+        <div class="section-head"><div class="section-index">17 / TERMS</div><div><h2>Local vocabulary</h2><p class="section-summary">These words have precise meanings in the code and UI.</p></div></div>
+        <dl class="glossary">
+          <div class="term"><dt>authored</dt><dd>Owned by the canvas/write model and usually substantiated by generated code inside markers.</dd></div>
+          <div class="term"><dt>hand-owned</dt><dd>User code outside markers. The writer must preserve it.</dd></div>
+          <div class="term"><dt>leaf</dt><dd>An executable component with one <code>.cpp</code> file and usually an SV twin.</dd></div>
+          <div class="term"><dt>composite</dt><dd>A hierarchy/grouping node represented by a directory plus C++ namespace; it has no runtime instance.</dd></div>
+          <div class="term"><dt>port</dt><dd>A named outgoing <code>Link*</code> on a leaf, paired with a message, latency, and optional destination.</dd></div>
+          <div class="term"><dt>wired</dt><dd>An explicit <code>configureOut</code> destination found in source.</dd></div>
+          <div class="term"><dt>inferred</dt><dd>No explicit destination, but exactly one other component consumes the emitted message.</dd></div>
+          <div class="term"><dt>stub</dt><dd>An out-port with no usable consumer or no detected send; displayed as dangling.</dd></div>
+          <div class="term"><dt>routed</dt><dd>A destination-less port entering the fabric, where ordered rules resolve each packet.</dd></div>
+          <div class="term"><dt>token</dt><dd>Stable transaction ID minted at seed/origin and inherited across downstream events.</dd></div>
+          <div class="term"><dt>hop</dt><dd>One Link send record: token, endpoints, message, departure, arrival, and optional address.</dd></div>
+          <div class="term"><dt>trace</dt><dd>The parsed collection of hops, metrics, divergences, and clock bounds from one run.</dd></div>
+          <div class="term"><dt>fabric</dt><dd>Router attachments, trunks, ordered forwarding rules, and their derived runtime routes.</dd></div>
+          <div class="term"><dt>SPEC</dt><dd>Layer-1 architectural contract: types, state, I/O, operations, encodings, and oracle status.</dd></div>
+          <div class="term"><dt>SV twin</dt><dd>A per-leaf SystemVerilog implementation with generated ports and hand-authored behavior.</dd></div>
+          <div class="term"><dt>divergence</dt><dd>A localized mismatch or loss record with architectural, cosim, synthetic, or drop provenance.</dd></div>
+        </dl>
+
+        <div class="callout"><strong>Continue with the hand-authoring reference:</strong> <a href="CPP_API.html">CPP_API.html</a> explains the exact C++ forms the parser recognizes and the public engine API. This guide explains how those forms move through the repository.</div>
+        <footer class="page-foot">Self-contained repository guide · relative source links open from this directory · use the search field to filter sections</footer>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    (() => {
+      const body = document.body;
+      const navToggle = document.getElementById('navToggle');
+      const sidebar = document.querySelector('.sidebar');
+      const search = document.getElementById('search');
+      const searchCount = document.getElementById('searchCount');
+      const sections = [...document.querySelectorAll('.searchable')];
+      const tocLinks = [...document.querySelectorAll('.toc a')];
+      const mobileNav = window.matchMedia('(max-width: 760px)');
+
+      const setNav = (open) => {
+        body.classList.toggle('nav-open', open);
+        navToggle.setAttribute('aria-expanded', String(open));
+        navToggle.setAttribute('aria-label', open ? 'Close table of contents' : 'Open table of contents');
+        if (mobileNav.matches) {
+          sidebar.toggleAttribute('inert', !open);
+          sidebar.setAttribute('aria-hidden', String(!open));
+        } else {
+          sidebar.removeAttribute('inert');
+          sidebar.removeAttribute('aria-hidden');
+        }
+      };
+      setNav(false);
+      mobileNav.addEventListener('change', () => setNav(false));
+      navToggle.addEventListener('click', () => setNav(!body.classList.contains('nav-open')));
+      sidebar.addEventListener('click', (event) => {
+        if (event.target.closest('a')) {
+          setNav(false);
+        }
+      });
+      window.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && body.classList.contains('nav-open')) {
+          setNav(false);
+          navToggle.focus();
+        }
+      });
+
+      const normalize = (value) => value.toLowerCase().replace(/\s+/g, ' ').trim();
+      search.addEventListener('input', () => {
+        const query = normalize(search.value);
+        let matches = 0;
+        for (const section of sections) {
+          const haystack = normalize(`${section.dataset.search || ''} ${section.textContent}`);
+          const visible = !query || query.split(' ').every((word) => haystack.includes(word));
+          section.classList.toggle('search-hidden', !visible);
+          if (visible) matches += 1;
+        }
+        searchCount.textContent = query ? `${matches}/${sections.length}` : '';
+      });
+
+      const observer = new IntersectionObserver((entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+        if (!visible) return;
+        for (const link of tocLinks) link.classList.toggle('active', link.hash === `#${visible.target.id}`);
+      }, { rootMargin: '-18% 0px -70% 0px', threshold: 0 });
+      document.querySelectorAll('section[id]').forEach((section) => observer.observe(section));
+
+      document.querySelectorAll('pre').forEach((pre) => {
+        if (pre.classList.contains('tree')) return;
+        const button = document.createElement('button');
+        button.className = 'copy-btn';
+        button.type = 'button';
+        button.textContent = 'copy';
+        button.addEventListener('click', async () => {
+          try {
+            const source = pre.querySelector('code');
+            await navigator.clipboard.writeText(source ? source.textContent : pre.childNodes[0].textContent);
+            button.textContent = 'copied';
+            window.setTimeout(() => { button.textContent = 'copy'; }, 1400);
+          } catch {
+            button.textContent = 'select text';
+          }
+        });
+        pre.appendChild(button);
+      });
+    })();
+  </script>
+</body>
+</html>

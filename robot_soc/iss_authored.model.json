@@ -1,0 +1,207 @@
+{
+  "components": [
+    {
+      "id": "Unit1",
+      "label": "CPU",
+      "kind": "composite",
+      "parent": null,
+      "outPorts": [],
+      "consumes": [],
+      "vars": [],
+      "fabric": [
+        "R2"
+      ]
+    },
+    {
+      "id": "Memory1",
+      "label": "DRAM [8GB]",
+      "kind": "leaf",
+      "parent": null,
+      "outPorts": [],
+      "consumes": [
+        "fetchWord"
+      ],
+      "vars": [],
+      "fabric": [
+        "R1"
+      ]
+    },
+    {
+      "id": "R1",
+      "label": "Memory Fabric",
+      "kind": "router",
+      "parent": null,
+      "outPorts": [],
+      "consumes": [],
+      "vars": [],
+      "rules": [
+        {
+          "message": "fetchWord",
+          "addrLo": "0x0",
+          "addrHi": "0x1000",
+          "to": "Memory4"
+        },
+        {
+          "message": "fetchWord",
+          "addrLo": "0x1000",
+          "addrHi": "0x3000",
+          "to": "Memory1"
+        }
+      ]
+    },
+    {
+      "id": "Memory2",
+      "label": "L3 cache_CPU",
+      "kind": "leaf",
+      "parent": null,
+      "outPorts": [],
+      "consumes": [
+        "Gen1ToMemory2Event",
+        "Memory1ToMemory2Event",
+        "Gen1ToMemory1Event"
+      ],
+      "vars": [],
+      "fabric": [
+        "R1",
+        "R2"
+      ]
+    },
+    {
+      "id": "R2",
+      "label": "R2",
+      "kind": "router",
+      "parent": null,
+      "outPorts": [],
+      "consumes": [],
+      "vars": [],
+      "arbitration": "weighted",
+      "portBandwidthBits": 96
+    },
+    {
+      "id": "Memory3",
+      "label": "L2 cache_GPU",
+      "kind": "leaf",
+      "parent": null,
+      "outPorts": [],
+      "consumes": [
+        "Memory1ToMemory3Event"
+      ],
+      "vars": [],
+      "fabric": [
+        "R1",
+        "R3"
+      ]
+    },
+    {
+      "id": "R3",
+      "label": "R3",
+      "kind": "router",
+      "parent": null,
+      "outPorts": [],
+      "consumes": [],
+      "vars": []
+    },
+    {
+      "id": "Unit2",
+      "label": "GPU",
+      "kind": "composite",
+      "parent": null,
+      "outPorts": [],
+      "consumes": [],
+      "vars": [],
+      "fabric": [
+        "R3"
+      ]
+    },
+    {
+      "id": "Gen1",
+      "label": "Gen1",
+      "kind": "leaf",
+      "parent": null,
+      "role": "trafficgen",
+      "traffic": {
+        "period": 4,
+        "burst": 1,
+        "count": 0,
+        "start": 0,
+        "pattern": "roundrobin",
+        "addrLo": "0x1000",
+        "addrHi": "0x1fff",
+        "addrPattern": "random"
+      },
+      "outPorts": [],
+      "consumes": [],
+      "vars": [],
+      "fabric": [
+        "R1"
+      ]
+    },
+    {
+      "id": "Memory4",
+      "label": "Memory4",
+      "kind": "leaf",
+      "parent": null,
+      "outPorts": [],
+      "consumes": [
+        "fetchWord"
+      ],
+      "vars": [],
+      "fabric": [
+        "R1"
+      ]
+    },
+    {
+      "id": "Unit1.Stage1",
+      "label": "Stage1",
+      "kind": "leaf",
+      "parent": "Unit1",
+      "outPorts": [
+        {
+          "name": "out_Stage1_to_Stage2",
+          "message": "Stage1ToStage2Event",
+          "to": "Unit1.Stage2",
+          "latency": 1
+        }
+      ],
+      "consumes": [],
+      "vars": []
+    },
+    {
+      "id": "Unit1.Stage2",
+      "label": "Stage2",
+      "kind": "leaf",
+      "parent": "Unit1",
+      "outPorts": [],
+      "consumes": [
+        "Stage1ToStage2Event"
+      ],
+      "vars": []
+    }
+  ],
+  "events": [
+    {
+      "id": "Gen1ToMemory2Event",
+      "fields": []
+    },
+    {
+      "id": "Gen1ToMemory1Event",
+      "fields": []
+    },
+    {
+      "id": "Memory1ToMemory2Event",
+      "fields": []
+    },
+    {
+      "id": "Memory1ToMemory3Event",
+      "fields": []
+    },
+    {
+      "id": "Stage1ToStage2Event",
+      "fields": []
+    },
+    {
+      "id": "fetchWord",
+      "fields": []
+    }
+  ]
+}

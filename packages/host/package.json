@@ -1,0 +1,21 @@
+{
+  "name": "@iss/host",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Parse a design out of real C++, write structural edits back into it, build it, run it on the engine, and read the trace. No editor API — hosts sit on top of this.",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@iss/contracts": "*"
+  },
+  "devDependencies": {
+    "@types/node": "^18.19.0",
+    "typescript": "^5.4.0"
+  }
+}

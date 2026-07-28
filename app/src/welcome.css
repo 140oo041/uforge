@@ -1,0 +1,286 @@
+/* The no-project surface, in the provenance world.
+   Materials and rules come from app/DESIGN.md; nothing here is new vocabulary. */
+
+.welcome {
+  height: 100%;
+  overflow-y: auto;
+  background: var(--ui-bg);
+  position: relative;
+}
+
+/* Faint ledger arithmetic in the far margin — the marginalia of a working
+   record. Decorative in the world's own grammar, and it never overlaps content. */
+.welcome::after {
+  content: '';
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 220px;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 27px,
+      color-mix(in srgb, var(--ui-accent) 7%, transparent) 27px,
+      color-mix(in srgb, var(--ui-accent) 7%, transparent) 28px
+    );
+  mask-image: linear-gradient(to left, #000 0%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to left, #000 0%, transparent 100%);
+}
+
+.welcome-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(300px, 400px) minmax(360px, 520px);
+  gap: 72px;
+  align-content: center;
+  justify-content: center;
+  min-height: 100%;
+  padding: 56px 48px;
+}
+
+@media (max-width: 900px) {
+  .welcome-grid { grid-template-columns: minmax(300px, 520px); gap: 40px; }
+  .welcome::after { display: none; }
+}
+
+/* ---------- the record's head ---------- */
+
+.welcome-name {
+  margin: 0;
+  font-family: var(--ui-font);
+  font-size: 34px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  color: var(--ui-ink);
+}
+.welcome-name em {
+  display: block;
+  font-style: normal;
+  color: var(--ui-accent);
+}
+
+/* The rule under a title is a ribbon end with its fold. */
+.welcome-rule {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin: 14px 0 18px;
+}
+.welcome-rule i {
+  display: block;
+  height: 2px;
+  width: 54px;
+  background: var(--ui-accent);
+}
+.welcome-rule b {
+  display: block;
+  width: 7px;
+  height: 7px;
+  background: var(--ui-accent);
+  transform: rotate(45deg);
+  margin-left: -1px;
+}
+
+.welcome-what {
+  margin: 0 0 26px;
+  font-family: var(--ui-font);
+  font-size: 13.5px;
+  line-height: 1.62;
+  color: var(--ui-ink);
+  max-width: 46ch;
+}
+
+.welcome-primary {
+  font-family: var(--ui-font);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 9px 26px 9px 16px;
+  border: none;
+  border-radius: 0;
+  background: var(--ui-accent);
+  color: #fdf8ee;
+  cursor: pointer;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 50%, 100% 100%, 0 100%);
+}
+.welcome-primary:hover { background: var(--ui-accent-deep); }
+.welcome-primary:focus-visible { outline: 2px solid var(--ui-ink); outline-offset: 2px; }
+
+.welcome-hint {
+  margin: 10px 0 0;
+  font-size: 11px;
+  color: var(--ui-ink-2);
+}
+.welcome-hint code,
+.welcome-empty code { font-family: var(--ui-mono); font-size: 10.5px; }
+
+.welcome-label {
+  margin: 34px 0 10px;
+  font-family: var(--ui-font);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ui-ink-2);
+}
+
+.welcome-empty {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--ui-ink-2);
+  max-width: 46ch;
+}
+
+/* ---------- recents, as custody entries ---------- */
+
+.welcome-recents { list-style: none; margin: 0; padding: 0; }
+.welcome-recents li { border-bottom: 1px solid var(--ui-border); }
+.welcome-recents li:first-child { border-top: 1px solid var(--ui-border); }
+
+.welcome-recent {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 100%;
+  min-width: 0;
+  padding: 10px 10px 10px 14px;
+  font: inherit;
+  text-align: left;
+  background: transparent;
+  color: inherit;
+  border: none;
+  border-left: 2px solid transparent;
+  cursor: pointer;
+  position: relative;
+}
+.welcome-recent:hover { border-left-color: var(--ui-accent); background: var(--ui-hover); }
+.welcome-recent:focus-visible { outline: 1px solid var(--ui-accent); outline-offset: -1px; }
+
+/* The fold marking an entry in the record. */
+.welcome-recent::before {
+  content: '';
+  position: absolute;
+  left: -4px;
+  top: 15px;
+  width: 6px;
+  height: 6px;
+  background: var(--ui-bg);
+  border: 1.5px solid var(--ui-muted);
+  transform: rotate(45deg);
+}
+.welcome-recent:hover::before { border-color: var(--ui-accent); background: var(--ui-accent); }
+
+.welcome-recent-name {
+  font-family: var(--ui-font);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ui-ink);
+}
+.welcome-recent-path {
+  font-family: var(--ui-mono);
+  font-size: 10px;
+  color: var(--ui-ink-2);
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---------- the notation, taught by showing it ---------- */
+
+.welcome-schematic { display: block; width: 100%; height: auto; max-width: 560px; }
+
+/* THE CUSTODY RULE as stroke — identical to the bench, so what is learned here
+   transfers verbatim to the canvas. */
+.w { fill: none; stroke-width: 2; stroke-linecap: butt; }
+.w-documented { stroke: var(--ui-accent); }
+.w-attested { stroke: var(--ui-fabric); }
+.w-inferred { stroke: var(--ui-fabric); stroke-width: 1.5; stroke-dasharray: 8 5; opacity: 0.7; }
+/* Unwoven thread. The irregular dash is what carries the fraying — an SVG
+   filter cannot be relied on here, because a perfectly horizontal line has a
+   zero-height bounding box and the filter region degenerates to nothing. The
+   displacement filter stays as an enhancement on the curved bench wires, where
+   the bbox has area; if it no-ops, the thread still reads. */
+.w-silent,
+.w-disputed {
+  stroke-width: 2.25;
+  stroke-dasharray: 1 3 2.5 2 1 3.5 2 2;
+  stroke-linecap: round;
+}
+.w-silent { stroke: var(--ui-ink-3); }
+.w-disputed { stroke: var(--ui-accent); }
+
+.n-plate { fill: var(--ui-surface); stroke: var(--ui-border-strong); stroke-width: 1; }
+.n-rule { stroke-width: 2; }
+.n-rule-doc { stroke: var(--ui-accent); }
+.n-rule-fabric { stroke: var(--ui-fabric); }
+.n-label {
+  fill: var(--ui-ink);
+  font-family: var(--ui-font);
+  font-size: 13px;
+  font-weight: 700;
+}
+.n-cat {
+  fill: var(--ui-ink-2);
+  font-family: var(--ui-mono);
+  font-size: 8.5px;
+}
+.n-fold { fill: var(--ui-accent); }
+.n-fold-fabric { fill: var(--ui-fabric); }
+
+.welcome-schematic text.ann {
+  font-family: var(--ui-font);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  paint-order: stroke;
+  stroke: var(--ui-bg);
+  stroke-width: 3;
+}
+.ann-fabric { fill: var(--ui-fabric); }
+.ann-silent { fill: var(--ui-ink-2); }
+.ann-disputed { fill: var(--ui-accent); }
+
+/* The stamp: an authority other than the author. */
+.stamp-box { fill: none; stroke: var(--ui-fabric); stroke-width: 1; opacity: 0.75; }
+.stamp-text {
+  fill: var(--ui-fabric);
+  font-family: var(--ui-font);
+  font-size: 7px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  opacity: 0.85;
+}
+
+/* ---------- the key ---------- */
+
+.welcome-legend { list-style: none; margin: 0; padding: 0; }
+.welcome-legend li {
+  display: grid;
+  grid-template-columns: 58px 92px 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--ui-border);
+}
+.welcome-legend li:first-child { border-top: 1px solid var(--ui-border); }
+
+.legend-swatch { width: 58px; height: 10px; overflow: visible; }
+.legend-name {
+  font-family: var(--ui-font);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ui-ink);
+}
+.legend-meaning {
+  font-family: var(--ui-font);
+  font-size: 11.5px;
+  color: var(--ui-ink-2);
+  min-width: 0;
+}

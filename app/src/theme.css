@@ -1,0 +1,138 @@
+/* PROVENANCE RIBBON — the palette, bound to the variables the canvas reads.
+ *
+ * The canvas writes every colour as `var(--vscode-TOKEN, fallback)`. Inside VS
+ * Code that indirection exists so the surface inherits the editor's theme.
+ * Standing alone it is the seam that lets this app carry a completely different
+ * visual world without editing one canvas selector: redefine the 44 tokens and
+ * the whole schematic re-inks itself.
+ *
+ * So the mapping below is not a colour scheme. It is a translation table
+ * between two vocabularies — VS Code's chrome names on the left, a custody
+ * record's materials on the right. Where the names disagree, the record wins,
+ * and the comment says what the token now means.
+ *
+ * See app/DESIGN.md for the world. Palette from its QUALITY BAR card.
+ */
+
+/* The record skin's materials, and the default when no skin is chosen. */
+:root,
+:root[data-skin='record'] {
+  color-scheme: light;
+
+  /* ---- materials ------------------------------------------------------- */
+  --ui-bg: #f2e8d6;      /* the working surface */
+  --ui-surface: #faf4e8;    /* a leaf lifted off it */
+  --ui-border: #e2d5bd;   /* every hairline and rule */
+  --ui-border-strong: #cfbe9e;
+  --ui-accent: #a52b2b;       /* custody: the ribbon */
+  --ui-accent-deep: #7d1f1f;
+  --ui-accent-wash: #a52b2b14;
+  --ui-hover: #ffffff5c;   /* the shell's generic hover wash */
+  --ui-ink: #1c1c1c;       /* documented */
+  --ui-ink-2: #5a6270;   /* entered, secondary, not yet resolved — 5.1:1 on buff */
+  /* Silence, in two weights. The card's #b7b2ac is right for a broad woven
+     field, but a 2px thread of it on buff measures ~1.6:1 — a core custody
+     state that cannot be seen is worse than no notation at all. So the pale
+     tone stays for fills and texture, and strokes and text take an ink dark
+     enough to read (~3.1:1). A value earns its place by the world *and* by
+     legibility; this world's own unwoven thread is grey linen, not fog. */
+  --ui-muted: #b7b2ac;
+  --ui-ink-3: #847c72;
+  --ui-fabric: #5d4a7a;    /* stamp: the fabric owns this */
+  --ui-bound: #3f6b5c; /* stamp: a confirmed boundary */
+  --ui-hand: #94571f;    /* stamp: hand-authored — 4.8:1, legible at 8.5px */
+
+  /* ---- type ------------------------------------------------------------ */
+  /* Charter is Matthew Carter's ledger serif, drawn for small sizes on screen —
+     the reason a serif can carry a dense engineering surface at 12px at all. */
+  --ui-font: 'Bitstream Charter', Charter, 'Iowan Old Style', Georgia, serif;
+  --ui-mono: ui-monospace, 'Cascadia Mono', 'DejaVu Sans Mono', monospace;
+
+  --vscode-font-family: var(--ui-font);
+  --vscode-editor-font-family: var(--ui-mono);
+
+  /* ---- grounds --------------------------------------------------------- */
+  /* The canvas floor is the bench; rails are the same paper, one step darker,
+     so panels read as leaves laid on it rather than as chrome around it. */
+  --vscode-editor-background: var(--ui-bg);
+  --vscode-panel-background: var(--ui-bg);
+  --vscode-sideBar-background: #ece0ca;
+  --vscode-editorGroupHeader-tabsBackground: #e6d9c0;
+  --vscode-editorWidget-background: var(--ui-surface);
+  --vscode-activityBar-background: #e6d9c0;
+  --vscode-input-background: var(--ui-surface);
+  --vscode-panel-border: var(--ui-border);
+  --vscode-input-border: var(--ui-border-strong);
+
+  /* ---- inks ------------------------------------------------------------ */
+  /* Secondary text is a second ink, never an opacity: a faded record is a real
+     state in this world, and it has to survive being placed on paper. */
+  --vscode-foreground: var(--ui-ink);
+  --vscode-input-foreground: var(--ui-ink);
+  --vscode-descriptionForeground: var(--ui-ink-2);
+  --vscode-activityBar-foreground: var(--ui-accent);
+  --vscode-activityBar-inactiveForeground: #8c8177;
+
+  /* ---- the custody hues ------------------------------------------------ */
+  /* charts-blue was "authored, real, interactive" — that is custody, so it
+     becomes the ribbon. The remaining charts-* keep their meanings and take
+     the stamp inks. */
+  --vscode-charts-blue: var(--ui-accent);
+  --vscode-charts-purple: var(--ui-fabric);
+  --vscode-charts-green: var(--ui-bound);
+  --vscode-charts-orange: var(--ui-hand);
+  --vscode-charts-yellow: #8a6a1f;
+  --vscode-charts-red: var(--ui-accent);
+
+  /* ---- action ---------------------------------------------------------- */
+  --vscode-button-background: var(--ui-accent);
+  --vscode-button-foreground: #fdf8ee;
+  --vscode-button-secondaryBackground: #e6d9c0;
+  --vscode-button-secondaryForeground: var(--ui-ink);
+  --vscode-focusBorder: var(--ui-accent);
+  --vscode-textLink-foreground: var(--ui-accent);
+
+  /* ---- chrome ---------------------------------------------------------- */
+  --vscode-tab-activeBackground: var(--ui-bg);
+  --vscode-tab-inactiveBackground: #e6d9c0;
+  --vscode-tab-activeForeground: var(--ui-ink);
+  --vscode-tab-inactiveForeground: #8c8177;
+  --vscode-tab-activeBorderTop: var(--ui-accent);
+  --vscode-panelTitle-activeForeground: var(--ui-ink);
+  --vscode-panelTitle-inactiveForeground: #8c8177;
+  --vscode-panelTitle-activeBorder: var(--ui-accent);
+  --vscode-statusBar-background: #2a2521;
+  --vscode-statusBar-foreground: #efe4d0;
+  --vscode-statusBarItem-errorBackground: var(--ui-accent);
+  --vscode-statusBarItem-warningBackground: var(--ui-hand);
+  --vscode-inputValidation-errorBackground: #f6e3de;
+  --vscode-inputValidation-errorBorder: var(--ui-accent);
+  --vscode-toolbar-hoverBackground: #00000010;
+
+  /* The bench is ruled paper, not a dot grid — a faint hairline every 24px. */
+  --vscode-editorIndentGuide-background: #00000000;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--ui-font);
+  font-size: 12.5px;
+  color: var(--ui-ink);
+  background: var(--ui-bg);
+  overflow: hidden;
+  /* Paper renders better with a touch of optical weight at these sizes. */
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.boot {
+  height: 100%;
+  background: var(--ui-bg);
+}

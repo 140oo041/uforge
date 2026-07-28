@@ -1,0 +1,837 @@
+<title>ISS Inspector — four directions</title>
+<style>
+  :root {
+    --bg: #f4f4f2;
+    --panel: #ffffff;
+    --ink: #23241f;
+    --muted: #6d6e66;
+    --hairline: #dcdcd4;
+    --accent: #9a6510;
+    --accent-soft: #f3e3c3;
+    --mock-shadow: 0 10px 30px rgba(30, 28, 20, 0.12);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #161613;
+      --panel: #1e1e1a;
+      --ink: #e4e2d8;
+      --muted: #97958a;
+      --hairline: #32322c;
+      --accent: #e0a63a;
+      --accent-soft: #3a3222;
+      --mock-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+    }
+  }
+  :root[data-theme="light"] {
+    --bg: #f4f4f2; --panel: #ffffff; --ink: #23241f; --muted: #6d6e66;
+    --hairline: #dcdcd4; --accent: #9a6510; --accent-soft: #f3e3c3;
+    --mock-shadow: 0 10px 30px rgba(30, 28, 20, 0.12);
+  }
+  :root[data-theme="dark"] {
+    --bg: #161613; --panel: #1e1e1a; --ink: #e4e2d8; --muted: #97958a;
+    --hairline: #32322c; --accent: #e0a63a; --accent-soft: #3a3222;
+    --mock-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font: 15px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif;
+    margin: 0;
+    padding: 48px 24px 96px;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; }
+
+  .eyebrow {
+    font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--accent); font-weight: 600; margin: 0 0 10px;
+  }
+  h1 {
+    font-size: clamp(26px, 4vw, 38px); line-height: 1.15; margin: 0 0 14px;
+    letter-spacing: -0.02em; text-wrap: balance; font-weight: 700;
+  }
+  .lede { color: var(--muted); max-width: 62ch; margin: 0 0 8px; }
+  .lede code {
+    font: 0.85em ui-monospace, "Cascadia Code", Menlo, Consolas, monospace;
+    background: var(--accent-soft); color: var(--ink);
+    padding: 1px 5px; border-radius: 4px;
+  }
+
+  .toc {
+    display: flex; flex-wrap: wrap; gap: 8px; margin: 28px 0 0; padding: 0;
+  }
+  .toc a {
+    font-size: 13px; text-decoration: none; color: var(--ink);
+    border: 1px solid var(--hairline); border-radius: 999px;
+    padding: 5px 14px; background: var(--panel);
+  }
+  .toc a:hover { border-color: var(--accent); }
+  .toc a b { color: var(--accent); font-weight: 700; margin-right: 6px; }
+
+  .dir { margin-top: 72px; scroll-margin-top: 24px; }
+  .dir-head { margin-bottom: 24px; max-width: 70ch; }
+  .dir-head .kicker {
+    font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--accent); font-weight: 700; margin: 0 0 6px;
+  }
+  .dir-head h2 { font-size: 24px; margin: 0 0 8px; letter-spacing: -0.01em; }
+  .dir-head p { color: var(--muted); margin: 0; }
+
+  .dir-body {
+    display: grid; grid-template-columns: 320px minmax(0, 1fr);
+    gap: 40px; align-items: start;
+  }
+  @media (max-width: 760px) { .dir-body { grid-template-columns: 1fr; } }
+
+  .notes h3 {
+    font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--muted); margin: 0 0 10px; font-weight: 600;
+  }
+  .notes ul { margin: 0 0 22px; padding: 0; list-style: none; }
+  .notes li {
+    position: relative; padding-left: 20px; margin: 0 0 10px;
+    font-size: 14.5px; line-height: 1.55;
+  }
+  .notes li::before {
+    content: ""; position: absolute; left: 2px; top: 9px;
+    width: 7px; height: 7px; border-radius: 2px; background: var(--accent);
+  }
+  .notes .tradeoff li::before { background: transparent; border: 1.5px solid var(--muted); }
+  .notes strong { font-weight: 650; }
+
+  /* ============ shared mockup chrome (fixed VS Code dark values) ============ */
+  .mock {
+    --vbg: #1f1f22;
+    --vsurface: #27272b;
+    --vsurface2: #2d2d33;
+    --vline: #3a3a41;
+    --vfg: #d7d7dc;
+    --vmuted: #8f8f9a;
+    --vblue: #4aa3ff;
+    --vblue-dim: #1c4a75;
+    --vdanger: #f14c4c;
+    --vgreen: #71c98d;
+    --vamber: #e0b34a;
+    width: 300px; max-width: 100%;
+    background: var(--vbg);
+    border: 1px solid var(--vline);
+    border-radius: 10px;
+    box-shadow: var(--mock-shadow);
+    color: var(--vfg);
+    font: 12.5px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+    overflow: hidden;
+    user-select: none;
+  }
+  .mock .mono, .mock input, .mock select {
+    font-family: ui-monospace, "Cascadia Code", Menlo, Consolas, monospace;
+  }
+  .mock input, .mock select {
+    background: #1a1a1d; color: var(--vfg);
+    border: 1px solid var(--vline); border-radius: 4px;
+    font-size: 12px; padding: 3px 7px; min-width: 0;
+  }
+  .mock input:focus, .mock select:focus, .mock button:focus {
+    outline: 1px solid var(--vblue); outline-offset: 0;
+  }
+  .mock button { cursor: pointer; }
+
+  .chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 10px; padding: 1.5px 8px; border-radius: 999px;
+    background: #ffffff12; color: var(--vmuted); white-space: nowrap;
+  }
+  .chip .dot { width: 6px; height: 6px; border-radius: 50%; }
+  .chip-router { background: #6e5be822; color: #a99df2; }
+  .chip-wired .dot { background: var(--vgreen); }
+  .chip-wired { color: var(--vgreen); background: #71c98d1a; }
+
+  .iconbtn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 24px; height: 24px; border-radius: 5px;
+    background: transparent; border: none; color: var(--vmuted);
+    font-size: 13px;
+  }
+  .iconbtn:hover { background: #ffffff14; color: var(--vfg); }
+  .iconbtn.danger:hover { background: #f14c4c22; color: var(--vdanger); }
+
+  .glyph {
+    width: 30px; height: 30px; border-radius: 7px; flex: none;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; background: #6e5be822; color: #a99df2;
+  }
+
+  /* ============ A · aligned form ============ */
+  .mock-a { padding: 0 0 14px; }
+  .mock-a .m-head {
+    display: flex; align-items: center; gap: 10px;
+    padding: 13px 14px 12px; border-bottom: 1px solid var(--vline);
+  }
+  .mock-a .m-title { flex: 1; min-width: 0; }
+  .mock-a .m-title .name { font-size: 14px; font-weight: 650; letter-spacing: 0.01em; }
+  .mock-a .m-title .sub { font-size: 10.5px; color: var(--vmuted); margin-top: 1px; }
+  .mock-a .sect {
+    display: flex; align-items: center; gap: 8px;
+    margin: 16px 14px 6px; font-size: 10px; font-weight: 650;
+    letter-spacing: 0.09em; text-transform: uppercase; color: var(--vmuted);
+  }
+  .mock-a .sect .count {
+    background: #ffffff12; border-radius: 999px; padding: 0 6px;
+    font-weight: 600; letter-spacing: 0;
+  }
+  .mock-a .sect .line { flex: 1; height: 1px; background: var(--vline); }
+  .mock-a .sect a { color: var(--vblue); text-decoration: none; letter-spacing: 0; text-transform: none; font-weight: 500; }
+  .mock-a .frow {
+    display: flex; align-items: center; gap: 8px;
+    padding: 3px 14px; min-height: 26px;
+  }
+  .mock-a .frow .k { flex: none; width: 92px; color: var(--vmuted); }
+  .mock-a .frow .k .hint {
+    display: inline-block; margin-left: 4px; color: #6a6a75;
+    font-size: 10px; cursor: help; border-bottom: 1px dotted #6a6a75;
+  }
+  .mock-a .frow input { width: 58px; text-align: right; }
+  .mock-a .frow select { flex: 1; }
+  .mock-a .frow .unit { color: var(--vmuted); font-size: 10.5px; }
+  .mock-a .lrow {
+    display: flex; align-items: center; gap: 8px; padding: 4px 14px; min-height: 25px;
+  }
+  .mock-a .lrow .id { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .mock-a .lrow input.w { width: 44px; text-align: right; }
+  .mock-a .lrow .x { margin-left: auto; }
+  .mock-a .lrow label { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+  .mock-a .fn { color: var(--vamber); }
+
+  /* ============ B · grouped cards ============ */
+  .mock-b { padding: 0 0 12px; }
+  .mock-b .m-head {
+    position: sticky; top: 0; z-index: 2;
+    background: var(--vbg);
+    padding: 13px 14px 11px;
+    border-bottom: 1px solid var(--vline);
+  }
+  .mock-b .m-head .row1 { display: flex; align-items: center; gap: 10px; }
+  .mock-b .m-head .name {
+    flex: 1; font-size: 14px; font-weight: 650;
+    border: 1px solid transparent; border-radius: 4px; padding: 2px 6px; margin-left: -6px;
+  }
+  .mock-b .m-head .name:hover { border-color: var(--vline); }
+  .mock-b .m-head .row2 {
+    display: flex; align-items: center; gap: 4px; margin-top: 9px;
+  }
+  .mock-b .m-head .row2 .spacer { flex: 1; }
+  .mock-b .card {
+    margin: 10px 12px 0; border: 1px solid var(--vline);
+    border-radius: 8px; background: var(--vsurface); overflow: hidden;
+  }
+  .mock-b details > summary {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 12px; cursor: pointer; list-style: none;
+    font-size: 11px; font-weight: 650; letter-spacing: 0.04em;
+  }
+  .mock-b details > summary::-webkit-details-marker { display: none; }
+  .mock-b .chev { color: var(--vmuted); font-size: 9px; transition: transform 0.15s; }
+  @media (prefers-reduced-motion: reduce) { .mock-b .chev { transition: none; } }
+  .mock-b details[open] .chev { transform: rotate(90deg); }
+  .mock-b summary .count { margin-left: auto; }
+  .mock-b .card-body { padding: 2px 12px 10px; border-top: 1px solid #ffffff0a; }
+  .mock-b .crow {
+    display: flex; align-items: center; gap: 8px; padding: 3px 0; min-height: 26px;
+  }
+  .mock-b .crow .k { width: 86px; flex: none; color: var(--vmuted); }
+  .mock-b .crow input { width: 56px; text-align: right; }
+  .mock-b .crow select { flex: 1; }
+  .mock-b .item {
+    display: flex; align-items: center; gap: 8px; padding: 4px 0;
+  }
+  .mock-b .item .avatar {
+    width: 20px; height: 20px; border-radius: 5px; flex: none;
+    background: #4aa3ff1f; color: var(--vblue);
+    display: flex; align-items: center; justify-content: center; font-size: 10px;
+  }
+  .mock-b .item .id { flex: 1; overflow: hidden; text-overflow: ellipsis; }
+  .mock-b .stepper {
+    display: flex; align-items: center; border: 1px solid var(--vline);
+    border-radius: 4px; overflow: hidden;
+  }
+  .mock-b .stepper button {
+    background: transparent; border: none; color: var(--vmuted);
+    width: 18px; height: 20px; font-size: 11px; padding: 0;
+  }
+  .mock-b .stepper button:hover { background: #ffffff14; color: var(--vfg); }
+  .mock-b .stepper .v { padding: 0 6px; font-size: 11px; }
+  .mock-b .hintline {
+    display: flex; gap: 7px; margin-top: 6px; padding-top: 7px;
+    border-top: 1px solid #ffffff0a;
+    font-size: 10.5px; color: var(--vmuted); line-height: 1.4;
+  }
+  .mock-b .hintline .i { color: var(--vblue); flex: none; }
+  .mock-b .toggle {
+    margin-left: auto; width: 26px; height: 15px; border-radius: 999px;
+    background: #ffffff1e; position: relative; flex: none;
+  }
+  .mock-b .toggle::after {
+    content: ""; position: absolute; top: 2px; left: 2px;
+    width: 11px; height: 11px; border-radius: 50%; background: #9b9ba6;
+  }
+  .mock-b .toggle.on { background: var(--vblue-dim); }
+  .mock-b .toggle.on::after { left: auto; right: 2px; background: var(--vblue); }
+
+  /* ============ C · tabbed ============ */
+  .mock-c { display: flex; flex-direction: column; min-height: 480px; }
+  .mock-c .crumb {
+    padding: 9px 14px 0; font-size: 10.5px; color: var(--vmuted);
+  }
+  .mock-c .crumb b { color: var(--vfg); font-weight: 500; }
+  .mock-c .m-head { padding: 5px 14px 0; }
+  .mock-c .m-head .row1 { display: flex; align-items: center; gap: 8px; }
+  .mock-c .m-head .name { font-size: 15px; font-weight: 650; }
+  .mock-c .statline {
+    margin: 7px 0 0; font-size: 11px; color: var(--vmuted);
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+  .mock-c .statline b { color: var(--vfg); font-weight: 600; }
+  .mock-c .tabs {
+    display: flex; gap: 2px; margin-top: 12px; padding: 0 10px;
+    border-bottom: 1px solid var(--vline);
+  }
+  .mock-c .tab {
+    background: none; border: none; color: var(--vmuted);
+    font-size: 12px; padding: 7px 10px 8px; position: relative;
+  }
+  .mock-c .tab:hover { color: var(--vfg); }
+  .mock-c .tab.on { color: var(--vfg); font-weight: 600; }
+  .mock-c .tab.on::after {
+    content: ""; position: absolute; left: 8px; right: 8px; bottom: -1px;
+    height: 2px; background: var(--vblue); border-radius: 2px;
+  }
+  .mock-c .tabpane { display: none; padding: 12px 14px; flex: 1; }
+  .mock-c .tabpane.on { display: block; }
+  .mock-c .field { margin: 0 0 12px; }
+  .mock-c .field .k {
+    display: flex; align-items: baseline; gap: 6px;
+    font-size: 11px; color: var(--vmuted); margin-bottom: 4px;
+  }
+  .mock-c .field .k .why { font-size: 10px; color: #6a6a75; }
+  .mock-c .field input, .mock-c .field select { width: 100%; padding: 5px 8px; }
+  .mock-c .field .pair { display: flex; gap: 8px; }
+  .mock-c .field .pair > * { flex: 1; }
+  .mock-c .lrow { display: flex; align-items: center; gap: 8px; padding: 4px 0; }
+  .mock-c .lrow .id { flex: 1; }
+  .mock-c .footer {
+    display: flex; gap: 8px; padding: 10px 14px;
+    border-top: 1px solid var(--vline); background: var(--vsurface);
+  }
+  .mock-c .footer .ghost {
+    flex: 1; background: transparent; border: 1px solid var(--vline);
+    color: var(--vfg); border-radius: 5px; padding: 5px 10px; font-size: 12px;
+  }
+  .mock-c .footer .ghost:hover { border-color: var(--vblue); }
+  .mock-c .footer .danger {
+    background: transparent; border: 1px solid #f14c4c55; color: var(--vdanger);
+    border-radius: 5px; padding: 5px 12px; font-size: 12px;
+  }
+  .mock-c .footer .danger:hover { background: #f14c4c1c; }
+
+  /* ============ D · numbers-first ============ */
+  .mock-d { padding: 0 0 14px; }
+  .mock-d .m-head {
+    display: flex; align-items: center; gap: 8px; padding: 12px 14px 10px;
+  }
+  .mock-d .m-head .name { font-size: 14px; font-weight: 650; }
+  .mock-d .m-head .kind { color: var(--vmuted); font-size: 11px; }
+  .mock-d .tiles {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 2px 14px 0;
+  }
+  .mock-d .tile {
+    background: var(--vsurface); border: 1px solid var(--vline);
+    border-radius: 7px; padding: 8px 10px 7px; cursor: text;
+  }
+  .mock-d .tile:hover { border-color: var(--vblue); }
+  .mock-d .tile .lab {
+    font-size: 9px; letter-spacing: 0.09em; text-transform: uppercase;
+    color: var(--vmuted); margin-bottom: 2px;
+  }
+  .mock-d .tile .val {
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: 17px; font-weight: 600; font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+  }
+  .mock-d .tile .val small { font-size: 10px; color: var(--vmuted); font-weight: 400; margin-left: 3px; }
+  .mock-d .tile.iswide { grid-column: span 2; }
+  .mock-d .seg {
+    display: flex; border: 1px solid var(--vline); border-radius: 5px;
+    overflow: hidden; margin-top: 5px;
+  }
+  .mock-d .seg button {
+    flex: 1; background: transparent; border: none; color: var(--vmuted);
+    font-size: 11px; padding: 3.5px 0;
+  }
+  .mock-d .seg button.on { background: var(--vblue-dim); color: #cfe6ff; }
+  .mock-d .sect {
+    margin: 15px 14px 5px; font-size: 10px; font-weight: 650;
+    letter-spacing: 0.09em; text-transform: uppercase; color: var(--vmuted);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .mock-d .sect .line { flex: 1; height: 1px; background: var(--vline); }
+  .mock-d table {
+    width: calc(100% - 28px); margin: 0 14px; border-collapse: collapse;
+    font-size: 12px; font-variant-numeric: tabular-nums;
+  }
+  .mock-d td { padding: 3.5px 0; border-top: 1px solid #ffffff0a; }
+  .mock-d td.w {
+    text-align: right; font-family: ui-monospace, Menlo, Consolas, monospace;
+    color: var(--vamber); width: 40px;
+  }
+  .mock-d td.share { color: var(--vmuted); text-align: right; width: 44px; font-size: 11px; }
+  .mock-d .chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 4px 14px; }
+  .mock-d .tchip {
+    display: inline-flex; align-items: center; gap: 6px;
+    border: 1px solid var(--vline); border-radius: 999px;
+    background: transparent; color: var(--vfg);
+    font-size: 11.5px; padding: 3px 11px;
+  }
+  .mock-d .tchip.on { border-color: #6e5be8aa; background: #6e5be81f; color: #c9c2f7; }
+  .mock-d .tchip.add { color: var(--vmuted); border-style: dashed; }
+  .mock-d .tchip .tick { font-size: 10px; }
+  .mock-d .fnchip {
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: 11px; color: var(--vamber);
+    border: 1px solid #e0b34a33; background: #e0b34a12;
+    border-radius: 5px; padding: 2.5px 9px;
+  }
+
+  /* ============ coda ============ */
+  .coda {
+    margin-top: 84px; border-top: 1px solid var(--hairline); padding-top: 40px;
+  }
+  .coda h2 { font-size: 24px; margin: 0 0 10px; letter-spacing: -0.01em; }
+  .coda > p { color: var(--muted); max-width: 68ch; margin: 0 0 28px; }
+  .keep {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 14px; margin-bottom: 40px;
+  }
+  .keep .k-card {
+    background: var(--panel); border: 1px solid var(--hairline);
+    border-radius: 10px; padding: 16px 18px;
+  }
+  .keep h4 { margin: 0 0 6px; font-size: 14px; }
+  .keep p { margin: 0; font-size: 13.5px; color: var(--muted); line-height: 1.55; }
+  .rec {
+    background: var(--panel); border: 1px solid var(--accent);
+    border-radius: 12px; padding: 22px 26px; max-width: 72ch;
+  }
+  .rec .kicker {
+    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--accent); font-weight: 700; margin: 0 0 8px;
+  }
+  .rec p { margin: 0; line-height: 1.6; }
+  .rec p + p { margin-top: 10px; }
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">ISS canvas IDE · design exploration</p>
+    <h1>Four directions for the inspector</h1>
+    <p class="lede">
+      Every mockup shows the same selection — router <code>R1</code>, weighted arbitration,
+      three attached components, one trunk — so the differences you see are the design,
+      not the data. All four keep the VS Code webview theme variables and the existing
+      edit-intent wiring; this is a restyle of the panel, not a rework of the model.
+    </p>
+    <nav class="toc">
+      <a href="#dir-a"><b>A</b> Aligned form</a>
+      <a href="#dir-b"><b>B</b> Grouped cards</a>
+      <a href="#dir-c"><b>C</b> Tabbed, no scroll</a>
+      <a href="#dir-d"><b>D</b> Numbers first</a>
+    </nav>
+  </header>
+
+  <!-- ================= A ================= -->
+  <section class="dir" id="dir-a">
+    <div class="dir-head">
+      <p class="kicker">Direction A · conservative</p>
+      <h2>Aligned form</h2>
+      <p>The current panel, disciplined. Same single scroll, but every control sits on a
+      strict label column, units live next to values, long notes collapse into hover
+      hints, and destructive actions leave the flow.</p>
+    </div>
+    <div class="dir-body">
+      <div class="mock mock-a" aria-label="Mockup A">
+        <div class="m-head">
+          <div class="glyph">◈</div>
+          <div class="m-title">
+            <div class="name">R1</div>
+            <div class="sub">fabric router · 3 attached · 1 trunk</div>
+          </div>
+          <button class="iconbtn" title="Open source">⧉</button>
+          <button class="iconbtn" title="More — duplicate, delete live here">⋯</button>
+        </div>
+
+        <div class="sect"><span>Forwarding</span><span class="line"></span></div>
+        <div class="frow"><span class="k">latency <span class="hint">?</span></span><input value="1" readonly><span class="unit">cy / hop</span></div>
+        <div class="frow"><span class="k">bandwidth</span><input value="1" readonly><span class="unit">pkt / port·cy</span></div>
+        <div class="frow"><span class="k">arbitration</span><select><option>weighted</option></select></div>
+
+        <div class="sect"><span>Queue</span><span class="line"></span></div>
+        <div class="frow"><span class="k">bound</span><input value="8" readonly><span class="unit">pkt / port</span></div>
+        <div class="frow"><span class="k">when full</span><select><option>stall — wait on the wire</option></select></div>
+
+        <div class="sect"><span>Latency models</span><span class="count">2</span><span class="line"></span><a>src/R1.cpp ⧉</a></div>
+        <div class="lrow"><span class="id mono fn">ƒ dram_latency</span><span class="chip">2 wires</span></div>
+        <div class="lrow"><span class="id mono fn">ƒ noc_hop</span><span class="chip">unused</span></div>
+
+        <div class="sect"><span>Attached</span><span class="count">3</span><span class="line"></span></div>
+        <div class="lrow"><span class="id">Gen1</span><input class="w" value="3" readonly><span class="unit">wt</span><button class="iconbtn x danger" title="Detach">✕</button></div>
+        <div class="lrow"><span class="id">Memory1</span><input class="w" value="1" readonly><span class="unit">wt</span><button class="iconbtn x danger" title="Detach">✕</button></div>
+        <div class="lrow"><span class="id">Memory2</span><input class="w" value="1" readonly><span class="unit">wt</span><button class="iconbtn x danger" title="Detach">✕</button></div>
+
+        <div class="sect"><span>Trunks</span><span class="line"></span></div>
+        <div class="lrow"><label><input type="checkbox" checked> ◈ R2</label></div>
+        <div class="lrow"><label><input type="checkbox"> ◈ R3</label></div>
+      </div>
+
+      <div class="notes">
+        <h3>What changed</h3>
+        <ul>
+          <li><strong>Identity header</strong> — glyph, name, and a one-line summary
+          (“3 attached · 1 trunk”) replace the bare <code>h3</code>, so the selection
+          reads instantly.</li>
+          <li><strong>Strict label column + units.</strong> Inputs align on one edge and
+          every number says what it is (“cy / hop”, “pkt / port·cy”) — today that
+          knowledge hides in tooltips.</li>
+          <li><strong>Notes become hints.</strong> The long explanatory paragraphs become
+          a dotted <span style="border-bottom:1px dotted currentColor">?</span> that
+          reveals on hover. Section rules carry the count and the “open source” link.</li>
+          <li><strong>Danger exits the flow.</strong> Delete moves under the ⋯ menu instead
+          of a red button that scrolls into view under every selection.</li>
+          <li><strong>Model usage shown</strong> — each latency model says how many wires
+          ride it, which the graph already knows.</li>
+        </ul>
+        <h3>Trade-off</h3>
+        <ul class="tradeoff">
+          <li>Lowest effort and least visual novelty — the panel stays one long scroll,
+          so a router with many attachments still buries the trunks.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= B ================= -->
+  <section class="dir" id="dir-b">
+    <div class="dir-head">
+      <p class="kicker">Direction B · structured</p>
+      <h2>Grouped cards</h2>
+      <p>Each concern becomes a collapsible card under a sticky header. The panel stops
+      being a wall of rows: you fold away what you're not tuning, and the header (with
+      the rename field and quick actions) never scrolls out from under you.</p>
+    </div>
+    <div class="dir-body">
+      <div class="mock mock-b" aria-label="Mockup B">
+        <div class="m-head">
+          <div class="row1">
+            <div class="glyph">◈</div>
+            <div class="name">R1</div>
+            <span class="chip chip-router">router</span>
+          </div>
+          <div class="row2">
+            <button class="iconbtn" title="Open source">⧉</button>
+            <button class="iconbtn" title="Duplicate">⿻</button>
+            <span class="spacer"></span>
+            <button class="iconbtn danger" title="Delete router">🗑</button>
+          </div>
+        </div>
+
+        <details class="card" open>
+          <summary><span class="chev">▶</span> Forwarding <span class="count chip">1 cy</span></summary>
+          <div class="card-body">
+            <div class="crow"><span class="k">latency</span><input value="1" readonly><span style="color:var(--vmuted);font-size:10.5px">cy/hop</span></div>
+            <div class="crow"><span class="k">bandwidth</span><input value="1" readonly><span style="color:var(--vmuted);font-size:10.5px">pkt/cy</span></div>
+            <div class="crow"><span class="k">arbitration</span><select><option>weighted</option></select></div>
+            <div class="crow"><span class="k">queue</span><input value="8" readonly><select style="flex:1"><option>stall when full</option></select></div>
+            <div class="hintline"><span class="i">ⓘ</span> Contended ports drain by weight — set each component's share below.</div>
+          </div>
+        </details>
+
+        <details class="card" open>
+          <summary><span class="chev">▶</span> Attached <span class="count chip">3</span></summary>
+          <div class="card-body">
+            <div class="item"><span class="avatar">G</span><span class="id">Gen1</span>
+              <div class="stepper"><button>−</button><span class="v mono">3</span><button>+</button></div>
+              <button class="iconbtn danger" title="Detach">✕</button></div>
+            <div class="item"><span class="avatar">M</span><span class="id">Memory1</span>
+              <div class="stepper"><button>−</button><span class="v mono">1</span><button>+</button></div>
+              <button class="iconbtn danger" title="Detach">✕</button></div>
+            <div class="item"><span class="avatar">M</span><span class="id">Memory2</span>
+              <div class="stepper"><button>−</button><span class="v mono">1</span><button>+</button></div>
+              <button class="iconbtn danger" title="Detach">✕</button></div>
+          </div>
+        </details>
+
+        <details class="card" open>
+          <summary><span class="chev">▶</span> Trunks</summary>
+          <div class="card-body">
+            <div class="item"><span class="avatar" style="background:#6e5be822;color:#a99df2">◈</span><span class="id">R2</span><span class="toggle on"></span></div>
+            <div class="item"><span class="avatar" style="background:#6e5be822;color:#a99df2">◈</span><span class="id">R3</span><span class="toggle"></span></div>
+          </div>
+        </details>
+
+        <details class="card">
+          <summary><span class="chev">▶</span> Latency models <span class="count chip">2</span></summary>
+        </details>
+      </div>
+
+      <div class="notes">
+        <h3>What changed</h3>
+        <ul>
+          <li><strong>Cards with fold state.</strong> Forwarding, Attached, Trunks, and
+          Models are separate surfaces. Collapsed state can persist per kind — tune
+          weights all day without scrolling past queue settings.</li>
+          <li><strong>Sticky header.</strong> Rename-in-place on the title, quick actions
+          as an icon row, delete isolated at the far end in its own hover color.</li>
+          <li><strong>Summaries carry data.</strong> A folded card still shows its
+          payload (“1 cy”, “3”) — closed doesn't mean invisible.</li>
+          <li><strong>Steppers for weights</strong> — the most-touched number on a
+          weighted router becomes ±1 clicks instead of a blur-committed text field.</li>
+          <li><strong>One hint per card</strong>, in a consistent ⓘ footer slot, replacing
+          scattered <code>ins-note</code> paragraphs.</li>
+        </ul>
+        <h3>Trade-off</h3>
+        <ul class="tradeoff">
+          <li>Cards cost ~24px each in chrome; on a small panel with everything expanded
+          you see slightly less at once than direction A.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= C ================= -->
+  <section class="dir" id="dir-c">
+    <div class="dir-head">
+      <p class="kicker">Direction C · flat panel</p>
+      <h2>Tabbed, no scroll</h2>
+      <p>The inspector becomes three shallow tabs with a stat line in the header and a
+      pinned action bar. Nothing important lives below the fold, ever. Try the tabs —
+      they work.</p>
+    </div>
+    <div class="dir-body">
+      <div class="mock mock-c" aria-label="Mockup C">
+        <div class="crumb">design ▸ fabric ▸ <b>R1</b></div>
+        <div class="m-head">
+          <div class="row1">
+            <span class="name">◈ R1</span>
+            <span class="chip chip-router">router</span>
+          </div>
+          <div class="statline"><b>1</b> cy · <b>1</b> pkt/cy · queue <b>8</b> · <b>3</b> attached</div>
+        </div>
+        <div class="tabs" role="tablist">
+          <button class="tab on" data-pane="c-params">Params</button>
+          <button class="tab" data-pane="c-fabric">Fabric</button>
+          <button class="tab" data-pane="c-models">Models</button>
+        </div>
+
+        <div class="tabpane on" id="c-params">
+          <div class="field">
+            <div class="k">Hop latency <span class="why">cycles per forward through R1</span></div>
+            <input class="mono" value="1" readonly>
+          </div>
+          <div class="field">
+            <div class="k">Arbitration</div>
+            <select><option>weighted — share by attachment weight</option></select>
+          </div>
+          <div class="field">
+            <div class="k">Bandwidth <span class="why">packets per output port per cycle</span></div>
+            <input class="mono" value="1" readonly>
+          </div>
+          <div class="field">
+            <div class="k">Queue bound · when full</div>
+            <div class="pair">
+              <input class="mono" value="8" readonly>
+              <select><option>stall</option><option>drop</option></select>
+            </div>
+          </div>
+        </div>
+
+        <div class="tabpane" id="c-fabric">
+          <div class="field"><div class="k">Attached components · weight</div>
+            <div class="lrow"><span class="id">Gen1</span><input class="mono" style="width:52px;text-align:right" value="3" readonly><button class="iconbtn danger">✕</button></div>
+            <div class="lrow"><span class="id">Memory1</span><input class="mono" style="width:52px;text-align:right" value="1" readonly><button class="iconbtn danger">✕</button></div>
+            <div class="lrow"><span class="id">Memory2</span><input class="mono" style="width:52px;text-align:right" value="1" readonly><button class="iconbtn danger">✕</button></div>
+          </div>
+          <div class="field"><div class="k">Trunks</div>
+            <div class="lrow"><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" checked> ◈ R2</label></div>
+            <div class="lrow"><label style="display:flex;gap:8px;align-items:center"><input type="checkbox"> ◈ R3</label></div>
+          </div>
+        </div>
+
+        <div class="tabpane" id="c-models">
+          <div class="field"><div class="k">Hop-latency functions in src/R1.cpp</div>
+            <div class="lrow"><span class="id mono" style="color:var(--vamber)">ƒ dram_latency</span><span class="chip">2 wires</span></div>
+            <div class="lrow"><span class="id mono" style="color:var(--vamber)">ƒ noc_hop</span><span class="chip">unused</span></div>
+          </div>
+          <div class="field" style="color:var(--vmuted);font-size:11px;line-height:1.5">
+            Write <span class="mono">microarch::Cycle name(const Event&amp;)</span> below the
+            markers, then assign it per-wire in the wire panel.
+          </div>
+        </div>
+
+        <div class="footer">
+          <button class="ghost">Open source ⧉</button>
+          <button class="danger">Delete</button>
+        </div>
+      </div>
+
+      <div class="notes">
+        <h3>What changed</h3>
+        <ul>
+          <li><strong>Stat line as the summary.</strong> The four numbers you check most
+          sit in the header in monospace — visible from any tab, no scanning rows.</li>
+          <li><strong>Breadcrumb path</strong> replaces the <code>path</code> row and doubles
+          as drill-out navigation for nested composites.</li>
+          <li><strong>Labels above full-width controls</strong> (VS Code settings idiom) —
+          selects stop truncating their option text at narrow panel widths.</li>
+          <li><strong>Pinned footer.</strong> Open source and Delete are always reachable,
+          and Delete stops visually colliding with per-row ✕ buttons.</li>
+          <li><strong>Maps to every selection:</strong> blocks get Params / Ports / Vars,
+          wires get Route / Latency, traffic gens get Traffic / Ports.</li>
+        </ul>
+        <h3>Trade-off</h3>
+        <ul class="tradeoff">
+          <li>Tabs hide two-thirds of the state — cross-referencing weight against queue
+          bound now takes a click. Wrong choice if users compare across sections often.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= D ================= -->
+  <section class="dir" id="dir-d">
+    <div class="dir-head">
+      <p class="kicker">Direction D · opinionated</p>
+      <h2>Numbers first</h2>
+      <p>An inspector for people who think in cycles and packets. The scalar params become
+      a stat-tile grid you click to edit; lists compress into tables and toggle chips.
+      Densest of the four — closer to a scope readout than a form.</p>
+    </div>
+    <div class="dir-body">
+      <div class="mock mock-d" aria-label="Mockup D">
+        <div class="m-head">
+          <div class="glyph">◈</div>
+          <div>
+            <span class="name">R1</span>
+            <span class="kind"> · router</span>
+          </div>
+        </div>
+        <div class="tiles">
+          <div class="tile" title="click to edit"><div class="lab">hop latency</div><div class="val">1<small>cy</small></div></div>
+          <div class="tile" title="click to edit"><div class="lab">bandwidth</div><div class="val">1<small>pkt/cy</small></div></div>
+          <div class="tile" title="click to edit"><div class="lab">queue / port</div><div class="val">8<small>pkt</small></div></div>
+          <div class="tile" title="click to edit"><div class="lab">arbitration</div><div class="val" style="font-size:13px;padding-top:3px">weighted</div></div>
+          <div class="tile iswide"><div class="lab">when queue full</div>
+            <div class="seg"><button class="on">stall</button><button>drop</button></div>
+          </div>
+        </div>
+
+        <div class="sect"><span>Attached · weight</span><span class="line"></span></div>
+        <table>
+          <tr><td>Gen1</td><td class="w">3</td><td class="share">60%</td></tr>
+          <tr><td>Memory1</td><td class="w">1</td><td class="share">20%</td></tr>
+          <tr><td>Memory2</td><td class="w">1</td><td class="share">20%</td></tr>
+        </table>
+
+        <div class="sect"><span>Trunks</span><span class="line"></span></div>
+        <div class="chips">
+          <button class="tchip on">◈ R2 <span class="tick">✓</span></button>
+          <button class="tchip">◈ R3</button>
+          <button class="tchip add">+ router</button>
+        </div>
+
+        <div class="sect"><span>Latency models</span><span class="line"></span></div>
+        <div class="chips">
+          <span class="fnchip">ƒ dram_latency ×2</span>
+          <span class="fnchip" style="opacity:0.55">ƒ noc_hop</span>
+        </div>
+      </div>
+
+      <div class="notes">
+        <h3>What changed</h3>
+        <ul>
+          <li><strong>Stat tiles.</strong> The numbers are the interface: big, monospace,
+          tabular, with units. Click a tile → it becomes an input; Enter commits through
+          the same edit intent.</li>
+          <li><strong>Derived data for free.</strong> The weight table shows each
+          component's effective bandwidth share (60/20/20) — the thing weighted
+          arbitration is actually about, computed nowhere in the current UI.</li>
+          <li><strong>Trunks as toggle chips</strong> — one tap on/off, matching how the
+          canvas already draws router↔router adjacency, plus an inline “+ router”.</li>
+          <li><strong>Model chips carry usage</strong> (×2 wires); unused ones dim.</li>
+          <li><strong>Scales to the run.</strong> After a sim, tiles can flip to showing
+          live occupancy / drops next to the configured bound — config and result in
+          one readout.</li>
+        </ul>
+        <h3>Trade-off</h3>
+        <ul class="tradeoff">
+          <li>Click-to-edit is a less obvious affordance than a visible input, and the
+          density is unapologetic — this direction bets your users are hardware people
+          who prefer a scope face to a settings form.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= coda ================= -->
+  <section class="coda">
+    <h2>Details worth keeping, whichever direction wins</h2>
+    <p>These four decisions showed up in every sketch that worked — they're independent
+    of the overall structure and could land as a first incremental PR.</p>
+    <div class="keep">
+      <div class="k-card">
+        <h4>Status as chips with dots</h4>
+        <p>wired / inferred / unresolved become colored-dot chips (green · grey · red)
+        reused identically on wires, ports, and the design summary — one vocabulary
+        everywhere.</p>
+      </div>
+      <div class="k-card">
+        <h4>Units on every number</h4>
+        <p>latency <em>cy/hop</em>, bandwidth <em>pkt/port·cy</em>, queue <em>pkt</em>.
+        The tooltips already know this; the panel should say it.</p>
+      </div>
+      <div class="k-card">
+        <h4>Danger out of the flow</h4>
+        <p>Delete never sits as a big red block in the scroll. Overflow menu (A), isolated
+        icon (B), or pinned footer (C) — any of them beats today's placement.</p>
+      </div>
+      <div class="k-card">
+        <h4>Notes → hints</h4>
+        <p>Every <code>ins-note</code> paragraph becomes a hover/expand affordance in a
+        consistent slot. First-time users still get the explanation; returning users get
+        their rows back.</p>
+      </div>
+    </div>
+
+    <div class="rec">
+      <p class="kicker">Recommendation</p>
+      <p><strong>B is the strongest base:</strong> collapsible cards fix the real problem
+      (one undifferentiated scroll) without hiding state behind tabs, and the sticky
+      header + isolated delete are straight wins. It also degrades gracefully — a wire's
+      panel is just two cards.</p>
+      <p><strong>Steal from D:</strong> the stat-tile row for router numerics and the
+      derived bandwidth-share column. A “Forwarding” card whose header row <em>is</em> the
+      tile strip gives you B's structure with D's readability, and sets up the
+      config-vs-measured story once a trace is loaded.</p>
+    </div>
+  </section>
+</div>
+
+<script>
+  document.querySelectorAll('.mock-c .tab').forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      var mock = tab.closest('.mock-c');
+      mock.querySelectorAll('.tab').forEach(function (t) { t.classList.remove('on'); });
+      mock.querySelectorAll('.tabpane').forEach(function (p) { p.classList.remove('on'); });
+      tab.classList.add('on');
+      mock.querySelector('#' + tab.dataset.pane).classList.add('on');
+    });
+  });
+</script>

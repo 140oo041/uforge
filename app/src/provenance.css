@@ -1,0 +1,764 @@
+/* DIRECTION CONTRACT — ISS Desktop, Provenance Ribbon
+ *
+ * THESIS: A design is a custody record. Every line, number and block states
+ * whether the source substantiates it — and where the record is missing, it
+ * frays visibly instead of going quiet. Refuses the category default this app
+ * shipped with: VS Code chrome, 8px rounding, pill states, bezier spaghetti.
+ *
+ * OWN-WORLD: archival buff paper ruled in hairlines; Bitstream Charter ledger
+ * serif with 0.14em small-caps labels; mono kept for anything that is literally
+ * in the user's source; one red for custody; three outlined stamp inks for
+ * authorities other than the author; unwoven grey for silence. Square corners
+ * throughout, lozenge folds, rules instead of fills, no shadow off-overlay.
+ *
+ * STORY: an architect reads the bench and knows instantly which connections the
+ * code proves, which the parser guessed, and which are missing — then runs, and
+ * watches the ribbon get written along the path that actually executed.
+ *
+ * FIRST VIEWPORT: the bench fills the window; blocks are square vellum leaves
+ * with a red custody rule down their left edge; ribbons run between their
+ * lozenge folds; the record strip along the top carries the project and run
+ * state, and the status bar is the one dark band on the page.
+ *
+ * FORM: challenger world (provenance ribbon), chosen over the assigned grounded
+ * direction (IC floorplan plot) at the direction round; seed key f649cdd1.
+ *
+ * ---------------------------------------------------------------------------
+ * This file re-inks @iss/canvas without editing it. Load order in main.tsx is
+ * theme → canvas → this, so these selectors win on specificity ties. The VS
+ * Code extension loads neither of the app's stylesheets and is unaffected.
+ */
+
+/* ============================ the bench ============================ */
+
+/* Ruled paper, not a dot grid: a hairline every 24px, matching the 8px snap
+   grid at 3×, so a node's position reads against the ruling. */
+[data-skin='record'] .canvas {
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 23px,
+      #00000008 23px,
+      #00000008 24px
+    ),
+    repeating-linear-gradient(
+      to right,
+      transparent 0,
+      transparent 23px,
+      #00000006 23px,
+      #00000006 24px
+    );
+  background-color: var(--ui-bg);
+}
+
+[data-skin='record'] .app,
+[data-skin='record'] .panel-pane,
+[data-skin='record'] .editor-pane {
+  background: var(--ui-bg);
+}
+
+/* ============================ typography ============================ */
+
+/* Small caps carry every label in the system. One rule, applied to each place
+   the old design used an 11px uppercase heading. */
+[data-skin='record'] .palette h3,
+[data-skin='record'] .inspector h4,
+[data-skin='record'] .spec-section h4,
+[data-skin='record'] .isa-designer h4,
+[data-skin='record'] .run-config h4,
+[data-skin='record'] .panel-tabs button,
+[data-skin='record'] .insp-card > summary,
+[data-skin='record'] .insp-tile-lab,
+[data-skin='record'] .legend-name,
+[data-skin='record'] .welcome-label {
+  font-family: var(--ui-font);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ui-ink-2);
+  opacity: 1;
+}
+
+/* Identifiers stay in mono — a record quotes its sources exactly. */
+[data-skin='record'] .var-name,
+[data-skin='record'] .ins-var,
+[data-skin='record'] .insp-fn,
+[data-skin='record'] .pipe-grid .pipe-token-col,
+[data-skin='record'] .spec-semantics,
+[data-skin='record'] .isa-mnemonic,
+[data-skin='record'] .waves-names,
+[data-skin='record'] .welcome-recent-path,
+[data-skin='record'] .insp-addr {
+  font-family: var(--ui-mono);
+}
+
+/* ============================ blocks ============================ */
+
+/* A block is a vellum leaf with a custody rule down its left edge. Square, flat,
+   hairline-bounded: the 8px radius and the drop shadow were the two loudest
+   tells of the old world and both are gone. */
+[data-skin='record'] .node {
+  border-radius: 0;
+  border: 1px solid var(--ui-border-strong);
+  border-left: 2px solid var(--ui-accent);
+  background: var(--ui-surface);
+  box-shadow: none;
+}
+
+/* Hand-written source is attested by someone the writer must not overrule. */
+[data-skin='record'] .node.handwritten {
+  border-style: solid;
+  border-left-color: var(--ui-hand);
+  border-left-style: double;
+  border-left-width: 4px;
+}
+
+[data-skin='record'] .node.composite {
+  border-radius: 0;
+  border-width: 1px;
+  border-left-width: 3px;
+  border-color: var(--ui-border-strong);
+  border-left-color: var(--ui-fabric);
+  background: var(--ui-surface);
+}
+
+[data-skin='record'] .node.router {
+  border-radius: 0;
+  border-color: var(--ui-fabric);
+  border-left-width: 3px;
+  background: #f4eee4;
+}
+
+/* An I/O pin was an 18px pill — the single roundest object in the old system.
+   It becomes a boundary card with a verdigris seal edge. */
+[data-skin='record'] .node.io-node {
+  border-radius: 0;
+  border-color: var(--ui-border-strong);
+  border-left-color: var(--ui-bound);
+  border-left-width: 3px;
+  background: var(--ui-surface);
+}
+
+[data-skin='record'] .node.selected {
+  border-radius: 0;
+  border-color: var(--ui-accent);
+  box-shadow: 0 0 0 1px var(--ui-accent);
+}
+
+[data-skin='record'] .node-title {
+  border-bottom: 1px solid var(--ui-border);
+  padding: 6px 10px 5px;
+}
+
+[data-skin='record'] .node-label {
+  font-family: var(--ui-font);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+/* The block's own id is the catalogue number: mono, faded, never shouting. */
+[data-skin='record'] .node-id {
+  font-family: var(--ui-mono);
+  font-size: 9px;
+  color: var(--ui-ink-2);
+  opacity: 1;
+  letter-spacing: 0.02em;
+}
+
+[data-skin='record'] .port-name {
+  font-size: 10px;
+  opacity: 1;
+  color: var(--ui-ink);
+}
+[data-skin='record'] .port-row-empty .port-name { color: var(--ui-ink-2); }
+[data-skin='record'] .port-row-empty { opacity: 1; }
+
+[data-skin='record'] .var-section { border-top: 1px solid var(--ui-border); }
+[data-skin='record'] .var-row { opacity: 1; font-size: 9.5px; color: var(--ui-ink-2); }
+[data-skin='record'] .var-type { opacity: 1; color: var(--ui-muted); }
+
+/* ============================ folds ============================ */
+
+/* Every port is a fold in the ribbon, and a fold is a lozenge. This is the
+   system's one repeated ornament and it is structural, never decorative. */
+[data-skin='record'] .port-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 0;
+  transform: rotate(45deg);
+  background: var(--ui-accent);
+  border: 1px solid var(--ui-surface);
+}
+[data-skin='record'] .port-row.in-row .port-dot.in {
+  transform: rotate(45deg);
+  margin-left: -6px;
+}
+[data-skin='record'] .port-dot.in {
+  background: var(--ui-ink-3);
+  transform: translateY(-50%) rotate(45deg);
+}
+[data-skin='record'] .port-dot.in.wired { background: var(--ui-accent); }
+[data-skin='record'] .port-row.pin-row .port-dot.pin { background: var(--ui-bound); }
+[data-skin='record'] .port-dot.out { margin-right: -6px; }
+
+/* The add-a-connection handle is a fold you can start. */
+[data-skin='record'] .port-dot.new-port {
+  width: 13px;
+  height: 13px;
+  border-radius: 0;
+  transform: rotate(45deg);
+  right: -7px;
+  background: var(--ui-accent);
+  color: #fdf8ee;
+  border: none;
+}
+[data-skin='record'] .port-dot.new-port::before {
+  content: '+';
+  display: block;
+  transform: rotate(-45deg);
+  font-family: var(--ui-font);
+  font-size: 11px;
+  line-height: 13px;
+}
+[data-skin='record'] .port-dot.new-port { font-size: 0; }
+
+/* ============================ the ribbon ============================ */
+
+/* THE CUSTODY RULE, as stroke. Documented runs red and continuous; inferred is
+   a hairline the parser drew; silence frays into unwoven thread. */
+
+[data-skin='record'] .wire-line { stroke-linecap: butt; }
+
+[data-skin='record'] .wire-wired .wire-line,
+[data-skin='record'] .wire-routed .wire-line {
+  stroke: var(--ui-accent);
+  stroke-width: 2;
+  stroke-dasharray: none;
+}
+
+/* Attested: a router's rules own the destination, so it carries the fabric's
+   ink rather than the author's. */
+[data-skin='record'] .wire-routed .wire-line { stroke: var(--ui-fabric); }
+
+[data-skin='record'] .wire-inferred .wire-line {
+  stroke: var(--ui-ink-2);
+  stroke-width: 1.5;
+  stroke-dasharray: 8 5;
+}
+
+[data-skin='record'] .wire-derived .wire-line {
+  stroke: var(--ui-fabric);
+  stroke-width: 1.5;
+  stroke-dasharray: 8 5;
+  opacity: 0.7;
+}
+
+/* Silence. No record exists — the line is unwoven thread, physically frayed by
+   the filter in renderer.html. Nothing else in the system uses this treatment,
+   because nothing else means "missing". */
+/* Unwoven thread. The irregular dash carries the fraying on its own — a filter
+   cannot be depended on, since a straight horizontal wire has a zero-height
+   bounding box and the filter region collapses. The displacement filter is
+   layered on top as an enhancement for the curved runs, where the bbox has
+   area; where it no-ops, the thread still reads exactly as intended. */
+[data-skin='record'] .wire-stub .wire-line,
+[data-skin='record'] .wire-unresolved .wire-line {
+  stroke: var(--ui-ink-3);
+  stroke-width: 2.25;
+  stroke-dasharray: 1 3 2.5 2 1 3.5 2 2;
+  stroke-linecap: round;
+  filter: url(#pv-fray);
+}
+/* An unresolved link is a failure, not a silence — it takes the ribbon red at
+   full weight, still frayed, because the record is both broken and disputed. */
+[data-skin='record'] .wire-unresolved .wire-line { stroke: var(--ui-accent); }
+
+[data-skin='record'] .wire-fabric .wire-line {
+  stroke: var(--ui-fabric);
+  stroke-width: 2;
+  stroke-dasharray: 7 5;
+  opacity: 0.55;
+}
+[data-skin='record'] .wire-fabric-trunk .wire-line { stroke-width: 3; }
+
+[data-skin='record'] .wire-selected .wire-line {
+  stroke-width: 3;
+  filter: none;
+}
+[data-skin='record'] .wire-draft {
+  stroke: var(--ui-accent);
+  stroke-width: 2;
+  stroke-dasharray: 4 4;
+}
+
+/* THE AUTHORED MOMENT: on mount, a documented ribbon draws itself along the
+   real path from source to sink. It runs once per wire element — when the graph
+   arrives, or when a run adds one — never on a playhead tick. Silence never
+   animates: a gap does not perform. */
+@keyframes pv-draw {
+  from { stroke-dashoffset: 4000; }
+  to { stroke-dashoffset: 0; }
+}
+/* 4000 exceeds any wire this canvas draws, so the resting state is a solid
+   line rather than a line with a gap in it at low zoom. */
+[data-skin='record'] .wire-wired .wire-line,
+[data-skin='record'] .wire-routed .wire-line {
+  stroke-dasharray: 4000;
+  animation: pv-draw 0.62s cubic-bezier(0.16, 0.9, 0.3, 1) forwards;
+}
+
+/* Labels on the bench: small caps, on paper, with a paper halo. */
+[data-skin='record'] .wire-label,
+[data-skin='record'] .wire-count,
+[data-skin='record'] .wire-via,
+[data-skin='record'] .wire-warn,
+[data-skin='record'] .wire-ext,
+[data-skin='record'] .wire-derived-label,
+[data-skin='record'] .wire-fabric-error,
+[data-skin='record'] .wire-bw {
+  font-family: var(--ui-font);
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  paint-order: stroke;
+  stroke: var(--ui-bg);
+  stroke-width: 3;
+}
+[data-skin='record'] .wire-warn { fill: var(--ui-ink-2); }
+[data-skin='record'] .wire-unresolved .wire-warn { fill: var(--ui-accent); }
+[data-skin='record'] .wire-via,
+[data-skin='record'] .wire-derived-label { fill: var(--ui-fabric); opacity: 1; }
+[data-skin='record'] .wire-fabric-error { fill: var(--ui-accent); }
+
+/* ============================ stamps ============================ */
+
+/* An authority other than the author. Outlined, never filled — a stamp is
+   pressed onto the record, it does not replace it. */
+[data-skin='record'] .sv-chip,
+[data-skin='record'] .entry-badge,
+[data-skin='record'] .badge,
+[data-skin='record'] .insp-status,
+[data-skin='record'] .occupancy-chip,
+[data-skin='record'] .depth-chip,
+[data-skin='record'] .isa-type,
+[data-skin='record'] .spec-chip {
+  border-radius: 0;
+  font-family: var(--ui-font);
+  font-size: 8.5px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 1px 5px;
+  background: transparent;
+  border: 1px solid currentColor;
+}
+[data-skin='record'] .sv-chip { color: var(--ui-hand); }
+[data-skin='record'] .entry-badge { color: var(--ui-bound); border-radius: 0; }
+[data-skin='record'] .badge-wired { color: var(--ui-accent); }
+[data-skin='record'] .badge-inferred { color: var(--ui-ink-2); }
+[data-skin='record'] .badge-unresolved { color: var(--ui-accent); }
+[data-skin='record'] .badge-hand { color: var(--ui-hand); }
+[data-skin='record'] .occupancy-chip { color: var(--ui-ink-2); opacity: 1; }
+[data-skin='record'] .occupancy-chip.hot { color: var(--ui-accent); background: transparent; }
+[data-skin='record'] .depth-chip { color: var(--ui-fabric); }
+
+[data-skin='record'] .insp-status { color: var(--ui-ink-2); gap: 6px; }
+[data-skin='record'] .insp-status .dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 0;
+  transform: rotate(45deg);
+  background: var(--ui-ink-3);
+}
+
+/* A message name is an identifier, not a custody claim — red is reserved. It
+   reads as a link by its dotted rule and its face, the way a citation does. */
+[data-skin='record'] .message-link {
+  color: var(--ui-ink);
+  font-family: var(--ui-mono);
+  font-size: 9.5px;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 2px;
+  text-decoration-color: var(--ui-ink-3);
+}
+[data-skin='record'] .message-link:hover { color: var(--ui-accent); text-decoration-color: var(--ui-accent); }
+[data-skin='record'] .insp-status.wired .dot { background: var(--ui-accent); }
+[data-skin='record'] .insp-status.unresolved .dot { background: var(--ui-accent); }
+
+/* ============================ chrome ============================ */
+
+[data-skin='record'] .activity-bar {
+  background: #e6d9c0;
+  border-right: 1px solid var(--ui-border-strong);
+}
+[data-skin='record'] .activity-bar button {
+  border-radius: 0;
+  font-size: 15px;
+  color: #8c8177;
+}
+[data-skin='record'] .activity-bar button.on {
+  color: var(--ui-accent);
+  background: transparent;
+  border-left: 2px solid var(--ui-accent);
+}
+
+[data-skin='record'] .tab-bar {
+  background: #e6d9c0;
+  border-bottom: 1px solid var(--ui-border-strong);
+}
+[data-skin='record'] .editor-tab {
+  border-radius: 0;
+  font-family: var(--ui-font);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  background: transparent;
+  border-right: 1px solid var(--ui-border);
+  border-top: none;
+  border-bottom: 2px solid transparent;
+  padding: 0 14px;
+}
+[data-skin='record'] .editor-tab.on {
+  background: var(--ui-bg);
+  border-top: none;
+  border-bottom-color: var(--ui-accent);
+  color: var(--ui-ink);
+}
+
+/* The primary action is a ribbon end: squared off, with the tail notched out
+   of its right edge. Nothing else in the system takes this shape. */
+[data-skin='record'] .tab-actions .run {
+  background: var(--ui-accent);
+  color: #fdf8ee;
+  border: none;
+  border-radius: 0;
+  padding: 4px 18px 4px 12px;
+  font-family: var(--ui-font);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 8px) 50%, 100% 100%, 0 100%);
+}
+[data-skin='record'] .tab-actions .run:hover { background: var(--ui-accent-deep); }
+[data-skin='record'] .tab-actions .verify,
+[data-skin='record'] .tab-actions .run-cfg {
+  border-radius: 0;
+  border: 1px solid var(--ui-accent);
+  color: var(--ui-accent);
+  font-family: var(--ui-font);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+[data-skin='record'] .tab-actions .run-cfg.on { background: var(--ui-accent); color: #fdf8ee; }
+
+[data-skin='record'] .toolbar {
+  background: var(--ui-bg);
+  border-bottom: 1px solid var(--ui-border-strong);
+}
+[data-skin='record'] .toolbar button {
+  border-radius: 0;
+  font-family: var(--ui-font);
+  font-size: 11px;
+  border: 1px solid transparent;
+}
+[data-skin='record'] .toolbar button.on {
+  background: transparent;
+  color: var(--ui-accent);
+  border-color: var(--ui-accent);
+}
+[data-skin='record'] .crumb {
+  border-radius: 0;
+  font-family: var(--ui-font);
+  opacity: 1;
+  color: var(--ui-ink-2);
+}
+[data-skin='record'] .crumb.on { color: var(--ui-ink); font-weight: 700; }
+
+/* The status bar is the one dark band on the page — the bench's edge. */
+[data-skin='record'] .status-bar {
+  background: #2a2521;
+  color: #efe4d0;
+  font-family: var(--ui-font);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+[data-skin='record'] .sb-item { opacity: 1; }
+[data-skin='record'] .sb-item.sb-ok,
+[data-skin='record'] .sb-phase.sb-building,
+[data-skin='record'] .sb-phase.sb-running { background: transparent; color: #e8c99a; border-radius: 0; }
+[data-skin='record'] .sb-phase.sb-error,
+[data-skin='record'] .sb-item.sb-err {
+  background: var(--ui-accent);
+  border-radius: 0;
+}
+
+/* ============================ rails ============================ */
+
+[data-skin='record'] .palette-pane {
+  background: #ece0ca;
+  border-right: 1px solid var(--ui-border-strong);
+}
+[data-skin='record'] .palette-item {
+  border-radius: 0;
+  border: 1px solid var(--ui-border-strong);
+  border-left: 2px solid var(--ui-border-strong);
+  background: var(--ui-surface);
+}
+[data-skin='record'] .palette-item:hover { border-left-color: var(--ui-accent); border-color: var(--ui-border-strong); }
+[data-skin='record'] .palette-item strong { font-family: var(--ui-font); font-weight: 700; font-size: 12px; }
+[data-skin='record'] .palette-item small { color: var(--ui-ink-2); opacity: 1; font-size: 10px; }
+[data-skin='record'] .palette-glyph { font-size: 15px; color: var(--ui-ink-2); }
+[data-skin='record'] .palette-help { color: var(--ui-ink-2); opacity: 1; }
+
+[data-skin='record'] .inspector-pane {
+  background: #ece0ca;
+  border-left: 1px solid var(--ui-border-strong);
+}
+[data-skin='record'] .insp-head {
+  background: #ece0ca;
+  border-bottom: 1px solid var(--ui-border-strong);
+}
+[data-skin='record'] .insp-title { font-family: var(--ui-font); font-size: 14px; font-weight: 700; }
+[data-skin='record'] .insp-sub { color: var(--ui-ink-2); opacity: 1; }
+
+/* An inspector card is a leaf with a custody rule, not a rounded box. */
+[data-skin='record'] .insp-card {
+  border-radius: 0;
+  border: 1px solid var(--ui-border-strong);
+  border-left: 2px solid var(--ui-accent);
+  background: var(--ui-surface);
+}
+[data-skin='record'] .insp-card-body { border-top: 1px solid var(--ui-border); }
+[data-skin='record'] .insp-k { color: var(--ui-ink-2); opacity: 1; }
+
+/* The glyph well was a rounded avatar tile — a CRM idiom on a hardware part.
+   It becomes a stamp. */
+[data-skin='record'] .insp-glyph,
+[data-skin='record'] .insp-avatar {
+  border-radius: 0;
+  background: transparent;
+  border: 1px solid currentColor;
+  color: var(--ui-accent);
+}
+[data-skin='record'] .insp-glyph.router,
+[data-skin='record'] .insp-avatar.router { color: var(--ui-fabric); }
+[data-skin='record'] .insp-glyph.traffic { color: var(--ui-hand); }
+[data-skin='record'] .insp-glyph.wire { color: var(--ui-accent); }
+[data-skin='record'] .insp-glyph.composite { color: var(--ui-fabric); }
+
+/* ---- THE NUMBER PROVENANCE RULE ----
+   The old system rendered a latency the architect typed and a depth the engine
+   measured identically. Here a stat tile is a record: entered values are set in
+   fading ink with no rule beneath them; the underline is what says "measured".
+   The tiles the canvas ships are editable inputs, so they are assertions — and
+   they now look like assertions. */
+[data-skin='record'] .insp-tile {
+  border-radius: 0;
+  border: 1px solid var(--ui-border-strong);
+  background: var(--ui-bg);
+}
+[data-skin='record'] .insp-tile:hover,
+[data-skin='record'] .insp-tile:focus-within { border-color: var(--ui-accent); }
+[data-skin='record'] .insp-tile-lab { color: var(--ui-ink-2); }
+[data-skin='record'] .insp-card-body input.insp-tile-in,
+[data-skin='record'] .insp-card-body select.insp-tile-sel {
+  font-family: var(--ui-mono);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ui-ink-2);
+}
+[data-skin='record'] .insp-card-body input.insp-tile-in:focus { color: var(--ui-ink); }
+
+/* Measured values — anything the run produced — take ledger ink and the rule. */
+[data-skin='record'] .pipe-row span:last-child,
+[data-skin='record'] .metrics-table td:not(:first-child) {
+  color: var(--ui-ink);
+  font-family: var(--ui-mono);
+  font-variant-numeric: tabular-nums;
+  border-bottom: 1px solid var(--ui-accent);
+}
+
+/* ---- controls ---- */
+
+[data-skin='record'] .inspector button,
+[data-skin='record'] .transport button,
+[data-skin='record'] .isa-close,
+[data-skin='record'] .spec-template,
+[data-skin='record'] .cf-actions button,
+[data-skin='record'] .run-config .cf-actions button,
+[data-skin='record'] .palette-custom button,
+[data-skin='record'] .isa-add button {
+  border-radius: 0;
+  font-family: var(--ui-font);
+  letter-spacing: 0.06em;
+}
+[data-skin='record'] .inspector button {
+  background: transparent;
+  border: 1px solid var(--ui-border-strong);
+  color: var(--ui-ink);
+}
+[data-skin='record'] .inspector button:hover { border-color: var(--ui-accent); color: var(--ui-accent); }
+[data-skin='record'] .inspector button.danger { background: transparent; border-color: var(--ui-accent); color: var(--ui-accent); }
+
+[data-skin='record'] .inspector input,
+[data-skin='record'] .connect-form input,
+[data-skin='record'] .connect-form select,
+[data-skin='record'] .insp-card-body input,
+[data-skin='record'] .insp-card-body select,
+[data-skin='record'] .ins-row input,
+[data-skin='record'] .isa-add input,
+[data-skin='record'] .isa-add select,
+[data-skin='record'] .palette-custom input,
+[data-skin='record'] .palette-custom select,
+[data-skin='record'] .spec-section .ins-row input,
+[data-skin='record'] .spec-section .ins-row select {
+  border-radius: 0;
+  border: 1px solid var(--ui-border-strong);
+  background: var(--ui-surface);
+  color: var(--ui-ink);
+  font-family: var(--ui-font);
+}
+[data-skin='record'] .spec-chip-input { border-radius: 0; border-style: dashed; }
+
+/* The sliding pill toggle was a phone-settings component wearing a webview.
+   A record has checkboxes: a box, and a mark in it. */
+[data-skin='record'] .insp-toggle {
+  width: 13px;
+  height: 13px;
+  border-radius: 0;
+  background: transparent;
+  border: 1px solid var(--ui-border-strong);
+}
+[data-skin='record'] .insp-toggle::after { display: none; }
+[data-skin='record'] .insp-togrow input:checked ~ .insp-toggle {
+  background: var(--ui-accent);
+  border-color: var(--ui-accent);
+}
+[data-skin='record'] .insp-togrow input:checked ~ .insp-toggle::after {
+  display: block;
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 0px;
+  width: 4px;
+  height: 8px;
+  border: solid #fdf8ee;
+  border-width: 0 1.5px 1.5px 0;
+  transform: rotate(45deg);
+  background: none;
+}
+[data-skin='record'] .insp-seg,
+[data-skin='record'] .insp-stepper,
+[data-skin='record'] .impl-toggle {
+  border-radius: 0;
+  border-color: var(--ui-border-strong);
+}
+[data-skin='record'] .inspector .insp-seg button.on,
+[data-skin='record'] .impl-toggle button.on {
+  background: var(--ui-accent);
+  color: #fdf8ee;
+  opacity: 1;
+}
+
+/* ============================ the dock ============================ */
+
+[data-skin='record'] .panel-pane { border-top: 1px solid var(--ui-border-strong); }
+[data-skin='record'] .panel-tabs button {
+  color: #8c8177;
+  border-bottom: 2px solid transparent;
+}
+[data-skin='record'] .panel-tabs button.on {
+  color: var(--ui-accent);
+  border-bottom-color: var(--ui-accent);
+}
+[data-skin='record'] .console { font-family: var(--ui-mono); font-size: 11px; }
+[data-skin='record'] .console-line { opacity: 1; color: var(--ui-ink); }
+[data-skin='record'] .console-line.dim,
+[data-skin='record'] .dim { opacity: 1; color: var(--ui-ink-2); }
+[data-skin='record'] .console-divergence { color: var(--ui-accent); }
+[data-skin='record'] .console-warning { color: var(--ui-hand); }
+
+[data-skin='record'] .transport button {
+  border: 1px solid var(--ui-border-strong);
+  background: transparent;
+  color: var(--ui-ink);
+}
+[data-skin='record'] .pipe-bar { background: var(--ui-accent); border-radius: 0; }
+[data-skin='record'] .pipe-name { color: var(--ui-ink-2); opacity: 1; }
+[data-skin='record'] .pipe-grid th,
+[data-skin='record'] .pipe-grid td { border-color: var(--ui-border); }
+[data-skin='record'] .pipe-grid thead th { color: var(--ui-ink-2); opacity: 1; }
+[data-skin='record'] .pipe-grid .pipe-token-col { background: var(--ui-bg); }
+[data-skin='record'] .pipe-token-chip { border-radius: 0; transform: rotate(45deg); }
+[data-skin='record'] .pipe-grid .playhead { box-shadow: inset 0 0 0 1px var(--ui-accent); }
+
+/* ============================ overlays ============================ */
+
+/* The only place a shadow is earned: something that has left the layout. */
+[data-skin='record'] .connect-form,
+[data-skin='record'] .field-card,
+[data-skin='record'] .run-config {
+  border-radius: 0;
+  border: 1px solid var(--ui-accent);
+  background: var(--ui-surface);
+  box-shadow: 3px 4px 0 #1c1c1c14;
+}
+[data-skin='record'] .cf-title { font-family: var(--ui-font); font-weight: 700; }
+[data-skin='record'] .toast {
+  border-radius: 0;
+  background: var(--ui-surface);
+  border: 1px solid var(--ui-accent);
+  border-left-width: 3px;
+  color: var(--ui-ink);
+  font-family: var(--ui-font);
+  box-shadow: 3px 4px 0 #1c1c1c14;
+}
+
+[data-skin='record'] .marquee { border-color: var(--ui-accent); background: var(--ui-accent-wash); }
+[data-skin='record'] .zoom-badge {
+  font-family: var(--ui-font);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ui-ink-2);
+  opacity: 1;
+}
+
+/* Tokens in flight: a fold travelling the ribbon.
+   The eight-colour ramp is set inline by the canvas and is load-bearing — a
+   token keeps one colour across the bench and the pipeline grid, so it must not
+   be flattened to a single hue. It was mixed for a near-black ground, though,
+   and reads as neon on paper. Darkening the whole layer preserves every
+   relative identity while seating the set on buff. */
+[data-skin='record'] .tokens circle {
+  filter: saturate(1.1) brightness(0.66);
+  stroke: var(--ui-bg);
+  stroke-width: 1;
+}
+
+/* Divergence and congestion keep the ribbon red but stop glowing — a record
+   marks a disputed passage, it does not pulse a halo. */
+@keyframes pv-mark {
+  0%, 100% { box-shadow: 0 0 0 1px var(--ui-accent); }
+  50% { box-shadow: 0 0 0 3px #a52b2b40; }
+}
+[data-skin='record'] .node.diverged,
+[data-skin='record'] .node.congested {
+  border-color: var(--ui-accent);
+  border-left-color: var(--ui-accent);
+  animation: pv-mark 1.1s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-skin='record'] .wire-wired .wire-line,
+[data-skin='record'] .wire-routed .wire-line { animation: none; stroke-dashoffset: 0; }
+  [data-skin='record'] .node.diverged,
+[data-skin='record'] .node.congested { animation: none; }
+}

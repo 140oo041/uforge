@@ -1,0 +1,29 @@
+{
+  "name": "@iss/canvas",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "The schematic: hierarchical canvas, wire grammar, trace animation, inspector and panels. Host-agnostic — mount it with a transport.",
+  "exports": {
+    ".": "./src/index.ts",
+    "./styles.css": "./src/styles.css",
+    "./*": ["./src/*.ts", "./src/*.tsx"]
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@iss/contracts": "*"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "typescript": "^5.4.0"
+  }
+}

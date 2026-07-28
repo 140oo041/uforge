@@ -1,0 +1,9 @@
+
+# ---- build output ----
+node_modules/
+ide/out/
+ide/media/webview.js
+ide/media/webview.js.map
+ide/media/webview.css
+ide/media/webview.css.map
+app/dist/
