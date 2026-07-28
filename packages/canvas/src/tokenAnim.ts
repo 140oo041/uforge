@@ -5,6 +5,7 @@
 // up one cycle after its last arrival. No DOM, no React — unit-testable.
 
 import type { Hop, Trace } from '@iss/contracts/trace';
+import { displayCycles, tickStride } from '@iss/contracts/trace';
 
 /** How long (cycles) a token keeps showing inside its final block. */
 export const DWELL_GRACE = 1;
@@ -94,14 +95,17 @@ export interface PipelineTable {
 export function pipelineTable(trace: Trace): PipelineTable {
   const timelines = tokenTimelines(trace);
   const tokens = [...timelines.keys()].sort((a, b) => a - b);
+  // Columns are reference-domain CYCLES (what a reader thinks in); hop times
+  // are absolute TICKS. One stride converts, in one place.
+  const stride = tickStride(trace);
   const cellAt = (token: number, cycle: number): PipelineCell | null => {
     const hops = timelines.get(token);
     if (!hops) return null;
-    const pos = tokenPositionAt(hops, cycle);
+    const pos = tokenPositionAt(hops, cycle * stride);
     if (!pos) return null;
     return { block: pos.to, inFlight: pos.state === 'flight', event: pos.event };
   };
-  return { tokens, cycles: trace.cycles, cellAt };
+  return { tokens, cycles: displayCycles(trace), cellAt };
 }
 
 // ---------------------------------------------------------------------------

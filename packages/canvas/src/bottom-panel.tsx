@@ -9,7 +9,15 @@ import { useMemo, useState } from 'react';
 
 import type { FabricDiagnostic } from '@iss/contracts/fabric';
 import { leafName } from '@iss/contracts/model';
-import { undeliveredHops, type Divergence, type Trace } from '@iss/contracts/trace';
+import {
+  displayCycle,
+  displayCycles,
+  formatTime,
+  tickStride,
+  undeliveredHops,
+  type Divergence,
+  type Trace,
+} from '@iss/contracts/trace';
 import type { WaveDoc } from '@iss/contracts/waves';
 import { histogram, metricsSummary, pathLatencies } from './metrics';
 import { occupancyAt, pipelineTable, tokenTimelines } from './tokenAnim';
@@ -271,15 +279,16 @@ export function BottomPanel(props: Props) {
                   className="scrubber"
                   type="range"
                   min={0}
-                  max={Math.max(1, trace.cycles)}
-                  step={0.01}
+                  max={Math.max(1, trace.ticks)}
+                  step={Math.max(0.01, tickStride(trace) / 100)}
                   value={playhead}
                   onChange={(e) => onScrub(Number(e.target.value))}
                 />
                 <span className="cycle-badge">
-                  cycle {Math.floor(playhead)} / {trace.cycles}
-                  {trace.ranCycles !== undefined && trace.ranCycles < trace.cycles
-                    ? ` (engine ran ${trace.ranCycles})`
+                  cycle {displayCycle(trace, playhead)} / {displayCycles(trace)}
+                  {formatTime(trace, playhead) ? ` · ${formatTime(trace, playhead)}` : ''}
+                  {trace.ranTicks !== undefined && trace.ranTicks < trace.ticks
+                    ? ` (engine ran ${displayCycle(trace, trace.ranTicks)})`
                     : ''}
                   {trace.source === 'synthetic' ? ' (synthetic preview)' : ''}
                 </span>
@@ -316,15 +325,16 @@ export function BottomPanel(props: Props) {
                     <tr>
                       <th className="pipe-token-col">token</th>
                       {Array.from({ length: pipeline.cycles }, (_, c) => {
-                        const past = trace.ranCycles !== undefined && c >= trace.ranCycles;
+                        const past =
+                          trace.ranTicks !== undefined && c >= displayCycle(trace, trace.ranTicks);
                         return (
                           <th
                             key={c}
-                            className={`${Math.floor(playhead) === c ? 'playhead' : ''} ${past ? 'undelivered' : ''}`}
-                            onClick={() => onScrub(c)}
+                            className={`${displayCycle(trace, playhead) === c ? 'playhead' : ''} ${past ? 'undelivered' : ''}`}
+                            onClick={() => onScrub(c * tickStride(trace))}
                             title={
                               past
-                                ? `cycle ${c} — after the clock stop (${trace.ranCycles}): wire-flight only, no handlers ran`
+                                ? `cycle ${c} — after the clock stop (${displayCycle(trace, trace.ranTicks ?? 0)}): wire-flight only, no handlers ran`
                                 : `cycle ${c} — click to scrub`
                             }
                           >
@@ -346,7 +356,8 @@ export function BottomPanel(props: Props) {
                         </td>
                         {Array.from({ length: pipeline.cycles }, (_, c) => {
                           const cell = pipeline.cellAt(token, c);
-                          const past = trace.ranCycles !== undefined && c >= trace.ranCycles;
+                          const past =
+                            trace.ranTicks !== undefined && c >= displayCycle(trace, trace.ranTicks);
                           if (!cell)
                             return (
                               <td
@@ -393,11 +404,13 @@ export function BottomPanel(props: Props) {
                 <div
                   className="console-warning"
                   title="click to scrub to the clock stop"
-                  onClick={() => onScrub(trace.ranCycles ?? 0)}
+                  onClick={() => onScrub(trace.ranTicks ?? 0)}
                 >
                   ⚠ {undelivered.length} event(s) sent but never delivered — the clock stopped at
-                  cycle {trace.ranCycles} while arrivals extend to {trace.cycles - 1}. Everything
-                  after cycle {trace.ranCycles} is wire-flight only (no handlers ran). Raise{' '}
+                  cycle {displayCycle(trace, trace.ranTicks ?? 0)} while arrivals extend to{' '}
+                  {displayCycles(trace) - 1}. Everything after cycle{' '}
+                  {displayCycle(trace, trace.ranTicks ?? 0)} is wire-flight only (no handlers ran).
+                  Raise{' '}
                   <b>cycles</b> in the run config (⚙▾ next to Run) or shorten the wire latencies:{' '}
                   {[...new Set(undelivered.map((h) => `${h.from} → ${h.to}`))].slice(0, 3).join(', ')}
                   {new Set(undelivered.map((h) => `${h.from} → ${h.to}`)).size > 3 ? ', …' : ''}

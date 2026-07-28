@@ -4,9 +4,31 @@
 #include <ostream>
 #include <string>
 
+#include <vector>
+
 #include "microarch/event.hpp"
+#include "microarch/time.hpp"
 
 namespace microarch {
+
+/// What the time numbers in a trace MEAN.
+///
+/// Every `depart`, `arrive` and `cycle` field below is an absolute tick, and a
+/// tick is meaningless without this. Written as the FIRST line of a trace and
+/// required by the reader: a consumer that takes ticks for cycles is off by the
+/// period, silently — the playhead just appears frozen and nothing errors.
+struct TimebaseRecord {
+    struct Domain {
+        std::string name;
+        Tick periodTicks = 1;
+        Tick phaseTicks = 0;
+        unsigned syncDepth = 0;
+    };
+    std::uint64_t femtosPerTick = default_femtos_per_tick;
+    std::vector<Domain> domains;
+    /// Index of the reference clock — the one runFor() counts.
+    std::size_t reference = 0;
+};
 
 /// One event hand-off: a token leaving `from` and arriving at `to`.
 /// Emitted automatically by every Link::send when a hop sink is installed.
@@ -66,6 +88,8 @@ using MetricSink = std::function<void(const MetricRecord&)>;
 class JsonlTraceWriter {
 public:
     explicit JsonlTraceWriter(std::ostream& out) : out_(out) {}
+
+    void write(const TimebaseRecord& timebase);
 
     void write(const HopRecord& hop);
     void write(const DivergenceRecord& divergence);

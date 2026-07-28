@@ -41,26 +41,88 @@ export interface MetricSample {
   value: number;
 }
 
+/** One clock, as the engine reports it in the trace's timebase record. */
+export interface ClockDomainInfo {
+  name: string;
+  /** Ticks between edges. */
+  periodTicks: number;
+  phaseTicks: number;
+  /** Synchronizer flops crossing INTO this domain. */
+  syncDepth: number;
+}
+
+/**
+ * What the numbers in this trace MEAN.
+ *
+ * Every time field — `Hop.depart`/`arrive`, `Divergence.cycle`,
+ * `MetricSample.cycle` — is an absolute tick, and a tick is meaningless
+ * without this. A consumer that reads those numbers as cycles is off by the
+ * period, silently, with nothing to notice: the playhead simply appears frozen.
+ * `parseTrace` therefore REFUSES a trace that has records but no timebase.
+ */
+export interface Timebase {
+  /** Femtoseconds per tick. */
+  femtosPerTick: number;
+  domains: ClockDomainInfo[];
+  /** Index into `domains` of the reference clock — the one `runFor` counts. */
+  reference: number;
+}
+
 export interface Trace {
   hops: Hop[];
   divergences: Divergence[];
   /** Engine performance samples; absent on old traces and synthetic ones. */
   metrics?: MetricSample[];
-  /** Total cycles spanned by the playback timeline (max arrive + 1). */
-  cycles: number;
+  /** Units for every time field here. Absent only on an empty trace. */
+  timebase?: Timebase;
+  /** Total TICKS spanned by the playback timeline (max arrive + 1). */
+  ticks: number;
   /**
-   * Cycles the engine actually executed. Hop records are written at SEND
-   * time, so a long-latency wire can carry arrivals far past the clock stop —
-   * those events were never delivered. Absent = assume the whole timeline ran.
+   * Ticks the engine actually executed. Hop records are written at SEND time,
+   * so a long-latency wire can carry arrivals far past the clock stop — those
+   * events were never delivered. Absent = assume the whole timeline ran.
    */
-  ranCycles?: number;
+  ranTicks?: number;
   source: 'run' | 'synthetic';
 }
 
-export const EMPTY_TRACE: Trace = { hops: [], divergences: [], cycles: 0, source: 'synthetic' };
+export const EMPTY_TRACE: Trace = { hops: [], divergences: [], ticks: 0, source: 'synthetic' };
 
 /** Hops whose arrival lands at/after the clock stop — sent but never delivered. */
 export function undeliveredHops(trace: Trace): Hop[] {
-  if (trace.ranCycles === undefined) return [];
-  return trace.hops.filter((h) => h.arrive >= trace.ranCycles!);
+  if (trace.ranTicks === undefined) return [];
+  return trace.hops.filter((h) => h.arrive >= trace.ranTicks!);
+}
+
+/* ------------------------------------------------------------ display units */
+// Users author frequencies and think in cycles, so the UI reads in cycles even
+// though the timeline is ticks. One domain is the yardstick: the reference.
+
+export function referenceDomain(trace: Trace): ClockDomainInfo | undefined {
+  return trace.timebase?.domains[trace.timebase.reference];
+}
+
+/** Ticks per reference cycle — 1 when the trace carries no timebase. */
+export function tickStride(trace: Trace): number {
+  return referenceDomain(trace)?.periodTicks || 1;
+}
+
+/** An absolute tick as a reference-domain cycle number. */
+export function displayCycle(trace: Trace, tick: number): number {
+  return Math.floor(tick / tickStride(trace));
+}
+
+/** Timeline length in reference-domain cycles. */
+export function displayCycles(trace: Trace): number {
+  return Math.ceil(trace.ticks / tickStride(trace));
+}
+
+/** An absolute tick as wall-clock time, e.g. "12.44 ns". Empty with no timebase. */
+export function formatTime(trace: Trace, tick: number): string {
+  const fs = trace.timebase?.femtosPerTick;
+  if (!fs) return '';
+  const ns = (tick * fs) / 1e6;
+  if (ns >= 1000) return `${(ns / 1000).toFixed(2)} µs`;
+  if (ns >= 1) return `${ns.toFixed(2)} ns`;
+  return `${(ns * 1000).toFixed(0)} ps`;
 }

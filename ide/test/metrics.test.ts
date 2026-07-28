@@ -2,6 +2,13 @@
 // webview derivations that drive the canvas heat overlay and METRICS tab.
 
 import { describe, expect, it } from 'vitest';
+import { withTimebase } from './helpers/trace';
+import {
+  displayCycle,
+  displayCycles,
+  formatTime,
+  tickStride,
+} from '@iss/contracts/trace';
 
 import { EMPTY_GRAPH } from '@iss/contracts/graph';
 import type { Hop, MetricSample, Trace } from '@iss/contracts/trace';
@@ -29,7 +36,7 @@ const MIXED_JSONL = [
 
 describe('metric record parsing', () => {
   it('collects metric lines into Trace.metrics with hops/divergences unchanged', () => {
-    const trace = parseTrace(MIXED_JSONL, EMPTY_GRAPH, 8);
+    const trace = parseTrace(withTimebase(MIXED_JSONL), EMPTY_GRAPH, 8);
 
     expect(trace.hops).toHaveLength(2);
     expect(trace.hops[1]).toEqual({
@@ -41,8 +48,8 @@ describe('metric record parsing', () => {
       arrive: 2,
     });
     expect(trace.divergences).toHaveLength(1);
-    expect(trace.cycles).toBe(3);
-    expect(trace.ranCycles).toBe(8);
+    expect(trace.ticks).toBe(3);
+    expect(trace.ranTicks).toBe(8);
 
     expect(trace.metrics).toHaveLength(4);
     expect(trace.metrics![0]).toEqual({
@@ -62,21 +69,21 @@ describe('metric record parsing', () => {
   });
 
   it('tolerates unknown metric names and port-less samples', () => {
-    const trace = parseTrace(MIXED_JSONL, EMPTY_GRAPH);
+    const trace = parseTrace(withTimebase(MIXED_JSONL), EMPTY_GRAPH);
     const future = trace.metrics!.find((m) => m.metric === 'custom-future-metric')!;
     expect(future.value).toBe(9);
     expect(future.port).toBeUndefined();
   });
 
   it('maps divergence kind "drop" to provenance drop', () => {
-    const trace = parseTrace(MIXED_JSONL, EMPTY_GRAPH);
+    const trace = parseTrace(withTimebase(MIXED_JSONL), EMPTY_GRAPH);
     expect(trace.divergences[0].provenance).toBe('drop');
     expect(trace.divergences[0].token).toBe(4);
   });
 
   it('old traces without metric lines parse to an empty metrics list', () => {
     const trace = parseTrace(
-      '{"token":0,"from":"A","to":"B","event":"E","depart":0,"arrive":1}',
+      withTimebase('{"token":0,"from":"A","to":"B","event":"E","depart":0,"arrive":1}'),
       EMPTY_GRAPH,
     );
     expect(trace.hops).toHaveLength(1);
@@ -144,7 +151,7 @@ describe('pathLatencies + histogram', () => {
         hop(2, 'X', 'Y', 0, 1), // never touches the path
       ],
       divergences: [],
-      cycles: 9,
+      ticks: 9,
       source: 'run',
     };
     expect(pathLatencies(tokenTimelines(trace), 'A', 'B')).toEqual([2, 6]);
@@ -172,7 +179,7 @@ describe('metricsSummary + heatStep', () => {
         { metric: 'stall', cycle: 1, component: 'R', port: 'B', value: 3 },
         { metric: 'flow', cycle: 1, component: 'R', port: 'B', value: 1 },
       ],
-      cycles: 3,
+      ticks: 3,
       source: 'run',
     };
     const { links, routers } = metricsSummary(trace);
@@ -188,5 +195,47 @@ describe('metricsSummary + heatStep', () => {
     expect(heatStep(5, 10)).toBe(2);
     expect(heatStep(10, 10)).toBe(4);
     expect(heatStep(3, 0)).toBe(0);
+  });
+});
+
+describe('timebase', () => {
+  const HOP = '{"token":0,"from":"A","to":"B","event":"E","depart":0,"arrive":1}';
+
+  it('refuses a trace that has records but no units', () => {
+    // The failure this prevents is SILENT: every depart/arrive would be read as
+    // a cycle when it is a tick, the playhead would sit near 0 for the whole
+    // run, and nothing would throw. Better to refuse than to guess.
+    expect(() => parseTrace(HOP, EMPTY_GRAPH)).toThrow(/timebase/);
+  });
+
+  it('accepts an empty trace with no units — there is nothing to misread', () => {
+    expect(() => parseTrace('', EMPTY_GRAPH)).not.toThrow();
+  });
+
+  it('carries the declared units through to the Trace', () => {
+    const tb =
+      '{"timebase":{"femtosPerTick":1,"reference":0,"domains":[' +
+      '{"name":"cpu","periodTicks":500000,"phaseTicks":0,"syncDepth":2},' +
+      '{"name":"usb","periodTicks":16666667,"phaseTicks":0,"syncDepth":3}]}}';
+    const trace = parseTrace(`${tb}\n${HOP}`, EMPTY_GRAPH);
+    expect(trace.timebase?.domains).toHaveLength(2);
+    expect(trace.timebase?.domains[1].periodTicks).toBe(16666667);
+    expect(trace.timebase?.domains[1].syncDepth).toBe(3);
+  });
+
+  it('reports ticks as reference-domain cycles', () => {
+    // A real 1 GHz clock at 1 fs/tick: one cycle is 1,000,000 ticks.
+    const tb =
+      '{"timebase":{"femtosPerTick":1,"reference":0,"domains":[' +
+      '{"name":"noc","periodTicks":1000000,"phaseTicks":0,"syncDepth":0}]}}';
+    const hop = '{"token":0,"from":"A","to":"B","event":"E","depart":0,"arrive":3000000}';
+    const trace = parseTrace(`${tb}\n${hop}`, EMPTY_GRAPH);
+
+    // The raw timeline is ticks; a reader thinks in cycles.
+    expect(trace.ticks).toBe(3000001);
+    expect(tickStride(trace)).toBe(1000000);
+    expect(displayCycle(trace, 3000000)).toBe(3);
+    expect(displayCycles(trace)).toBe(4);
+    expect(formatTime(trace, 3000000)).toBe('3.00 ns');
   });
 });

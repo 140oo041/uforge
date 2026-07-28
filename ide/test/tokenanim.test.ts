@@ -25,7 +25,7 @@ const TRACE: Trace = {
     { token: 1, from: 'IF', to: 'DE', event: 'FetchEvent', depart: 1, arrive: 2 },
   ],
   divergences: [],
-  cycles: 8,
+  ticks: 8,
   source: 'run',
 };
 
@@ -100,15 +100,15 @@ describe('undelivered events (clock stopped before arrivals)', () => {
         { token: 1, from: 'IF', to: 'DE', event: 'E', depart: 1, arrive: 2 },
       ],
       divergences: [],
-      cycles: 104,
-      ranCycles: 64,
+      ticks: 104,
+      ranTicks: 64,
       source: 'run',
     };
     expect(undeliveredHops(trace).map((h) => h.token)).toEqual([0]);
     // No engine info (older traces / synthetic) → no warning.
-    expect(undeliveredHops({ ...trace, ranCycles: undefined })).toEqual([]);
+    expect(undeliveredHops({ ...trace, ranTicks: undefined })).toEqual([]);
     // Fully drained run → nothing flagged.
-    expect(undeliveredHops({ ...trace, ranCycles: 104 })).toEqual([]);
+    expect(undeliveredHops({ ...trace, ranTicks: 104 })).toEqual([]);
   });
 });
 

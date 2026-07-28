@@ -7,6 +7,7 @@
 // The standalone desktop app deliberately does NOT use this shell — see
 // app/src/bench.tsx, which composes the same pieces full-bleed.
 
+import { tickStride } from '@iss/contracts/trace';
 import { Canvas } from './canvas';
 import { Palette } from './palette';
 import { Inspector } from './inspector';
@@ -236,17 +237,23 @@ export function App() {
           labels={Object.fromEntries(graph.components.map((c) => [c.id, c.label]))}
           collapsed={panelCollapsed}
           onToggleCollapse={() => setPanelCollapsed((v) => !v)}
-          onPlay={() => setPlaying(trace.cycles > 0)}
+          onPlay={() => setPlaying(trace.ticks > 0)}
           onPause={() => setPlaying(false)}
           onStep={(d) =>
-            setPlayhead((p) => Math.max(0, Math.min(trace.cycles, Math.round(p) + d)))
+            // One step is one REFERENCE CYCLE, not one tick: with a fine
+            // timebase a tick is a fraction of a cycle and stepping by it
+            // would look frozen.
+            setPlayhead((p) => {
+              const stride = tickStride(trace);
+              return Math.max(0, Math.min(trace.ticks, (Math.round(p / stride) + d) * stride));
+            })
           }
           onScrub={setPlayhead}
           onSpeed={setSpeed}
           onPickCell={(block, cycle) => {
             setActiveTab('design');
             setPlaying(false);
-            setPlayhead(cycle);
+            setPlayhead(cycle * tickStride(trace)); // grid columns are cycles
             const comp = graphRef.current.components.find((c) => c.id === block);
             if (comp) setCurrentPath(comp.parent);
             setSelection({ nodes: new Set([block]), wire: null });
@@ -263,8 +270,9 @@ export function App() {
       <StatusBar
         runStatus={runStatus}
         sail={sail}
-        cycles={trace.cycles}
-        ranCycles={trace.ranCycles}
+        ticks={trace.ticks}
+        ranTicks={trace.ranTicks}
+        trace={trace}
         playhead={playhead}
         currentPath={currentPath}
         specName={spec?.name ?? null}

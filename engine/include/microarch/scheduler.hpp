@@ -83,6 +83,11 @@ public:
     const ClockDomain& referenceDomain() const noexcept;
     std::size_t domainCount() const noexcept { return domains_.size(); }
 
+    /// This scheduler's clocks, in the shape the trace records them. Derived
+    /// from the live domains rather than restated by the harness, so the units
+    /// a trace claims cannot drift from the units it was produced with.
+    TimebaseRecord timebase(std::uint64_t femtosPerTick = default_femtos_per_tick) const;
+
     /// Register a component for the settle/evaluate/commit/tick phases, on the
     /// reference domain or on a named one.
     void addClocked(Component& component);

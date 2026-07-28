@@ -55,5 +55,18 @@ export function synthesizeTrace(graph: Graph, opts?: SynthOptions): Trace {
     }
   }
   const cycles = hops.reduce((max, h) => Math.max(max, h.arrive + 1), 0);
-  return { hops, divergences: [], cycles, source: 'synthetic' };
+  // A synthetic preview has no engine behind it. Declare a unit timebase
+  // anyway: every consumer reads `timebase` to convert ticks to cycles, and a
+  // synthetic trace that omitted it would silently divide by the wrong stride.
+  return {
+    hops,
+    divergences: [],
+    timebase: {
+      femtosPerTick: 1,
+      reference: 0,
+      domains: [{ name: 'main', periodTicks: 1, phaseTicks: 0, syncDepth: 0 }],
+    },
+    ticks: cycles,
+    source: 'synthetic',
+  };
 }

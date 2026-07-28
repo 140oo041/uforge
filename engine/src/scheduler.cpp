@@ -108,6 +108,18 @@ void Scheduler::removeClocked(Component& component) {
     }
 }
 
+TimebaseRecord Scheduler::timebase(std::uint64_t femtosPerTick) const {
+    const_cast<Scheduler*>(this)->ensureReference();
+    TimebaseRecord record;
+    record.femtosPerTick = femtosPerTick;
+    record.reference = 0;
+    for (const DomainSlot& slot : domains_)
+        record.domains.push_back(TimebaseRecord::Domain{slot.clock.name(), slot.clock.period(),
+                                                        slot.clock.phase(),
+                                                        slot.clock.syncDepth()});
+    return record;
+}
+
 Tick Scheduler::nextTick() const noexcept {
     Tick next = calendar_.empty() ? tick_max : calendar_.begin()->first;
     for (const DomainSlot& slot : domains_) {

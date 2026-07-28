@@ -89,6 +89,12 @@ export function emitHarness(
   lines.push('    scheduler.setHopSink(trace.hopSink());');
   lines.push('    scheduler.setDivergenceSink(trace.divergenceSink());');
   lines.push('    scheduler.setMetricSink(trace.metricSink());');
+  // FIRST line of the trace, and the reader refuses a trace without it: every
+  // depart/arrive/cycle below is an absolute tick, and a tick means nothing on
+  // its own. Derived from the live scheduler, so the units a trace claims can
+  // never drift from the units it ran with. Any clock-domain declaration must
+  // be emitted ABOVE this line.
+  lines.push('    trace.write(scheduler.timebase());');
   lines.push('');
   if (fabric.routers.length > 0) {
     lines.push('    // Fabric routers — instances of their generated src/<R>.cpp classes');

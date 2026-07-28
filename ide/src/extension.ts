@@ -493,7 +493,7 @@ export function activate(context: vscode.ExtensionContext): void {
           type: 'editError',
           message:
             `⚠ ${undelivered.length} event(s) never delivered — the clock stopped at cycle ` +
-            `${trace.ranCycles} but arrivals extend to ${trace.cycles - 1}. Raise cycles in ` +
+            `${trace.ranTicks} but arrivals extend to ${trace.ticks - 1}. Raise cycles in ` +
             `the run config or shorten wire latencies (see PROBLEMS).`,
         });
       panel.post({ type: 'runlog', status: { phase: 'done' } });

@@ -16,7 +16,13 @@ import * as path from 'path';
 import { spawn } from 'child_process';
 
 import type { Graph } from '@iss/contracts/graph';
-import { undeliveredHops, type Divergence, type Trace } from '@iss/contracts/trace';
+import {
+  displayCycle,
+  displayCycles,
+  undeliveredHops,
+  type Divergence,
+  type Trace,
+} from '@iss/contracts/trace';
 import { isThin, parseTrace } from '../trace/parse';
 import { synthesizeTrace } from '../trace/synthesize';
 import { verilateLeaves, type SvLeafRef } from './verilate';
@@ -147,13 +153,13 @@ export async function simulate(
     log('trace is thin (no hops) — falling back to a synthetic preview');
     return synthesizeTrace(graph);
   }
-  log(`real trace: ${trace.hops.length} hops over ${trace.cycles} cycles`);
+  log(`real trace: ${trace.hops.length} hops over ${displayCycles(trace)} cycles`);
   const undelivered = undeliveredHops(trace);
   if (undelivered.length > 0) {
     const worst = undelivered.reduce((m, h) => Math.max(m, h.arrive), 0);
     log(
       `⚠ ${undelivered.length} event(s) were still in flight when the clock stopped ` +
-        `(engine ran ${trace.ranCycles} cycles; arrivals extend to cycle ${worst}). ` +
+        `(engine ran ${displayCycle(trace, trace.ranTicks ?? 0)} cycles; arrivals extend to cycle ${worst}). ` +
         `They were never delivered — raise cycles in the run config (⚙▾ next to Run) ` +
         `or shorten the wire latencies involved.`,
     );

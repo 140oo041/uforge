@@ -5,6 +5,7 @@
 // produces none.
 
 import { describe, expect, it } from 'vitest';
+import { withTimebase } from './helpers/trace';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
@@ -164,7 +165,7 @@ describe('divergence provenance parsing', () => {
       '{"diverge":true,"cycle":4,"component":"U.Alpha","token":1,"detail":"out.value: sv=2 != cpp=3","kind":"cosim"}',
       '{"diverge":true,"cycle":5,"component":"EX","token":0,"detail":"x5 mismatch"}',
     ].join('\n');
-    const trace = parseTrace(jsonl, EMPTY_GRAPH);
+    const trace = parseTrace(withTimebase(jsonl), EMPTY_GRAPH);
     expect(trace.divergences).toHaveLength(2);
     expect(trace.divergences[0].provenance).toBe('cosim');
     expect(trace.divergences[1].provenance).toBe('architectural');

@@ -2,6 +2,7 @@
 // strip, and status bar. Pure presentational — all state lives in App.
 
 import type { RunStatus, SailStatus } from '@iss/contracts/messaging';
+import { displayCycle, displayCycles, formatTime, type Trace } from '@iss/contracts/trace';
 
 export type EditorTab = 'design' | 'spec' | 'events';
 
@@ -93,16 +94,19 @@ export function TabBar({
 export function StatusBar({
   runStatus,
   sail,
-  cycles,
-  ranCycles,
+  ticks,
+  ranTicks,
+  trace,
   playhead,
   currentPath,
   specName,
 }: {
   runStatus: RunStatus;
   sail: SailStatus | null;
-  cycles: number;
-  ranCycles?: number;
+  /** Timeline length in TICKS. Displayed as reference-domain cycles. */
+  ticks: number;
+  ranTicks?: number;
+  trace: Trace;
   playhead: number;
   currentPath: string | null;
   specName: string | null;
@@ -124,17 +128,20 @@ export function StatusBar({
       )}
       {specName && <span className="sb-item">spec: {specName}</span>}
       <span className="spacer" />
-      {cycles > 0 && (
+      {ticks > 0 && (
         <span
-          className={`sb-item ${ranCycles !== undefined && ranCycles < cycles ? 'sb-warn' : ''}`}
+          className={`sb-item ${ranTicks !== undefined && ranTicks < ticks ? 'sb-warn' : ''}`}
           title={
-            ranCycles !== undefined && ranCycles < cycles
-              ? `engine stopped at cycle ${ranCycles}; arrivals extend to ${cycles - 1} (undelivered — see PROBLEMS)`
+            ranTicks !== undefined && ranTicks < ticks
+              ? `engine stopped at cycle ${displayCycle(trace, ranTicks)}; arrivals extend to ${displayCycles(trace) - 1} (undelivered — see PROBLEMS)`
               : undefined
           }
         >
-          cycle {Math.floor(playhead)} / {cycles}
-          {ranCycles !== undefined && ranCycles < cycles ? ` ⚠ ran ${ranCycles}` : ''}
+          cycle {displayCycle(trace, playhead)} / {displayCycles(trace)}
+          {formatTime(trace, playhead) ? ` · ${formatTime(trace, playhead)}` : ''}
+          {ranTicks !== undefined && ranTicks < ticks
+            ? ` ⚠ ran ${displayCycle(trace, ranTicks)}`
+            : ''}
         </span>
       )}
       <span className="sb-item">{currentPath ? `▸ ${currentPath}` : '▸ design'}</span>

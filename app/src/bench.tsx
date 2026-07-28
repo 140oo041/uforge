@@ -38,6 +38,7 @@ import {
 } from '@iss/canvas';
 import type { ComponentKind } from '@iss/contracts/model';
 
+import { displayCycles, tickStride } from '@iss/contracts/trace';
 import { TEMPLATES } from '@iss/canvas/templates';
 import { SKINS, applySkin, loadSkin, type SkinId } from './skin';
 
@@ -1153,7 +1154,7 @@ function Ledger(props: {
   onToggleTerminal(): void;
 }) {
   const { s, open, onToggle, problemCount, editor, terminal, onToggleTerminal } = props;
-  const cycles = s.trace.cycles;
+  const cycles = displayCycles(s.trace);
 
   return (
     <footer className={`ledger ${open ? 'open' : ''}`}>
@@ -1203,10 +1204,14 @@ function Ledger(props: {
             labels={Object.fromEntries(s.graph.components.map((c) => [c.id, c.label]))}
             collapsed={false}
             onToggleCollapse={onToggle}
-            onPlay={() => s.setPlaying(s.trace.cycles > 0)}
+            onPlay={() => s.setPlaying(s.trace.ticks > 0)}
             onPause={() => s.setPlaying(false)}
             onStep={(d: number) =>
-              s.setPlayhead((p: number) => Math.max(0, Math.min(s.trace.cycles, Math.round(p) + d)))
+              // One step is one reference CYCLE; the playhead is in ticks.
+              s.setPlayhead((p: number) => {
+                const stride = tickStride(s.trace);
+                return Math.max(0, Math.min(s.trace.ticks, (Math.round(p / stride) + d) * stride));
+              })
             }
             onScrub={s.setPlayhead}
             onSpeed={s.setSpeed}

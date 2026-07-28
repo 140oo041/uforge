@@ -31,6 +31,18 @@ std::string jsonString(const std::string& raw) {
     return out;
 }
 
+void JsonlTraceWriter::write(const TimebaseRecord& timebase) {
+    out_ << "{\"timebase\":{\"femtosPerTick\":" << timebase.femtosPerTick
+         << ",\"reference\":" << timebase.reference << ",\"domains\":[";
+    for (std::size_t i = 0; i < timebase.domains.size(); ++i) {
+        const TimebaseRecord::Domain& d = timebase.domains[i];
+        if (i > 0) out_ << ',';
+        out_ << "{\"name\":" << jsonString(d.name) << ",\"periodTicks\":" << d.periodTicks
+             << ",\"phaseTicks\":" << d.phaseTicks << ",\"syncDepth\":" << d.syncDepth << '}';
+    }
+    out_ << "]}}\n";
+}
+
 void JsonlTraceWriter::write(const HopRecord& hop) {
     out_ << "{\"token\":" << hop.token << ",\"from\":" << jsonString(hop.from)
          << ",\"to\":" << jsonString(hop.to) << ",\"event\":" << jsonString(hop.event)

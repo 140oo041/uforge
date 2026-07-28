@@ -305,7 +305,7 @@ describe('e2e: fabric transport', () => {
       expect(drops[0].component).toBe('R0');
       expect(drops[0].detail).toContain('no forwarding rule matched');
       expect(drops[0].detail).toContain('type=Req');
-      expect(gapped.ranCycles ?? 0).toBeGreaterThan(0);
+      expect(gapped.ranTicks ?? 0).toBeGreaterThan(0);
     },
   );
 });

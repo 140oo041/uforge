@@ -197,8 +197,8 @@ describe('canvas webview', () => {
     act(() => {
       (traceTab as HTMLButtonElement).click();
     });
-    expect(container.querySelector('.cycle-badge')?.textContent).toContain(`/ ${trace.cycles}`);
-    expect(container.querySelector('.status-bar')?.textContent).toContain(`/ ${trace.cycles}`);
+    expect(container.querySelector('.cycle-badge')?.textContent).toContain(`/ ${trace.ticks}`);
+    expect(container.querySelector('.status-bar')?.textContent).toContain(`/ ${trace.ticks}`);
   });
 
   it('SPEC tab renders templates, RV32I oracle badges, GPU spec-only, types/signals', () => {
@@ -360,7 +360,7 @@ describe('canvas webview', () => {
     }));
     send({
       type: 'trace',
-      trace: { hops, divergences: [], cycles: 6, source: 'run' as const },
+      trace: { hops, divergences: [], ticks: 6, source: 'run' as const },
     });
     const memNode = [...container.querySelectorAll('.node')].find((n) =>
       n.textContent?.includes('Memory Access'),
@@ -470,7 +470,7 @@ describe('canvas webview', () => {
         ],
         divergences: [],
         metrics: [{ metric: 'qdepth', cycle: 0, component: 'Memory1', port: 'out', value: 2 }],
-        cycles: 4,
+        ticks: 4,
         source: 'run',
       },
     });
@@ -582,7 +582,7 @@ describe('canvas webview', () => {
           { token: 0, from: 'R0', to: 'Memory1', event: 'MemRequest', depart: 2, arrive: 4 },
         ],
         divergences: [],
-        cycles: 5,
+        ticks: 5,
         source: 'synthetic',
       },
     });
@@ -603,8 +603,8 @@ describe('canvas webview', () => {
           { token: 1, from: 'CPU0.MEM', to: 'Memory1', event: 'MemRequest', depart: 53, arrive: 153 },
         ],
         divergences: [],
-        cycles: 154,
-        ranCycles: 64,
+        ticks: 154,
+        ranTicks: 64,
         source: 'run' as const,
       },
     });

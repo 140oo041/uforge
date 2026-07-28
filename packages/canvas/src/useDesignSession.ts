@@ -22,7 +22,7 @@ import {
 import type { HostMsg, LayoutMap, RunStatus, SailStatus } from '@iss/contracts/messaging';
 import { DEFAULT_RUN_CONFIG, type RunConfig } from '@iss/contracts/runConfig';
 import type { SpecDocument } from '@iss/contracts/spec';
-import { EMPTY_TRACE, type Trace } from '@iss/contracts/trace';
+import { EMPTY_TRACE, tickStride, type Trace } from '@iss/contracts/trace';
 import type { WaveDoc } from '@iss/contracts/waves';
 import { autoLayout, entryBlocksOf, levelEdges, snap, visibleComponents } from './layout';
 import type { Selection } from './canvas';
@@ -204,17 +204,19 @@ export function useDesignSession() {
 
   // ---- playback clock ---------------------------------------------------------
   useEffect(() => {
-    if (!playing || trace.cycles === 0) return;
+    if (!playing || trace.ticks === 0) return;
     let raf = 0;
     let last = performance.now();
     const step = (now: number) => {
       const dt = (now - last) / 1000;
       last = now;
       setPlayhead((prev) => {
-        const next = prev + dt * 2.5 * speed;
-        if (next >= trace.cycles) {
+        // 2.5 reference CYCLES per second — the playhead is in ticks, and at a
+        // fine timebase 2.5 ticks/s would look motionless.
+        const next = prev + dt * 2.5 * speed * tickStride(trace);
+        if (next >= trace.ticks) {
           setPlaying(false);
-          return trace.cycles;
+          return trace.ticks;
         }
         return next;
       });
@@ -222,7 +224,7 @@ export function useDesignSession() {
     };
     raf = requestAnimationFrame(step);
     return () => cancelAnimationFrame(raf);
-  }, [playing, speed, trace.cycles]);
+  }, [playing, speed, trace.ticks, trace]);
 
   // ---- edit operations (with undo) ------------------------------------------
   const idTaken = useCallback(
@@ -638,7 +640,7 @@ export function useDesignSession() {
         setSelection({ nodes: new Set(), wire: null });
       } else if (e.key === 'v') setTool('select');
       else if (e.key === 'h') setTool('hand');
-      else if (e.key === ' ') setPlaying((p) => trace.cycles > 0 && !p);
+      else if (e.key === ' ') setPlaying((p) => trace.ticks > 0 && !p);
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -646,7 +648,7 @@ export function useDesignSession() {
     undo,
     redo,
     deleteSelection,
-    trace.cycles,
+    trace.ticks,
     selection.nodes,
     startRename,
     copySelection,
