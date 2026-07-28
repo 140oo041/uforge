@@ -19,6 +19,7 @@ import type {
 } from '@iss/contracts/model';
 import { DEFAULT_BANDWIDTH_BITS, eventBits, formatBits } from '@iss/contracts/bits';
 import { DEFAULT_TRAFFIC, parseAddr } from '@iss/contracts/model';
+import { isTile } from '@iss/contracts/fabric';
 import { availableTypes, type SpecDocument } from '@iss/contracts/spec';
 import type { Authored, UndoEntry } from './app';
 import type { Selection } from './canvas';
@@ -311,7 +312,7 @@ function RulesCard(props: {
   const { comp, graph, onEdit } = props;
   const rules = comp.rules ?? [];
   const dests = graph.components
-    .filter((c) => c.parent === null && c.kind !== 'router')
+    .filter(isTile)
     .sort((a, b) => a.id.localeCompare(b.id));
   const models = comp.latencyModels ?? [];
   const ruleDiagnostics = (graph.diagnostics ?? []).filter((d) => d.router === comp.id);

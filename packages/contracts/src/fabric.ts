@@ -18,6 +18,22 @@ export function topOf(id: string): string {
   return dot < 0 ? id : id.slice(0, dot);
 }
 
+/**
+ * A **tile**: a top-level component that is not a router.
+ *
+ * This is the structural tier the whole fabric rests on — the only thing that
+ * may attach to a router, the only legal destination for a forwarding rule,
+ * and the boundary wires may not cross. Structural rather than nominal, so it
+ * accepts an AuthoredComponent or a GraphComponent alike.
+ *
+ * Callers that need to explain WHY something is not a tile ("is a router" vs
+ * "is nested") should still test the two conditions separately — see
+ * `writer/edits.ts`, where the distinct messages are the point.
+ */
+export function isTile(c: { parent: string | null; kind: string }): boolean {
+  return c.parent === null && c.kind !== 'router';
+}
+
 /** BFS shortest path from router `a` to router `b` over peers. */
 function routerPath(
   byId: Map<string, AuthoredComponent>,
@@ -220,7 +236,7 @@ export function deriveFabric(model: AuthoringModel): FabricDerivation {
         detail: `${routerComp.id} rule ${ruleIndex + 1}: ${detail}`,
       });
       const dest = byId.get(rule.to);
-      if (!dest || dest.parent !== null || dest.kind === 'router') {
+      if (!dest || !isTile(dest)) {
         diagnostics.push(
           at(
             `destination '${rule.to}' ${
@@ -323,7 +339,7 @@ export function deriveFabric(model: AuthoringModel): FabricDerivation {
   for (const routerComp of routers)
     (routerComp.rules ?? []).forEach((rule, ruleIndex) => {
       const dest = byId.get(rule.to);
-      if (!dest || dest.parent !== null || dest.kind === 'router') return;
+      if (!dest || !isTile(dest)) return;
       const fromTops = [
         ...new Set(
           ingress
