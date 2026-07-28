@@ -10,9 +10,16 @@ approved. Stage 0 is the next work. No code has been changed for this effort.
 - **This file** is operational state: what is done, what is next, facts verified
   by reading the code, and the traps found along the way.
 
-> The repo is **not** under git. There is no undo. Back up before destructive
-> edits, and see the `loadModel` data-loss path in Stage 0.1 — it is real and it
-> is the reason Stage 0 exists.
+> **Git was initialized 2026-07-27** (`main`, initial commit `e6389dd`) before
+> any implementation work, so there is a clean baseline to diff and revert
+> against. `.gitignore` now excludes `node_modules/`, all build output,
+> `ide/.vscode-test/`, and Run artifacts (`iss_trace.jsonl`, `*.vcd`); the
+> sidecars (`iss_authored.model.json`, `iss_layout.json`, `iss_run.json`,
+> `iss_spec.json`) **are** tracked — they are design sources.
+>
+> Note this protects *this repo*, not a user's project directory. The
+> `loadModel` data-loss path in Stage 0.1 is still real for projects opened
+> elsewhere, and is still why Stage 0 comes first.
 
 ---
 
