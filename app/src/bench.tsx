@@ -36,32 +36,11 @@ import {
   useDesignSession,
   type HostTransport,
 } from '@iss/canvas';
-import type { ComponentKind, IoDirection } from '@iss/contracts/model';
+import type { ComponentKind } from '@iss/contracts/model';
 
+import { TEMPLATES } from '@iss/canvas/templates';
 import { SKINS, applySkin, loadSkin, type SkinId } from './skin';
 
-/** The block library, as commands rather than as a rail of cards. */
-const TEMPLATES: Array<{
-  prefix: string;
-  label: string;
-  hint: string;
-  glyph: string;
-  kind: ComponentKind;
-  io?: IoDirection;
-  role?: 'trafficgen';
-}> = [
-  { prefix: 'Unit', label: 'Composite', hint: 'a container — CPU, GPU core, DMA engine', glyph: '▣', kind: 'composite' },
-  { prefix: 'R', label: 'Router', hint: 'top level only — fabric switch', glyph: '◈', kind: 'router' },
-  { prefix: 'Gen', label: 'Traffic generator', hint: 'parameterized packet source; no C++ needed', glyph: '⚡', kind: 'leaf', role: 'trafficgen' },
-  { prefix: 'Stage', label: 'Pipeline stage', hint: 'consumes one event, emits the next', glyph: '▭', kind: 'leaf' },
-  { prefix: 'Memory', label: 'Memory', hint: 'loads/stores behind a port', glyph: '▤', kind: 'leaf' },
-  { prefix: 'Buffer', label: 'Buffer / queue', hint: 'decouples producer and consumer', glyph: '☰', kind: 'leaf' },
-  { prefix: 'Control', label: 'Control', hint: 'hazards, stalls, flushes', glyph: '⌘', kind: 'leaf' },
-  { prefix: 'Block', label: 'Generic block', hint: 'a plain component — shape it later', glyph: '▢', kind: 'leaf' },
-  { prefix: 'In', label: 'Input pin', hint: 'receives from outside, forwards inward', glyph: '⇥', kind: 'leaf', io: 'in' },
-  { prefix: 'Out', label: 'Output pin', hint: 'collects from inside, sends outward', glyph: '↦', kind: 'leaf', io: 'out' },
-  { prefix: 'Sink', label: 'Sink', hint: 'terminal consumer (commit, retire)', glyph: '⊥', kind: 'leaf' },
-];
 
 type Session = ReturnType<typeof useDesignSession>;
 type ListTab = 'blocks' | 'problems' | 'events';

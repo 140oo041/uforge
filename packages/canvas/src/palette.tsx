@@ -6,28 +6,8 @@
 import { useState } from 'react';
 
 import type { ComponentKind, IoDirection } from '@iss/contracts/model';
+import { TEMPLATES } from './templates';
 
-const TEMPLATES: Array<{
-  prefix: string;
-  label: string;
-  hint: string;
-  glyph: string;
-  kind: ComponentKind;
-  io?: IoDirection;
-  role?: 'trafficgen';
-}> = [
-  { prefix: 'Unit', label: 'Composite', hint: 'a container — CPU, GPU core, DMA engine, anything', glyph: '▣', kind: 'composite' },
-  { prefix: 'R', label: 'Router', hint: 'top level only — fabric switch; attached components’ traffic rides router-to-router', glyph: '◈', kind: 'router' },
-  { prefix: 'In', label: 'Input pin', hint: 'I/O block: receives from outside, forwards inward — shows on the composite boundary', glyph: '⇥', kind: 'leaf', io: 'in' },
-  { prefix: 'Out', label: 'Output pin', hint: 'I/O block: collects from inside, sends outward — shows on the composite boundary', glyph: '↦', kind: 'leaf', io: 'out' },
-  { prefix: 'Gen', label: 'Traffic generator', hint: 'parameterized packet source — rate, burst, destination pattern; no C++ needed', glyph: '⚡', kind: 'leaf', role: 'trafficgen' },
-  { prefix: 'Block', label: 'Generic block', hint: 'a plain component — shape it later', glyph: '▢', kind: 'leaf' },
-  { prefix: 'Stage', label: 'Pipeline stage', hint: 'consumes one event, emits the next', glyph: '▭', kind: 'leaf' },
-  { prefix: 'Control', label: 'Control', hint: 'hazards, stalls, flushes', glyph: '⌘', kind: 'leaf' },
-  { prefix: 'Memory', label: 'Memory', hint: 'loads/stores behind a port', glyph: '▤', kind: 'leaf' },
-  { prefix: 'Buffer', label: 'Buffer / queue', hint: 'decouples producer and consumer', glyph: '☰', kind: 'leaf' },
-  { prefix: 'Sink', label: 'Sink', hint: 'terminal consumer (commit, retire)', glyph: '⊥', kind: 'leaf' },
-];
 
 export function Palette(props: {
   onAdd(

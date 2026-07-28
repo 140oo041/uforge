@@ -19,6 +19,7 @@ export type { Authored, UndoEntry, DesignSession } from './useDesignSession';
 // The pieces a custom shell arranges.
 export { Canvas, type Selection } from './canvas';
 export { Palette } from './palette';
+export { TEMPLATES, type BlockTemplate } from './templates';
 export { Inspector } from './inspector';
 export { EventsView } from './events-view';
 export { SpecDesigner } from './spec-designer';
