@@ -13,7 +13,7 @@ import * as path from 'path';
 
 import { deriveFabric } from '@iss/contracts/fabric';
 import type { HostMsg, SailStatus, ViewMsg } from '@iss/contracts/messaging';
-import { EMPTY_MODEL, type AuthoringModel, type EditIntent } from '@iss/contracts/model';
+import type { AuthoringModel, EditIntent } from '@iss/contracts/model';
 import type { RunConfig } from '@iss/contracts/runConfig';
 import {
   SPEC_TEMPLATES,
@@ -30,7 +30,8 @@ import {
   collectWaves,
   lintSv,
   loadLayout,
-  loadModel,
+  backupSidecarFor,
+  openModel,
   loadRunConfig,
   loadSpec,
   resolveBlockSource,
@@ -43,6 +44,7 @@ import {
   wavesFileFor,
   writeHarness,
   writeModel,
+  type OpenedModel,
   type RunDeps,
   type SourceLocation,
 } from '@iss/host';
@@ -68,6 +70,9 @@ export class Session {
   private watcher: ProjectWatcher;
   private model: AuthoringModel;
   private lastTrace: Trace | null = null;
+  /** Non-null when the sidecar could not be read; every write is refused. */
+  private blocked: string | null = null;
+  private opened: OpenedModel | null = null;
   private sail: SailStatus;
   private unsubscribe: () => void;
   /** One run at a time — a second ▶ while building must not start a second make. */
@@ -75,7 +80,10 @@ export class Session {
 
   constructor(private opts: SessionOptions) {
     this.projectRoot = opts.projectRoot;
-    this.model = loadModel(opts.projectRoot) ?? EMPTY_MODEL;
+    const opened = openModel(opts.projectRoot);
+    this.model = opened.model;
+    this.blocked = opened.blocked;
+    this.opened = opened;
     this.sail = { available: Boolean(opts.sailCommitrecPath), ref: opts.refModel };
 
     this.store = new GraphStore(opts.projectRoot);
@@ -113,6 +121,11 @@ export class Session {
   }
 
   private applyEdit(intent: EditIntent): void {
+    // A sidecar we could not read must never be overwritten by an edit.
+    if (this.blocked) {
+      this.post({ type: 'editError', message: this.blocked });
+      return;
+    }
     this.model = applyIntent(this.model, intent);
     writeModel(this.projectRoot, this.model, loadSpec(this.projectRoot));
     this.store.reparse();
@@ -120,6 +133,10 @@ export class Session {
 
   /** A spec change re-renders the generated C++ so the code matches the contract. */
   private specChanged(spec: SpecDocument): void {
+    if (this.blocked) {
+      this.post({ type: 'editError', message: this.blocked });
+      return;
+    }
     writeModel(this.projectRoot, this.model, spec);
     this.store.reparse();
     this.post({ type: 'spec', spec });
@@ -158,6 +175,20 @@ export class Session {
         this.post({ type: 'runConfig', config: loadRunConfig(this.projectRoot) });
         this.post({ type: 'sail', status: this.sail });
         if (this.lastTrace) this.post({ type: 'trace', trace: this.lastTrace });
+        // Say it once the view exists to hear it. A blocked or migrated sidecar
+        // is something the user must know before they start editing. Reuses
+        // `editError` deliberately — no new HostMsg variant for this.
+        if (this.blocked) this.post({ type: 'editError', message: this.blocked });
+        else if (this.opened?.migratedFrom !== undefined)
+          this.post({
+            type: 'editError',
+            message:
+              `Design file migrated from schema v${this.opened.migratedFrom} — the original ` +
+              `is kept as ${backupSidecarFor(this.opened.migratedFrom)}.` +
+              (this.opened.notes.length
+                ? ` ${this.opened.notes.map((n) => n.reason).join('; ')}`
+                : ''),
+          });
         break;
 
       case 'select':

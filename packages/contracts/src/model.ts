@@ -186,12 +186,28 @@ export interface AuthoredComponent {
   vars: AuthoredVar[];
 }
 
+/** Sidecar schema version, bumped whenever the on-disk shape changes in a way
+ *  an older build cannot read correctly.
+ *
+ *  Pre-versioned sidecars carry no `schemaVersion` and migrate as version 0.
+ *  A sidecar NEWER than this is refused rather than migrated — see `loadModel`.
+ *  That matters because a sidecar this build cannot read used to be
+ *  indistinguishable from no sidecar at all, and was overwritten on the next
+ *  write. */
+export const SCHEMA_VERSION = 1;
+
 export interface AuthoringModel {
+  /** Absent in pre-versioned sidecars; stamped on every write. */
+  schemaVersion?: number;
   components: AuthoredComponent[];
   events: AuthoredEvent[];
 }
 
-export const EMPTY_MODEL: AuthoringModel = { components: [], events: [] };
+export const EMPTY_MODEL: AuthoringModel = {
+  schemaVersion: SCHEMA_VERSION,
+  components: [],
+  events: [],
+};
 
 export type EditIntent =
   | {

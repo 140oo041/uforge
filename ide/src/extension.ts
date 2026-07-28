@@ -5,7 +5,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
 
-import { EMPTY_MODEL, type AuthoringModel } from '@iss/contracts/model';
+import type { AuthoringModel } from '@iss/contracts/model';
 import type { RunConfig } from '@iss/contracts/runConfig';
 import type { HostMsg, SailStatus, ViewMsg } from '@iss/contracts/messaging';
 import { undeliveredHops } from '@iss/contracts/trace';
@@ -25,7 +25,8 @@ import {
   collectWaves,
   lintSv,
   loadLayout,
-  loadModel,
+  backupSidecarFor,
+  openModel,
   loadRunConfig,
   loadSpec,
   saveLayout,
@@ -254,8 +255,22 @@ export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(store);
 
   // ---- authoring session: model sidecar + code emission -------------------
-  let model: AuthoringModel = loadModel(projectRoot) ?? EMPTY_MODEL;
+  const opened = openModel(projectRoot);
+  let model: AuthoringModel = opened.model;
+  if (opened.blocked) void vscode.window.showErrorMessage(opened.blocked);
+  else if (opened.migratedFrom !== undefined)
+    void vscode.window.showInformationMessage(
+      `Design file migrated from schema v${opened.migratedFrom} — the original is kept as ` +
+        `${backupSidecarFor(opened.migratedFrom)}.` +
+        (opened.notes.length ? ` ${opened.notes.map((n) => n.reason).join('; ')}` : ''),
+    );
+
   const applyEdit = (intent: Parameters<typeof applyIntent>[1]) => {
+    // A sidecar we could not read must never be overwritten by an edit.
+    if (opened.blocked) {
+      void vscode.window.showErrorMessage(opened.blocked);
+      return;
+    }
     model = applyIntent(model, intent);
     writeModel(projectRoot, model, loadSpec(projectRoot));
     store.reparse();

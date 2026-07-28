@@ -22,7 +22,7 @@ import type { SpecDocument } from '@iss/contracts/spec';
 import { applyIntent } from '@iss/host/writer/edits';
 import { emitEventsHeaderBody } from '@iss/host/writer/blockfile';
 import { emitRouterBody } from '@iss/host/writer/routerfile';
-import { loadModel, writeModel, SIDECAR } from '@iss/host/writer/index';
+import { openModel, writeModel, SIDECAR } from '@iss/host/writer/index';
 import { parseProject } from '@iss/host/parser/index';
 import { augmentWithModel } from '@iss/host/project/augment';
 
@@ -158,7 +158,7 @@ describe('legacy sidecars', () => {
         events: [],
       }),
     );
-    const loaded = loadModel(root)!;
+    const loaded = openModel(root).model;
     const r0 = loaded.components.find((c) => c.id === 'R0')!;
     expect(r0.portBandwidthBits).toBe(3 * DEFAULT_EVENT_BITS);
     expect((r0 as { portBandwidth?: number }).portBandwidth).toBeUndefined();

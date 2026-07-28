@@ -11,7 +11,7 @@ import * as path from 'path';
 
 import { EMPTY_MODEL, type AuthoringModel, type EditIntent } from '@iss/contracts/model';
 import { applyIntent } from '@iss/host/writer/edits';
-import { writeModel, writeHarness, loadModel } from '@iss/host/writer/index';
+import { writeModel, writeHarness, openModel } from '@iss/host/writer/index';
 import { BEGIN_MARKER, END_MARKER } from '@iss/host/writer/markers';
 import { parseProject } from '@iss/host/parser/index';
 
@@ -236,7 +236,7 @@ describe('P0 keystone: drawn wires persist through write → reparse', () => {
     const root = tmpProject();
     const model = twelveWireModel();
     writeModel(root, model);
-    const loaded = loadModel(root)!;
+    const loaded = openModel(root).model;
     expect(loaded).toEqual(model);
 
     const snapshot = new Map<string, string>();

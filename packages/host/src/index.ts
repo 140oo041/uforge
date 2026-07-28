@@ -19,7 +19,19 @@ export {
 
 // Writing the design back into them.
 export { applyIntent } from './writer/edits';
-export { SIDECAR, blockFileFor, checkedLeaves, loadModel, writeHarness, writeModel } from './writer';
+export {
+  SIDECAR,
+  backupSidecarFor,
+  blockFileFor,
+  checkedLeaves,
+  loadModel,
+  openModel,
+  writeHarness,
+  writeModel,
+  type LoadResult,
+  type OpenedModel,
+} from './writer';
+export { migrate, versionOf, type MigrateOutcome, type MigrationNote } from './writer/migrate';
 export { svFileFor } from './writer/svtwin';
 export { SV_ADAPTERS_FILE, svLeavesOf } from './writer/svadapter';
 

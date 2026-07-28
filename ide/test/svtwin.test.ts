@@ -10,7 +10,7 @@ import * as path from 'path';
 import { EMPTY_MODEL, type EditIntent } from '@iss/contracts/model';
 import type { SpecDocument } from '@iss/contracts/spec';
 import { applyIntent } from '@iss/host/writer/edits';
-import { loadModel, writeModel } from '@iss/host/writer/index';
+import { openModel, writeModel } from '@iss/host/writer/index';
 import { emitSvTwinBody, svType } from '@iss/host/writer/svtwin';
 import { parseProject } from '@iss/host/parser/index';
 
@@ -127,7 +127,7 @@ describe('SV twin emission', () => {
     const root = tmp();
     const m = applyIntent(model(), { kind: 'setImpl', id: 'Sys.IF', impl: 'sv' });
     writeModel(root, m, SPEC);
-    expect(loadModel(root)!.components.find((c) => c.id === 'Sys.IF')?.impl).toBe('sv');
+    expect(openModel(root).model.components.find((c) => c.id === 'Sys.IF')?.impl).toBe('sv');
     // Back to cpp drops the field entirely (default).
     const m2 = applyIntent(m, { kind: 'setImpl', id: 'Sys.IF', impl: 'cpp' });
     expect(m2.components.find((c) => c.id === 'Sys.IF')?.impl).toBeUndefined();

@@ -6,8 +6,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { DEFAULT_EVENT_BITS } from '@iss/contracts/bits';
-import { leafName, type AuthoringModel } from '@iss/contracts/model';
+import { EMPTY_MODEL, SCHEMA_VERSION, leafName, type AuthoringModel } from '@iss/contracts/model';
 import type { RunConfig } from '@iss/contracts/runConfig';
 import type { SpecDocument } from '@iss/contracts/spec';
 import {
@@ -19,6 +18,7 @@ import {
   emitEventsHeaderBody,
 } from './blockfile';
 import { BEGIN_MARKER, END_MARKER, spliceRegion } from './markers';
+import { migrate, type MigrationNote } from './migrate';
 import { HARNESS_FILE, emitHarness } from './harness';
 import { ROUTER_PROLOGUE, emitRouterBody, routerFileFor, routerTailFor } from './routerfile';
 import {
@@ -209,10 +209,63 @@ export function writeModel(
     if (text.includes(BEGIN_MARKER)) fs.unlinkSync(file);
   }
 
+  // Always stamp the version, so a file written by this build is never
+  // mistaken for a pre-versioned one on the next load.
   const sidecar = path.join(projectRoot, SIDECAR);
-  fs.writeFileSync(sidecar, JSON.stringify(model, null, 2) + '\n');
+  const stamped: AuthoringModel = { ...model, schemaVersion: SCHEMA_VERSION };
+  fs.writeFileSync(sidecar, JSON.stringify(stamped, null, 2) + '\n');
   written.push(sidecar);
   return written;
+}
+
+export interface OpenedModel {
+  model: AuthoringModel;
+  /** Non-null when the sidecar could not be used. Edits MUST be refused and
+   *  this message shown — writing would destroy a design we cannot represent. */
+  blocked: string | null;
+  /** Non-empty when loading migrated the file forward. */
+  notes: MigrationNote[];
+  migratedFrom?: number;
+}
+
+/**
+ * Open a project's model for editing, resolving all four load outcomes into the
+ * shape a host actually needs. Both hosts call THIS rather than `loadModel`
+ * directly, so a blocked project behaves identically in the extension and the
+ * desktop app instead of drifting.
+ */
+export function openModel(projectRoot: string): OpenedModel {
+  const result = loadModel(projectRoot);
+  if (result.ok)
+    return {
+      model: result.model,
+      blocked: null,
+      notes: result.notes ?? [],
+      migratedFrom: result.migratedFrom,
+    };
+
+  switch (result.reason) {
+    case 'absent':
+      // A new project. Normal, and the only case that may safely be written.
+      return { model: EMPTY_MODEL, blocked: null, notes: [] };
+    case 'newer':
+      return {
+        model: EMPTY_MODEL,
+        blocked:
+          `${SIDECAR} was written by a newer version of ISS (schema v${result.version}; ` +
+          `this build reads v${SCHEMA_VERSION}). Editing is disabled so your design is ` +
+          `not overwritten — update ISS to open this project.`,
+        notes: [],
+      };
+    case 'corrupt':
+      return {
+        model: EMPTY_MODEL,
+        blocked:
+          `${SIDECAR} could not be read (${result.detail}). Editing is disabled so it is ` +
+          `not overwritten. Repair or remove the file to continue.`,
+        notes: [],
+      };
+  }
 }
 
 /** Effective divergence-checked set: the run-config master switch covers all
@@ -258,42 +311,51 @@ export function writeHarness(
   return file;
 }
 
-export function loadModel(projectRoot: string): AuthoringModel | null {
+/** Where the pre-migration copy of a sidecar is parked. */
+export function backupSidecarFor(version: number): string {
+  return `iss_authored.model.v${version}.json.bak`;
+}
+
+export type LoadResult =
+  | { ok: true; model: AuthoringModel; migratedFrom?: number; notes?: MigrationNote[] }
+  | { ok: false; reason: 'absent' }
+  | { ok: false; reason: 'newer'; version: number }
+  | { ok: false; reason: 'corrupt'; detail: string };
+
+/**
+ * Read the sidecar, migrating it forward if it predates this build.
+ *
+ * The four outcomes are deliberately distinct. This function used to return
+ * `null` for BOTH "no sidecar" and "sidecar I cannot parse", and both callers
+ * collapsed that to `EMPTY_MODEL` — so a file this build could not read looked
+ * exactly like a fresh project and was destroyed by the next `writeModel`.
+ * A caller that receives `newer` or `corrupt` MUST NOT write.
+ *
+ * Migrating writes a one-time `.bak` of the original before returning, so the
+ * pre-migration file survives even if the migration itself is wrong.
+ */
+export function loadModel(projectRoot: string): LoadResult {
   const file = path.join(projectRoot, SIDECAR);
-  if (!fs.existsSync(file)) return null;
+  if (!fs.existsSync(file)) return { ok: false, reason: 'absent' };
+
+  let text: string;
+  let raw: unknown;
   try {
-    const raw = JSON.parse(fs.readFileSync(file, 'utf8')) as AuthoringModel;
-    if (!Array.isArray(raw.components) || !Array.isArray(raw.events)) return null;
-    // Older sidecars predate hierarchy/vars — normalize in place.
-    for (const c of raw.components) {
-      c.kind = c.kind ?? 'leaf';
-      c.parent = c.parent ?? (c.id.includes('.') ? c.id.slice(0, c.id.lastIndexOf('.')) : null);
-      c.vars = c.vars ?? [];
-      // Older sidecars stored a single router per component; a component may
-      // now attach to several, so fabric is a list.
-      if (typeof (c as { fabric?: unknown }).fabric === 'string')
-        c.fabric = [(c as unknown as { fabric: string }).fabric];
-      // Bandwidth used to be counted in packets per port per cycle. It is now
-      // bits, so an old number cannot simply be reinterpreted — 3 packets/cy
-      // is not 3 bits/cy. Convert at the only rate the old model implied: it
-      // treated every packet as costing the same, so one packet is one
-      // default-width word.
-      const legacy = (c as { portBandwidth?: unknown }).portBandwidth;
-      if (typeof legacy === 'number' && c.portBandwidthBits === undefined) {
-        c.portBandwidthBits = legacy * DEFAULT_EVENT_BITS;
-        delete (c as { portBandwidth?: unknown }).portBandwidth;
-      }
-      // Legacy spec-driven IO.* leaves become I/O pin blocks (direction
-      // inferred from their shape); behavior is unchanged — `io` is display-only.
-      if (c.io === undefined && c.kind === 'leaf' && c.id.startsWith('IO.')) {
-        const outs = c.outPorts?.length ?? 0;
-        const ins = c.consumes?.length ?? 0;
-        if (outs > 0 && ins === 0) c.io = 'in';
-        else if (ins > 0 && outs === 0) c.io = 'out';
-      }
-    }
-    return raw;
-  } catch {
-    return null;
+    text = fs.readFileSync(file, 'utf8');
+    raw = JSON.parse(text);
+  } catch (err) {
+    return { ok: false, reason: 'corrupt', detail: (err as Error).message };
   }
+
+  const outcome = migrate(raw);
+  if (!outcome.ok) return outcome;
+
+  if (outcome.from < SCHEMA_VERSION) {
+    // Keep the original exactly as it was found — write once, never clobber an
+    // existing backup (a second load must not overwrite the true original).
+    const backup = path.join(projectRoot, backupSidecarFor(outcome.from));
+    if (!fs.existsSync(backup)) fs.writeFileSync(backup, text);
+    return { ok: true, model: outcome.model, migratedFrom: outcome.from, notes: outcome.notes };
+  }
+  return { ok: true, model: outcome.model };
 }

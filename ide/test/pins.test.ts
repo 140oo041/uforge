@@ -8,7 +8,7 @@ import * as path from 'path';
 
 import { EMPTY_MODEL, type EditIntent } from '@iss/contracts/model';
 import { applyIntent } from '@iss/host/writer/edits';
-import { loadModel, writeModel } from '@iss/host/writer/index';
+import { SIDECAR, openModel, writeModel } from '@iss/host/writer/index';
 import { parseProject } from '@iss/host/parser/index';
 import { augmentWithModel } from '@iss/host/project/augment';
 import {
@@ -54,7 +54,7 @@ describe('I/O pin blocks', () => {
     const model = pinModel();
     writeModel(root, model);
 
-    const reloaded = loadModel(root)!;
+    const reloaded = openModel(root).model;
     expect(reloaded.components.find((c) => c.id === 'Unit1.req')?.io).toBe('in');
     expect(reloaded.components.find((c) => c.id === 'Unit1.resp')?.io).toBe('out');
     expect(reloaded.components.find((c) => c.id === 'Unit1.Stage1')?.io).toBeUndefined();
@@ -86,9 +86,33 @@ describe('I/O pin blocks', () => {
       { kind: 'addWire', from: 'IO.irq', port: 'out_irq', message: 'IrqEvent', latency: 1 },
     ];
     writeModel(root, intents.reduce(applyIntent, EMPTY_MODEL));
-    // Simulate a legacy sidecar (no io field): loadModel infers 'in'.
-    const reloaded = loadModel(root)!;
+
+    // Make the sidecar genuinely legacy. `writeModel` stamps the current
+    // schemaVersion, and the IO.* inference is a v0→v1 migration rung — so it
+    // must NOT fire on a file this build just wrote, only on a pre-versioned
+    // one. Stripping the stamp is what actually reproduces the old format.
+    const file = path.join(root, SIDECAR);
+    const raw = JSON.parse(fs.readFileSync(file, 'utf8')) as Record<string, unknown>;
+    delete raw.schemaVersion;
+    fs.writeFileSync(file, JSON.stringify(raw, null, 2));
+
+    const reloaded = openModel(root).model;
     expect(reloaded.components.find((c) => c.id === 'IO.irq')?.io).toBe('in');
+  });
+
+  it('does not re-infer io on a current sidecar', () => {
+    // The inference is a migration, not a load-time normalization. Running it
+    // on every load meant a modern file could have `io` invented for it.
+    const root = tmp();
+    const intents: EditIntent[] = [
+      { kind: 'addComponent', id: 'IO', nodeKind: 'composite' },
+      { kind: 'addComponent', id: 'IO.irq' },
+      { kind: 'addEvent', id: 'IrqEvent' },
+      { kind: 'addWire', from: 'IO.irq', port: 'out_irq', message: 'IrqEvent', latency: 1 },
+    ];
+    writeModel(root, intents.reduce(applyIntent, EMPTY_MODEL));
+    const reloaded = openModel(root).model;
+    expect(reloaded.components.find((c) => c.id === 'IO.irq')?.io).toBeUndefined();
   });
 
   it('composite pin rows drive node height and boundary anchors', () => {
