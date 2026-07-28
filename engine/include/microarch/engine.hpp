@@ -7,4 +7,5 @@
 #include "microarch/registry.hpp"
 #include "microarch/router.hpp"
 #include "microarch/scheduler.hpp"
+#include "microarch/time.hpp"
 #include "microarch/trace.hpp"

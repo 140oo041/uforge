@@ -7,6 +7,7 @@
 #include <csignal>
 #include <cstdio>
 #include <cstdlib>
+#include <stdexcept>
 #include <iostream>
 #include <memory>
 #include <sstream>
@@ -918,6 +919,99 @@ void legacyAddEventSurface() {
     assert(sink.values == std::vector<int>{3});
 }
 
+/* ---------------------------------------------------------------- clock domains */
+
+void periodDerivationRoundsAndReportsError() {
+    // 1 GHz at 1 fs/tick is exact: 1e9 fs.
+    const PeriodFit ghz = periodTicksFor(1000.0);
+    assert(ghz.ticks == 1000000);
+    assert(ghz.relativeError == 0.0);
+
+    // 2 GHz is exact too.
+    assert(periodTicksFor(2000.0).ticks == 500000);
+
+    // 60 MHz is 16.666... ns — a repeating decimal in ANY decimal timebase, so
+    // it must round. What matters is that the error is reported, not hidden.
+    const PeriodFit usb = periodTicksFor(60.0);
+    assert(usb.ticks == 16666667);
+    assert(usb.relativeError > 0.0);
+    assert(usb.relativeError < 1e-7);
+}
+
+void domainEdgesAndCycleConversion() {
+    const ClockDomain noc("noc", 1000, 0, 2);
+
+    assert(noc.isEdge(0));
+    assert(noc.isEdge(3000));
+    assert(!noc.isEdge(1500));
+
+    // edgeAtOrAfter is inclusive; edgeAfter is strict. The scheduler needs the
+    // strict one or it would never advance off an edge it is standing on.
+    assert(noc.edgeAtOrAfter(0) == 0);
+    assert(noc.edgeAtOrAfter(1) == 1000);
+    assert(noc.edgeAtOrAfter(1000) == 1000);
+    assert(noc.edgeAfter(1000) == 2000);
+    assert(noc.edgeAfter(1) == 1000);
+
+    assert(noc.cycleOf(0) == DomainCycle{0});
+    assert(noc.cycleOf(999) == DomainCycle{0});
+    assert(noc.cycleOf(1000) == DomainCycle{1});
+    assert(noc.tickOfCycle(DomainCycle{3}) == 3000);
+
+    // The one sanctioned Tick <- DomainCycle conversion.
+    assert(noc.advance(2000, DomainCycle{3}) == 5000);
+    assert(noc.advance(2000, DomainCycle{0}) == 2000);
+}
+
+void domainPhaseShiftsEveryEdge() {
+    const ClockDomain shifted("shifted", 1000, 250);
+    assert(shifted.isEdge(250));
+    assert(!shifted.isEdge(0));
+    assert(shifted.edgeAtOrAfter(0) == 250);
+    assert(shifted.edgeAtOrAfter(251) == 1250);
+    assert(shifted.cycleOf(1249) == DomainCycle{0});
+    assert(shifted.cycleOf(1250) == DomainCycle{1});
+
+    // A phase past one period is the same clock renumbered, so it folds.
+    const ClockDomain folded("folded", 1000, 3250);
+    assert(folded.phase() == 250);
+}
+
+void crossingIntoASlowDomainSnapsToItsEdge() {
+    // The whole point of clock domains: a fast sender cannot hand a packet to a
+    // slow receiver between the receiver's edges. CDC latency is not modelled
+    // separately — it falls out of edge alignment plus the synchronizer.
+    const ClockDomain slow("usb", 16666667, 0, 2);
+    const Tick sent = 1;                        // just after the slow domain's edge 0
+    const Tick arrive = slow.crossInto(sent);
+    assert(arrive == 16666667 + 2 * 16666667);  // next edge, then syncDepth periods
+
+    // Landing exactly on an edge does not cost an extra period.
+    assert(slow.crossInto(16666667) == 16666667 + 2 * 16666667);
+
+    // Into a fast domain the snap is nearly free.
+    const ClockDomain fast("cpu", 500000, 0, 2);
+    assert(fast.crossInto(1) == 500000 + 2 * 500000);
+}
+
+void domainRejectsNonsense() {
+    bool threw = false;
+    try {
+        ClockDomain bad("bad", 0);
+    } catch (const std::invalid_argument&) {
+        threw = true;
+    }
+    assert(threw);
+
+    threw = false;
+    try {
+        periodTicksFor(0.0);
+    } catch (const std::invalid_argument&) {
+        threw = true;
+    }
+    assert(threw);
+}
+
 /* -------------------------------------------------------------------------
  * The registry. main() used to hand-list every case AND hand-count them in the
  * summary line, so adding a test meant remembering both — and forgetting the
@@ -967,6 +1061,11 @@ const TestCase kTests[] = {
     {"routerUnmatchedPacketDropsAndReports", routerUnmatchedPacketDropsAndReports},
     {"routerRuleStampedDestRidesHopsAndLatencyModels", routerRuleStampedDestRidesHopsAndLatencyModels},
     {"legacyAddEventSurface", legacyAddEventSurface},
+    {"periodDerivationRoundsAndReportsError", periodDerivationRoundsAndReportsError},
+    {"domainEdgesAndCycleConversion", domainEdgesAndCycleConversion},
+    {"domainPhaseShiftsEveryEdge", domainPhaseShiftsEveryEdge},
+    {"crossingIntoASlowDomainSnapsToItsEdge", crossingIntoASlowDomainSnapsToItsEdge},
+    {"domainRejectsNonsense", domainRejectsNonsense},
 };
 
 /* An assert aborts, so the name of the case that died is otherwise lost among

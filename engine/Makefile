@@ -5,7 +5,7 @@ CXX      ?= g++
 CXXFLAGS ?= -std=c++17 -O2 -Wall -Wextra -Iinclude -MMD -MP
 BUILD    := build
 
-SRCS := src/scheduler.cpp src/link.cpp src/router.cpp src/trace.cpp
+SRCS := src/scheduler.cpp src/link.cpp src/router.cpp src/trace.cpp src/time.cpp
 OBJS := $(SRCS:src/%.cpp=$(BUILD)/%.o)
 DEPS := $(OBJS:.o=.d) $(BUILD)/pipeline.d $(BUILD)/engine_tests.d
 
